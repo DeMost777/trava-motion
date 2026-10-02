@@ -9,3 +9,4 @@
 | [0002](0002-language-policy.md) | Языки: RU для людей, EN для skills, spec и агента | утверждено | 2026-10-02 |
 | [0003](0003-claude-code-local.md) | Claude Code локально | утверждено | 2026-10-02 |
 | [0004](0004-gsap-official-skills.md) | SVG + GSAP + JS, официальные GSAP skills | утверждено | 2026-10-02 |
+| [0005](0005-ai-environment-principles.md) | Структура, флоу, принципы AI-среды | утверждено | 2026-10-02 |

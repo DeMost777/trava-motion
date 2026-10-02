@@ -15,13 +15,13 @@
 
 | ID | Задача | Результат | Готово, когда | |
 |---|---|---|---|---|
-| 0.1 | Структура, концепция, бэклог, архитектура и флоу | README, CLAUDE.md, BACKLOG.md, `docs/architecture.md`, `docs/pipeline.md` | структура, флоу и бэклог утверждены | ✋ 🟡 |
+| 0.1 | Структура, концепция, бэклог, архитектура и флоу | README, CLAUDE.md, BACKLOG.md, `docs/architecture.md`, `docs/pipeline.md` | структура, флоу и бэклог утверждены | ✅ [ADR 0005](docs/decisions/0005-ai-environment-principles.md) |
 | 0.2 | Доступ Claude к GitHub-репозиторию | работает push | ветка запушена | ✅ |
 | 0.3 | Доступ к Figma | доступ к файлам с иллюстрациями | Claude видит фрейм Queue Manager | ⛔ Q2 |
 | 0.4 | Формат бэклога | BACKLOG.md ([ADR 0001](docs/decisions/0001-backlog-in-markdown.md)) | решение записано | ✅ |
 | 0.5 | Языки документации, skills, spec | [ADR 0002](docs/decisions/0002-language-policy.md) | решение записано | ✅ |
-| 0.6 | Принципы AI-среды по документации Anthropic | `docs/ai-environment.md` | утверждено, записано в ADR | ✋ 🟡 |
-| 0.7 | Документация GSAP для агента | официальные GSAP skills в `.claude/skills/` ([ADR 0004](docs/decisions/0004-gsap-official-skills.md), `docs/reference/gsap.md`) | в локальной сессии `/skills` показывает `gsap-*` | 🟡 проверка на вашей стороне |
+| 0.6 | Принципы AI-среды по документации Anthropic | `docs/ai-environment.md` | утверждено, записано в ADR | ✅ [ADR 0005](docs/decisions/0005-ai-environment-principles.md) |
+| 0.7 | Документация GSAP для агента | официальные GSAP skills в `.claude/skills/` ([ADR 0004](docs/decisions/0004-gsap-official-skills.md), `docs/reference/gsap.md`) | в локальной сессии `/skills` показывает `gsap-*` | ✅ skills подхватываются Claude Code |
 
 ## Фаза 1 — Аудит иллюстраций и принципы движения
 Цель: понять материал и утвердить motion language **до** кода.
@@ -30,7 +30,7 @@
 |---|---|---|---|---|
 | 1.1 | Аудит всех иллюстраций в Figma | таблица: иллюстрация → элементы → повторяющиеся паттерны движения | вместе прошли таблицу | ✋ ⬜ |
 | 1.2 | Сбор референсов движения | 5–10 примеров «нравится / не нравится» с комментариями | подборка обсуждена | ⬜ |
-| 1.3 | Motion principles | интервью (Claude задаёт вопросы через AskUserQuestion) → `motion/principles.md`: характер, длительность, запуск, повтор, idle, табы, mobile, reduced motion (Q4–Q10) | утверждено, записано в ADR | ✋ ⬜ |
+| 1.3 | Motion principles | интервью (Claude задаёт вопросы через AskUserQuestion) → `motion/principles.md`: характер, длительность, запуск, повтор, idle, табы, mobile, reduced motion (Q4–Q10) | утверждено, записано в ADR | ✋ 🟡 |
 | 1.4 | Motion tokens v0 | `motion/tokens` с обоснованием каждого значения | утверждено после просмотра демо (1.5) | ✋ ⬜ |
 | 1.5 | Демо-стенд токенов | одна простая HTML-страница: те же объекты с разными easing и длительностями рядом | по нему выбрали значения для 1.4 | ⬜ |
 | 1.6 | Соглашение об именовании слоёв в Figma | правило именования анимируемых слоёв, согласованное с дизайнером | утверждено обеими сторонами | ✋ ⬜ |
