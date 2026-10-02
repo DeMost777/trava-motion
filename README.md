@@ -27,6 +27,7 @@ Figma → SVG → подготовка SVG → Motion Spec → GSAP → Preview 
 |---|---|
 | [docs/concept.md](docs/concept.md) | концепция и цели проекта (исходный бриф) |
 | [docs/pipeline.md](docs/pipeline.md) | этапы pipeline: вход, выход, как проверяем |
+| [docs/ai-environment.md](docs/ai-environment.md) | как строим AI-среду по рекомендациям Anthropic |
 | [BACKLOG.md](BACKLOG.md) | фазы и задачи |
 | [docs/decisions/](docs/decisions/) | журнал утверждённых решений (ADR) |
 | [docs/open-questions.md](docs/open-questions.md) | вопросы, которые нужно решить |
@@ -34,7 +35,8 @@ Figma → SVG → подготовка SVG → Motion Spec → GSAP → Preview 
 ## Структура репозитория
 
 Папки созданы заранее. Каждая заполняется в своей фазе, а до тех пор в ней лежит только README
-с описанием назначения.
+с описанием назначения. Расположение skills и agents задано Claude Code (`.claude/`),
+см. [docs/ai-environment.md](docs/ai-environment.md).
 
 | Папка | Назначение | Фаза |
 |---|---|---|
@@ -45,5 +47,5 @@ Figma → SVG → подготовка SVG → Motion Spec → GSAP → Preview 
 | `preview/` | локальная среда просмотра | 7 |
 | `qa/` | проверки качества | 9 |
 | `exports/webflow/` | то, что уходит в Webflow | 10 |
-| `skills/` | знания для AI, записанные из проверенного опыта | 12 |
-| `agents/` | orchestrator / builder | 12 |
+| `.claude/skills/` | skills для AI, записываются по проверенному опыту (создаётся, когда появится первый skill) | по мере фаз |
+| `.claude/agents/` | subagents, только если нужна изоляция | 12 |
