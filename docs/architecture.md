@@ -8,7 +8,7 @@
 ```
  ┌─ Знания и правила ──────────────────────────────────────────────┐
  │ CLAUDE.md · docs/ (концепция, pipeline, решения) · motion/       │
- │ (принципы, токены)                                               │
+ │ (принципы) · tokens/ (design из Figma + motion)                  │
  ├─ AI-слой (Claude Code, локально) ────────────────────────────────┤
  │ Orchestrator (skill-workflow) → Builder → Skills                 │
  │ Skills: GSAP (официальные) + Trava (наши)                        │
@@ -36,6 +36,7 @@ trava-motion/
 │   ├── ai-environment.md         ✅ принципы AI-среды (Anthropic)
 │   ├── open-questions.md         ✅
 │   ├── decisions/                ✅ ADR
+│   ├── figma-sources.md          ✅ ссылки на Figma (заполняет команда)
 │   └── reference/gsap.md         ✅ откуда GSAP skills и как обновлять
 ├── .claude/
 │   ├── skills/
@@ -50,8 +51,10 @@ trava-motion/
 │   ├── agents/                   ⬜ фаза 12, если нужна изоляция (Builder / reviewer)
 │   └── settings.json             ⬜ permissions и hooks — когда появятся команды (фаза 4+)
 ├── motion/
-│   ├── principles.md             ⬜ фаза 1
-│   └── tokens.*                  ⬜ фаза 1
+│   └── principles.md             ✅ принципы движения (ADR 0006)
+├── tokens/                       ⬜ формат — задача 1.8
+│   ├── design tokens             ⬜ 1.9 (цвета, эффекты, скругления из Figma)
+│   └── motion tokens             ⬜ 1.4 (длительности, easing, stagger)
 ├── src/
 │   ├── primitives/               ⬜ фаза 5
 │   └── runtime/                  ⬜ фаза 6

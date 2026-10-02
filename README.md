@@ -12,7 +12,7 @@ Figma → SVG → подготовка SVG → Motion Spec → GSAP → Preview 
 
 🟡 **Фаза 0: фундамент.** Есть структура репозитория, концепция и бэклог.
 Утверждено: бэклог в Markdown, языки, локальный Claude Code, SVG + GSAP + JS (см. ADR).
-Принципы анимации и motion tokens **ещё не утверждены**.
+Принципы движения утверждены (ADR 0006). Система токенов (design + motion) **ещё не создана**.
 
 ## Как мы работаем
 
@@ -29,6 +29,7 @@ Figma → SVG → подготовка SVG → Motion Spec → GSAP → Preview 
 | [docs/concept.md](docs/concept.md) | концепция и цели проекта (исходный бриф) |
 | [docs/pipeline.md](docs/pipeline.md) | рабочий флоу одной анимации (из исходного описания) |
 | [docs/architecture.md](docs/architecture.md) | слои среды и целевое дерево репозитория |
+| [docs/figma-sources.md](docs/figma-sources.md) | ссылки на макеты и стили в Figma |
 | [docs/reference/gsap.md](docs/reference/gsap.md) | GSAP: установленные skills и документация |
 | [docs/ai-environment.md](docs/ai-environment.md) | как строим AI-среду по рекомендациям Anthropic |
 | [BACKLOG.md](BACKLOG.md) | фазы и задачи |
@@ -44,7 +45,8 @@ Figma → SVG → подготовка SVG → Motion Spec → GSAP → Preview 
 | Папка | Назначение | Фаза |
 |---|---|---|
 | `docs/` | концепция, pipeline, решения, вопросы | 0 → постоянно |
-| `motion/` | принципы движения и motion tokens | 1 |
+| `motion/` | принципы движения | 1 ✅ |
+| `tokens/` | система токенов: design (из Figma) + motion | 1 |
 | `animations/` | по одному пакету на иллюстрацию | 2, 8 |
 | `src/` | primitives и runtime | 5, 6 |
 | `preview/` | локальная среда просмотра | 7 |
