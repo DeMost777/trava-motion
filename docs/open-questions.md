@@ -20,9 +20,9 @@
 - [ ] Q11. Как GSAP подключается на сайте: встроенный GSAP Webflow, CDN или наш бандл?
 - [ ] Q12. Где хостится JS-файл runtime для Webflow?
 - [ ] Q13. Текст в иллюстрациях: outline в Figma или живой текст со шрифтом сайта?
-- [ ] Q14. Язык документации и skills: русский, английский или смешанный?
+- [x] Q14. Язык → [ADR 0002](decisions/0002-language-policy.md).
 
 ## Процесс
-- [ ] Q15. Бэклог: оставить в BACKLOG.md или перенести в GitHub Issues/Project после появления доступа?
+- [x] Q15. Бэклог → BACKLOG.md, [ADR 0001](decisions/0001-backlog-in-markdown.md).
 - [ ] Q16. Кто утверждает анимацию со стороны дизайна?
-- [ ] Q17. Где команда запускает Claude Code: локально (CLI/десктоп), в облаке (claude.ai/code) или и там и там? От этого зависят hooks, settings и SessionStart.
+- [x] Q17. Claude Code локально → [ADR 0003](decisions/0003-claude-code-local.md).

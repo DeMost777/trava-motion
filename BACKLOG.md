@@ -15,12 +15,13 @@
 
 | ID | Задача | Результат | Готово, когда | |
 |---|---|---|---|---|
-| 0.1 | Структура репозитория, концепция, бэклог | README, CLAUDE.md, docs/, BACKLOG.md, папки с README | структура и бэклог утверждены | ✋ 🟡 |
+| 0.1 | Структура, концепция, бэклог, архитектура и флоу | README, CLAUDE.md, BACKLOG.md, `docs/architecture.md`, `docs/pipeline.md` | структура, флоу и бэклог утверждены | ✋ 🟡 |
 | 0.2 | Доступ Claude к GitHub-репозиторию | работает push | ветка запушена | ✅ |
 | 0.3 | Доступ к Figma | доступ к файлам с иллюстрациями | Claude видит фрейм Queue Manager | ⛔ Q2 |
-| 0.4 | Формат бэклога | решение: BACKLOG.md или GitHub Issues | решение записано | ✋ ⬜ Q15 |
-| 0.5 | Язык документации | решение | решение записано | ✋ ⬜ Q14 |
+| 0.4 | Формат бэклога | BACKLOG.md ([ADR 0001](docs/decisions/0001-backlog-in-markdown.md)) | решение записано | ✅ |
+| 0.5 | Языки документации, skills, spec | [ADR 0002](docs/decisions/0002-language-policy.md) | решение записано | ✅ |
 | 0.6 | Принципы AI-среды по документации Anthropic | `docs/ai-environment.md` | утверждено, записано в ADR | ✋ 🟡 |
+| 0.7 | Документация GSAP для агента | официальные GSAP skills в `.claude/skills/` ([ADR 0004](docs/decisions/0004-gsap-official-skills.md), `docs/reference/gsap.md`) | в локальной сессии `/skills` показывает `gsap-*` | 🟡 проверка на вашей стороне |
 
 ## Фаза 1 — Аудит иллюстраций и принципы движения
 Цель: понять материал и утвердить motion language **до** кода.

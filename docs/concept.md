@@ -1,7 +1,6 @@
 # Концепция
 
 > Сжатая версия исходного брифа. Если она расходится с брифом, прав бриф.
-> Пункты, отмеченные *(гипотеза)*, ещё не утверждены (см. open-questions.md).
 
 ## Цель
 Создать не набор отдельных анимаций, а **среду производства** анимаций: берём утверждённую
@@ -20,7 +19,7 @@ Client Interaction, Virtual Payments, Fare Optimizer, Unused Tickets). Аним�
 2. **SVG** — исходник для анимации: независимые элементы, геометрия как в Figma.
 3. **Motion Specification** — структурированное описание поведения между словами и кодом.
 4. **Motion Tokens + Primitives** — единый motion language (тайминги, easing, повторяемые движения).
-5. **GSAP** — движок анимации *(гипотеза для V1: SVG + GSAP + JavaScript; Lottie/Rive позже при необходимости)*.
+5. **GSAP** — движок анимации. V1: SVG + GSAP + JavaScript, Lottie/Rive позже при необходимости ([ADR 0004](decisions/0004-gsap-official-skills.md)).
 6. **Orchestrator + Skills** — AI проводит задачу по pipeline, знания лежат в Git.
 7. **GitHub** — knowledge base, библиотека анимаций и рабочее пространство AI.
 8. **Preview + QA** — качество проверяется до Webflow.
