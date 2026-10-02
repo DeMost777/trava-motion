@@ -17,7 +17,7 @@
 |---|---|---|---|---|
 | 0.1 | Структура, концепция, бэклог, архитектура и флоу | README, CLAUDE.md, BACKLOG.md, `docs/architecture.md`, `docs/pipeline.md` | структура, флоу и бэклог утверждены | ✅ [ADR 0005](docs/decisions/0005-ai-environment-principles.md) |
 | 0.2 | Доступ Claude к GitHub-репозиторию | работает push | ветка запушена | ✅ |
-| 0.3 | Доступ к Figma | доступ к файлам с иллюстрациями | Claude видит фрейм Queue Manager | ⛔ Q2 |
+| 0.3 | Доступ к Figma | доступ к файлам с иллюстрациями | Claude видит фрейм Queue Manager | ✅ через Figma MCP |
 | 0.4 | Формат бэклога | BACKLOG.md ([ADR 0001](docs/decisions/0001-backlog-in-markdown.md)) | решение записано | ✅ |
 | 0.5 | Языки документации, skills, spec | [ADR 0002](docs/decisions/0002-language-policy.md) | решение записано | ✅ |
 | 0.6 | Принципы AI-среды по документации Anthropic | `docs/ai-environment.md` | утверждено, записано в ADR | ✅ [ADR 0005](docs/decisions/0005-ai-environment-principles.md) |
@@ -37,6 +37,7 @@
 | 1.7 | Аудит дизайн-стилей в Figma | `docs/figma-sources.md` заполнен; таблица: цвета, градиенты, тени, скругления, типографика иллюстраций + где используются | каждый цвет иллюстраций POC соотнесён со стилем Figma; найденные «чужие» цвета перечислены | ⬜ |
 | 1.8 | Формат и структура системы токенов | решение: формат файлов, именование, как синхронизировать с Figma, как design и motion токены живут вместе | утверждено, записано в ADR | ✋ ⬜ |
 | 1.9 | Design tokens v0 | design-токены в `tokens/` по решению 1.8 | значения совпадают с Figma (сверка по таблице 1.7) | ✋ ⬜ |
+| 1.10 | Сценарий Queue Manager | `animations/queue-manager/brief.md` + `storyboard.md` (сцены, решения) | сценарий утверждён целиком | ✋ 🟡 |
 
 ## Фаза 2 — SVG: от Figma до чистого исходника (на Queue Manager)
 Цель: доказать, что SVG из Figma пригоден для анимации без изменения внешнего вида.
