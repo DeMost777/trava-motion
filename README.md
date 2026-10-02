@@ -30,6 +30,7 @@ Figma → SVG → подготовка SVG → Motion Spec → GSAP → Preview 
 | [docs/pipeline.md](docs/pipeline.md) | рабочий флоу одной анимации (из исходного описания) |
 | [docs/architecture.md](docs/architecture.md) | слои среды и целевое дерево репозитория |
 | [docs/figma-sources.md](docs/figma-sources.md) | ссылки на макеты и стили в Figma |
+| [docs/figma-layer-naming.md](docs/figma-layer-naming.md) | как называть анимируемые слои в Figma |
 | [docs/reference/gsap.md](docs/reference/gsap.md) | GSAP: установленные skills и документация |
 | [docs/ai-environment.md](docs/ai-environment.md) | как строим AI-среду по рекомендациям Anthropic |
 | [BACKLOG.md](BACKLOG.md) | фазы и задачи |

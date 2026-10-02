@@ -12,3 +12,4 @@
 | [0005](0005-ai-environment-principles.md) | Структура, флоу, принципы AI-среды | утверждено | 2026-10-02 |
 | [0006](0006-motion-principles.md) | Motion principles | утверждено | 2026-10-02 |
 | [0007](0007-meaningful-loop-exception.md) | Исключение для смыслового цикла | утверждено | 2026-10-02 |
+| [0008](0008-queue-manager-storyboard.md) | Сценарий Queue Manager | утверждено | 2026-10-02 |
