@@ -319,8 +319,8 @@
   const AV_R = 16.44;                                            // avatar circle radius (Ellipse 32.88)
   const AV_X = [71.5, 155.62, 239.75, 323.87, 407.99];           // avatar centres
   const AV_Y = [55.44, 143.39, 231.33, 319.28, 407.23];
-  const HUB = { x: 207.25, y: 199.6, size: 61.94 };
-  const GEAR_C = [237.84, 230.19];                               // gear bbox centre
+  const HUB = { x: 208.78, y: 200.36, size: 61.94 };      // centred on the grid (Figma, 2026-10-05)
+  const GEAR_C = [239.75, 231.33];                               // gear centre = grid centre
   const LINES = [                                                // dotted connections: [x1, y1, x2, y2]
     ...[55.44, 143.39, 231.33, 319.28, 407.23].flatMap((y) => [[87.95, y, 137.66, y], [172.07, y, 223.31, y], [255.43, y, 307.43, y], [339.55, y, 391.55, y]]),
     [239.75, 77.24, 239.75, 123.89], [239.75, 164.42, 239.75, 204.19], [239.75, 251.6, 239.75, 298.25], [239.75, 341.08, 239.75, 387.73],
@@ -394,7 +394,7 @@
     }));
     // hub + gear
     svg.append(svgEl('rect', { x: HUB.x, y: HUB.y, width: HUB.size, height: HUB.size, rx: 12.24, fill: '#f4f6fe' }),
-      svgEl('rect', { x: 211.07, y: 203.42, width: 53.53, height: 53.53, rx: 9.18, fill: 'url(#hubfill)' }));
+      svgEl('rect', { x: 212.6, y: 204.18, width: 53.53, height: 53.53, rx: 9.18, fill: 'url(#hubfill)' }));
     const gear = svgEl('g', {});
     const [gx, gy] = GEAR_C;
     for (let i = 0; i < 8; i++) gear.append(svgEl('rect', { x: gx - 2.4, y: gy - 10.7, width: 4.8, height: 5, rx: 1, fill: '#0b3a46', transform: `rotate(${i * 45} ${gx} ${gy})` }));
