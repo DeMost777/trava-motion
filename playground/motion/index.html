@@ -1,0 +1,509 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trava Motion — демо-стенд токенов</title>
+<!-- Sandbox tool for choosing motion token values (backlog 1.5). Not production code. -->
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+<style>
+  :root {
+    /* Temporary colours sampled from the Figma cards; real design tokens come in task 1.9. */
+    --bg: #04252f; --panel: #03303d; --panel-2: #073a49; --line: #0d4a5a;
+    --primary-700: #075a70; --accent: #2abda3; --accent-2: #8cf9e5;
+    --text: #e8f4f2; --muted: #8fb3b5; --chosen: #f2c14e;
+    --radius: 12px; --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.5 "Avenir Next", Avenir, system-ui, sans-serif; }
+  header { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+    padding: 14px 24px; background: rgba(4,37,47,.95); border-bottom: 1px solid var(--line); }
+  header h1 { font-size: 17px; margin: 0 12px 0 0; font-weight: 600; }
+  main { max-width: 1180px; margin: 0 auto; padding: 24px; display: grid; gap: 24px; }
+  section { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; }
+  section h2 { margin: 0 0 4px; font-size: 18px; font-weight: 600; }
+  .hint { color: var(--muted); margin: 0 0 14px; font-size: 14px; }
+  .bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 14px; }
+  button, .chip { font: inherit; color: var(--text); background: var(--panel-2); border: 1px solid var(--line);
+    border-radius: 8px; padding: 6px 12px; cursor: pointer; }
+  button:hover { border-color: var(--accent); }
+  button.primary { background: var(--accent); color: #022a36; border-color: var(--accent); font-weight: 600; }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .seg button { border: 0; border-radius: 0; background: transparent; }
+  .seg button[aria-pressed="true"] { background: var(--primary-700); color: var(--accent-2); }
+  .lanes { display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 12px; }
+  .lane { background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 10px; display: grid; gap: 8px; }
+  .lane.chosen { border-color: var(--chosen); box-shadow: 0 0 0 1px var(--chosen) inset; }
+  .lane .label { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+  .lane .tag { font-family: var(--mono); font-size: 11px; color: var(--chosen); min-height: 16px; }
+  .stage { position: relative; height: 96px; border-radius: 8px; overflow: hidden;
+    background: linear-gradient(rgba(120,200,200,.05) 1px, transparent 1px) 0 0/16px 16px, var(--panel); }
+  .card { position: absolute; left: 50%; top: 50%; width: 64px; height: 34px; margin: -17px 0 0 -32px; border-radius: 8px;
+    background: linear-gradient(135deg, #2abda3, #8cf9e5 50%, #2abda3); box-shadow: 0 0 0 2px #e8f4f2 inset; }
+  .dot { position: absolute; left: 14px; top: 50%; width: 16px; height: 16px; margin-top: -8px; border-radius: 50%; background: var(--accent-2); }
+  .track { position: absolute; left: 14px; right: 14px; top: 50%; border-top: 1px dashed var(--line); }
+  .stage svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .nodes { position: absolute; inset: 0; display: flex; align-items: center; justify-content: space-around; padding: 0 6px; }
+  .node { width: 14px; height: 14px; border-radius: 50%; background: var(--primary-700); box-shadow: 0 0 0 2px var(--accent) inset; }
+  .grid2 { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 20px; align-items: start; }
+  .qm-stage { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; }
+  .qm-stage svg { display: block; width: 100%; height: auto; }
+  .controls { display: grid; gap: 14px; }
+  .controls label { display: grid; gap: 4px; font-size: 14px; }
+  .controls output { font-family: var(--mono); color: var(--accent-2); }
+  input[type=range] { width: 100%; accent-color: var(--accent); }
+  .stat { font-family: var(--mono); font-size: 13px; color: var(--muted); }
+  .scroller { height: 320px; overflow: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); }
+  .scroller .spacer { height: 340px; display: grid; place-items: center; color: var(--muted); font-size: 14px; }
+  .tblock { margin: 0 16px 24px; padding: 16px; border: 1px dashed var(--line); border-radius: 10px; display: flex; gap: 14px; align-items: center; }
+  .tblock .label { font-family: var(--mono); font-size: 12px; color: var(--muted); width: 120px; flex: none; }
+  .tblock .item { width: 56px; height: 30px; border-radius: 6px; background: var(--primary-700); box-shadow: 0 0 0 2px var(--accent) inset; }
+  .tblock.chosen { border-color: var(--chosen); border-style: solid; }
+  #summary pre { margin: 0; padding: 14px; background: var(--bg); border: 1px solid var(--line); border-radius: 10px;
+    font-family: var(--mono); font-size: 13px; overflow: auto; white-space: pre-wrap; }
+  .banner { background: #4a3b10; border: 1px solid var(--chosen); color: var(--text); padding: 10px 14px; border-radius: 10px; display: none; }
+  @media (max-width: 860px) { .grid2 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Trava Motion · демо-стенд токенов</h1>
+  <span class="hint" style="margin:0">Скорость:</span>
+  <div class="seg" id="speed"><button data-v="1" aria-pressed="true">1×</button><button data-v="0.5" aria-pressed="false">0.5×</button><button data-v="0.25" aria-pressed="false">0.25×</button></div>
+  <button class="primary" id="replay-all">↻ Повторить всё</button>
+  <a class="chip" href="#summary" style="text-decoration:none">Выбранные значения ↓</a>
+</header>
+
+<main>
+  <div class="banner" id="rm-banner">В системе включено «уменьшить движение». Стенд всё равно показывает анимации: он нужен, чтобы их выбирать.</div>
+
+  <!-- 1. EASING -->
+  <section id="s-ease">
+    <h2>1. Easing — характер ускорения</h2>
+    <p class="hint">Выберите роль, посмотрите кривые и нажмите на подходящую. Длительность фиксирована (0.6 с, отрисовка линии 1.0 с).</p>
+    <div class="bar">
+      <div class="seg" data-roles="ease">
+        <button data-role="enter" aria-pressed="true">enter — появление</button>
+        <button data-role="standard" aria-pressed="false">standard — перемещение</button>
+        <button data-role="exit" aria-pressed="false">exit — исчезновение</button>
+        <button data-role="draw" aria-pressed="false">draw — отрисовка линии</button>
+      </div>
+      <button data-replay="ease">↻ Повторить</button>
+    </div>
+    <div class="lanes" id="ease-lanes"></div>
+  </section>
+
+  <!-- 2. DURATIONS -->
+  <section id="s-dur">
+    <h2>2. Длительности</h2>
+    <p class="hint">Одно и то же появление (fade + сдвиг 12 px, кривая power2.out) с разной длительностью. Выберите роль и назначьте ей длительность.</p>
+    <div class="bar">
+      <div class="seg" data-roles="duration">
+        <button data-role="micro" aria-pressed="true">micro — мелочь</button>
+        <button data-role="short" aria-pressed="false">short — маленький объект</button>
+        <button data-role="medium" aria-pressed="false">medium — переход</button>
+        <button data-role="long" aria-pressed="false">long — линия / крупное</button>
+      </div>
+      <button data-replay="dur">↻ Повторить</button>
+    </div>
+    <div class="lanes" id="dur-lanes"></div>
+  </section>
+
+  <!-- 3. APPEARANCE -->
+  <section id="s-appear">
+    <h2>3. Появление — насколько заметно объект «въезжает»</h2>
+    <p class="hint">Fade + сдвиг снизу или fade + масштаб. Длительность 0.35 с, кривая power2.out. Выберите по одному варианту в каждой строке.</p>
+    <div class="bar"><button data-replay="appear">↻ Повторить</button></div>
+    <p class="hint" style="margin-bottom:8px">Сдвиг (distance):</p>
+    <div class="lanes" id="shift-lanes" style="margin-bottom:16px"></div>
+    <p class="hint" style="margin-bottom:8px">Стартовый масштаб (scale):</p>
+    <div class="lanes" id="scale-lanes"></div>
+  </section>
+
+  <!-- 4. STAGGER -->
+  <section id="s-stagger">
+    <h2>4. Stagger — задержка между элементами группы</h2>
+    <p class="hint">8 узлов появляются по очереди (масштаб от 0.9 + fade, 0.35 с). Выберите роль и назначьте ей задержку.</p>
+    <div class="bar">
+      <div class="seg" data-roles="stagger">
+        <button data-role="tight" aria-pressed="true">tight — плотно</button>
+        <button data-role="default" aria-pressed="false">default — обычно</button>
+        <button data-role="relaxed" aria-pressed="false">relaxed — свободно</button>
+      </div>
+      <button data-replay="stagger">↻ Повторить</button>
+    </div>
+    <div class="lanes" id="stagger-lanes"></div>
+  </section>
+
+  <!-- 5. QUEUE MANAGER -->
+  <section id="s-qm">
+    <h2>5. Темп Queue Manager</h2>
+    <p class="hint">Упрощённая схема по координатам фрейма Figma (480×459), не настоящий SVG. Цикл по сценарию:
+      волна импульсов к центру по эстафете → поворот + zoom gear без отскока → импульсы возвращаются на места → пауза → снова.</p>
+    <div class="grid2">
+      <div class="qm-stage"><svg id="qm" viewBox="0 0 480 459" aria-label="Схема Queue Manager"></svg></div>
+      <div class="controls" id="qm-controls">
+        <label>Время одного отрезка (с) <output data-for="segment"></output><input type="range" data-k="segment" min="0.2" max="1.2" step="0.05" value="0.45"></label>
+        <label>Сдвиг между волнами по глубине (с) <output data-for="offset"></output><input type="range" data-k="offset" min="0.1" max="1" step="0.05" value="0.35"></label>
+        <label>Поворот + zoom gear, длительность (с) <output data-for="gear"></output><input type="range" data-k="gear" min="0.6" max="2" step="0.05" value="1.2"></label>
+        <label>Zoom gear (масштаб) <output data-for="zoom"></output><input type="range" data-k="zoom" min="1" max="1.4" step="0.05" value="1.2"></label>
+        <label>Пауза в конце цикла (с) <output data-for="pause"></output><input type="range" data-k="pause" min="0" max="3" step="0.1" value="1"></label>
+        <div class="stat" id="qm-stat"></div>
+        <button data-replay="qm">↻ Перезапустить цикл</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. TRIGGER -->
+  <section id="s-trigger">
+    <h2>6. Запуск при скролле</h2>
+    <p class="hint">Прокрутите окно ниже. Каждый блок запускается, когда видна указанная часть. Нажмите на блок, чей момент запуска нравится, и выберите задержку старта.</p>
+    <div class="bar">
+      <span class="hint" style="margin:0">Задержка старта:</span>
+      <div class="seg" id="delay-seg"><button data-v="0" aria-pressed="true">0 с</button><button data-v="0.15" aria-pressed="false">0.15 с</button><button data-v="0.3" aria-pressed="false">0.3 с</button></div>
+      <button id="trigger-reset">↺ Сбросить и прокрутить вверх</button>
+    </div>
+    <div class="scroller" id="scroller">
+      <div class="spacer">↓ прокручивайте ↓</div>
+      <div class="tblock" data-threshold="0.25"><span class="label">порог 25 %</span><div class="item"></div><div class="item"></div><div class="item"></div></div>
+      <div class="tblock" data-threshold="0.35"><span class="label">порог 35 %</span><div class="item"></div><div class="item"></div><div class="item"></div></div>
+      <div class="tblock" data-threshold="0.5"><span class="label">порог 50 %</span><div class="item"></div><div class="item"></div><div class="item"></div></div>
+      <div class="spacer"></div>
+    </div>
+  </section>
+
+  <!-- SUMMARY -->
+  <section id="summary">
+    <h2>Выбранные значения</h2>
+    <p class="hint">Скопируйте и пришлите в чат. «—» означает, что значение ещё не выбрано.</p>
+    <div class="bar"><button class="primary" id="copy">Скопировать</button><span class="stat" id="copy-status"></span></div>
+    <pre id="summary-out"></pre>
+  </section>
+</main>
+
+<script>
+(() => {
+  'use strict';
+
+  // ---------------------------------------------------------------- state
+  const choice = {
+    ease: { enter: null, standard: null, exit: null, draw: null },
+    duration: { micro: null, short: null, medium: null, long: null },
+    distance: null, scale: null,
+    stagger: { tight: null, default: null, relaxed: null },
+    queueManager: {},
+    trigger: { threshold: null, delay: 0 },
+  };
+  const activeRole = { ease: 'enter', duration: 'micro', stagger: 'tight' };
+  const timelines = {};
+
+  const el = (tag, cls, html) => { const n = document.createElement(tag); if (cls) n.className = cls; if (html != null) n.innerHTML = html; return n; };
+  const fmt = (v) => (v === null || v === undefined ? '—' : v);
+
+  // ---------------------------------------------------------------- 1. easing
+  const EASES = {
+    enter: ['power1.out', 'power2.out', 'power3.out', 'expo.out', 'sine.out', 'circ.out'],
+    standard: ['power1.inOut', 'power2.inOut', 'power3.inOut', 'sine.inOut', 'power2.out', 'expo.inOut'],
+    exit: ['power1.in', 'power2.in', 'power3.in', 'sine.in', 'expo.in'],
+    draw: ['none', 'sine.inOut', 'power1.inOut', 'power2.inOut', 'power3.inOut'],
+  };
+  function easeStage(role) {
+    const stage = el('div', 'stage');
+    if (role === 'standard') { stage.append(el('div', 'track'), el('div', 'dot')); }
+    else if (role === 'draw') {
+      stage.innerHTML = '<svg viewBox="0 0 160 96"><path d="M14 70 C 50 20, 80 90, 146 26" fill="none" stroke="#8cf9e5" stroke-width="3" stroke-linecap="round"/></svg>';
+    } else stage.append(el('div', 'card'));
+    return stage;
+  }
+  function easeAnim(role, stage, ease) {
+    const tl = gsap.timeline({ repeat: -1, repeatDelay: 0.8 });
+    if (role === 'enter') tl.fromTo(stage.querySelector('.card'), { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.6, ease });
+    if (role === 'exit') tl.fromTo(stage.querySelector('.card'), { opacity: 1, y: 0 }, { opacity: 0, y: -16, duration: 0.6, ease });
+    if (role === 'standard') {
+      const dot = stage.querySelector('.dot'), dist = stage.clientWidth - 28 - 16;
+      tl.fromTo(dot, { x: 0 }, { x: dist, duration: 0.6, ease });
+    }
+    if (role === 'draw') {
+      const path = stage.querySelector('path'), len = path.getTotalLength();
+      tl.fromTo(path, { strokeDasharray: len, strokeDashoffset: len }, { strokeDashoffset: 0, duration: 1, ease });
+    }
+    return tl;
+  }
+
+  // ---------------------------------------------------------------- generic lanes
+  function buildLanes({ key, container, values, label, stage, animate, isChosen, onChoose, tag }) {
+    (timelines[key] || []).forEach((t) => t.kill());
+    timelines[key] = [];
+    container.innerHTML = '';
+    values.forEach((v) => {
+      const lane = el('div', 'lane');
+      const st = stage(v);
+      const lbl = el('div', 'label', label(v));
+      const tg = el('div', 'tag', tag ? tag(v) : '');
+      const btn = el('button', null, 'Выбрать');
+      btn.addEventListener('click', () => { onChoose(v); render(); });
+      lane.append(st, lbl, tg, btn);
+      if (isChosen(v)) lane.classList.add('chosen');
+      container.append(lane);
+      timelines[key].push(animate(st, v));
+    });
+  }
+  const rolesOf = (group) => Object.entries(choice[group]).filter(([, v]) => v !== null);
+  const tagFor = (group, v) => rolesOf(group).filter(([, val]) => val === v).map(([r]) => r).join(', ');
+
+  function renderEase() {
+    const role = activeRole.ease;
+    buildLanes({
+      key: 'ease', container: document.getElementById('ease-lanes'), values: EASES[role],
+      label: (v) => v, stage: () => easeStage(role), animate: (st, v) => easeAnim(role, st, v),
+      isChosen: (v) => choice.ease[role] === v, onChoose: (v) => { choice.ease[role] = v; },
+      tag: (v) => tagFor('ease', v),
+    });
+  }
+
+  // ---------------------------------------------------------------- 2. durations
+  const DURATIONS = [0.15, 0.2, 0.25, 0.35, 0.5, 0.6, 0.8, 1.0, 1.4];
+  function renderDur() {
+    const role = activeRole.duration;
+    buildLanes({
+      key: 'dur', container: document.getElementById('dur-lanes'), values: DURATIONS,
+      label: (v) => `${v} с`, stage: () => { const s = el('div', 'stage'); s.append(el('div', 'card')); return s; },
+      animate: (st, v) => gsap.timeline({ repeat: -1, repeatDelay: 1 })
+        .fromTo(st.querySelector('.card'), { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: v, ease: 'power2.out' }),
+      isChosen: (v) => choice.duration[role] === v, onChoose: (v) => { choice.duration[role] = v; },
+      tag: (v) => tagFor('duration', v),
+    });
+  }
+
+  // ---------------------------------------------------------------- 3. appearance
+  const SHIFTS = [4, 8, 12, 16, 24];
+  const SCALES = [0.8, 0.85, 0.9, 0.95];
+  function renderAppear() {
+    const cardStage = () => { const s = el('div', 'stage'); s.append(el('div', 'card')); return s; };
+    buildLanes({
+      key: 'shift', container: document.getElementById('shift-lanes'), values: SHIFTS,
+      label: (v) => `сдвиг ${v} px`, stage: cardStage,
+      animate: (st, v) => gsap.timeline({ repeat: -1, repeatDelay: 1 })
+        .fromTo(st.querySelector('.card'), { opacity: 0, y: v }, { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out' }),
+      isChosen: (v) => choice.distance === v, onChoose: (v) => { choice.distance = v; },
+    });
+    buildLanes({
+      key: 'scale', container: document.getElementById('scale-lanes'), values: SCALES,
+      label: (v) => `масштаб от ${v}`, stage: cardStage,
+      animate: (st, v) => gsap.timeline({ repeat: -1, repeatDelay: 1 })
+        .fromTo(st.querySelector('.card'), { opacity: 0, scale: v }, { opacity: 1, scale: 1, duration: 0.35, ease: 'power2.out' }),
+      isChosen: (v) => choice.scale === v, onChoose: (v) => { choice.scale = v; },
+    });
+  }
+
+  // ---------------------------------------------------------------- 4. stagger
+  const STAGGERS = [0.03, 0.04, 0.06, 0.08, 0.1, 0.12, 0.16, 0.2];
+  function renderStagger() {
+    const role = activeRole.stagger;
+    buildLanes({
+      key: 'stagger', container: document.getElementById('stagger-lanes'), values: STAGGERS,
+      label: (v) => `${v} с`,
+      stage: () => { const s = el('div', 'stage'); const n = el('div', 'nodes'); for (let i = 0; i < 8; i++) n.append(el('div', 'node')); s.append(n); return s; },
+      animate: (st, v) => gsap.timeline({ repeat: -1, repeatDelay: 1 })
+        .fromTo(st.querySelectorAll('.node'), { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.35, ease: 'power2.out', stagger: v }),
+      isChosen: (v) => choice.stagger[role] === v, onChoose: (v) => { choice.stagger[role] = v; },
+      tag: (v) => tagFor('stagger', v),
+    });
+  }
+
+  // ---------------------------------------------------------------- 5. Queue Manager
+  // Geometry from the Figma frame 732:12579 (480×459): node centres, impulse rectangles, hub card.
+  const NS = 'http://www.w3.org/2000/svg';
+  const COLS = [71.5, 155.6, 239.75, 323.9, 408];
+  const ROWS = [55.4, 143.4, 231.3, 319.3, 407.2];
+  const HUB = { x: 207.25, y: 199.6, size: 61.95 };
+  const NODE_R = 16.5;
+  const IMPULSES = [ // [x, y, w, h] from Figma metadata
+    [182.01,56.59,24.47,1.53],[182.01,143.77,24.47,1.53],[182.01,318.90,24.47,1.53],[182.01,230.96,13.77,1.53],[182.01,406.85,24.47,1.53],
+    [97.12,56.59,25.24,1.53],[97.12,143.77,25.24,1.53],[97.12,318.90,25.24,1.53],[97.12,230.96,25.24,1.53],[97.12,406.85,25.24,1.53],
+    [299.78,56.59,18.35,1.53],[299.78,143.77,18.35,1.53],[299.78,318.90,18.35,1.53],[299.78,230.96,18.35,1.53],[299.78,406.85,18.35,1.53],
+    [373.20,56.59,19.88,1.53],[373.20,143.77,19.88,1.53],[373.20,318.90,19.88,1.53],[373.20,230.96,19.88,1.53],[373.20,406.85,19.88,1.53],
+    [239.37,171.30,1.53,19.12],[239.37,88.71,1.53,19.12],[239.37,286.78,1.53,19.12],[239.37,376.26,1.53,19.12],
+  ];
+  const svgEl = (tag, attrs) => { const n = document.createElementNS(NS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); return n; };
+
+  const qm = { params: {}, impulses: [], gear: null };
+  function buildQmScene() {
+    const svg = document.getElementById('qm');
+    svg.innerHTML = '';
+    const defs = svgEl('defs', {});
+    defs.innerHTML = `
+      <radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#0e5a63" stop-opacity=".55"/><stop offset="1" stop-color="#0e5a63" stop-opacity="0"/></radialGradient>
+      <linearGradient id="hubfill" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2abda3"/><stop offset=".5" stop-color="#8cf9e5"/><stop offset="1" stop-color="#2abda3"/></linearGradient>
+      <linearGradient id="imp" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2abda3" stop-opacity=".2"/><stop offset=".5" stop-color="#5ee8c4"/><stop offset="1" stop-color="#2abda3" stop-opacity=".2"/></linearGradient>`;
+    svg.append(defs, svgEl('circle', { cx: 240, cy: 231, r: 226, fill: 'url(#glow)' }));
+    // dotted lines between neighbours (rows + centre column)
+    ROWS.forEach((y) => COLS.slice(0, 4).forEach((x, i) => svg.append(svgEl('line', { x1: x + NODE_R, y1: y, x2: COLS[i + 1] - NODE_R, y2: y, stroke: '#2a6f76', 'stroke-dasharray': '1 3', 'stroke-width': 1 }))));
+    ROWS.slice(0, 4).forEach((y, i) => svg.append(svgEl('line', { x1: 240.5, y1: y + NODE_R, x2: 240.5, y2: ROWS[i + 1] - NODE_R, stroke: '#2a6f76', 'stroke-dasharray': '1 3', 'stroke-width': 1 })));
+    // passengers
+    ROWS.forEach((y, r) => COLS.forEach((x, c) => {
+      if (r === 2 && c === 2) return;
+      const g = svgEl('g', { opacity: (r === 0 || r === 4) && (c === 0 || c === 4) ? 0.45 : 1 });
+      g.append(svgEl('circle', { cx: x, cy: y, r: NODE_R, fill: '#06475a' }), svgEl('circle', { cx: x, cy: y - 4, r: 4, fill: '#3f8090' }),
+        svgEl('path', { d: `M${x - 7} ${y + 9}c0-4 3-6 7-6s7 2 7 6z`, fill: '#3f8090' }));
+      svg.append(g);
+    }));
+    // impulses (design positions) + their travel to the next node / hub edge
+    qm.impulses = IMPULSES.map(([x, y, w, h]) => {
+      const horizontal = w > h;
+      const rect = svgEl('rect', { x, y, width: w, height: h, rx: 0.75, fill: horizontal ? 'url(#imp)' : '#5ee8c4' });
+      svg.append(rect);
+      let dx = 0, dy = 0, depth;
+      if (horizontal) {
+        const rowIdx = ROWS.findIndex((ry) => Math.abs(ry - (y + h / 2)) < 3);
+        const toRight = x + w / 2 < 240;
+        const isCentreRow = rowIdx === 2;
+        if (toRight) {
+          const nextCol = COLS.find((cx) => cx > x + w);
+          const targetX = isCentreRow && nextCol === COLS[2] ? HUB.x : nextCol - NODE_R;
+          dx = targetX - (x + w);
+        } else {
+          const nextCol = [...COLS].reverse().find((cx) => cx < x);
+          const targetX = isCentreRow && nextCol === COLS[2] ? HUB.x + HUB.size : nextCol + NODE_R;
+          dx = targetX - x;
+        }
+        const outer = x < 120 || x > 360;
+        depth = (outer ? 2 : 1) + (rowIdx === 2 ? 0 : rowIdx === 1 || rowIdx === 3 ? 1 : 2);
+      } else {
+        const down = y < 231;
+        const near = y > 150 && y < 300;
+        if (down) dy = (near ? HUB.y : ROWS[1] - NODE_R) - (y + h);
+        else dy = (near ? HUB.y + HUB.size : ROWS[3] + NODE_R) - y;
+        depth = near ? 1 : 2;
+      }
+      return { rect, dx, dy, depth };
+    });
+    // hub + gear
+    svg.append(svgEl('rect', { x: HUB.x, y: HUB.y, width: HUB.size, height: HUB.size, rx: 12, fill: '#f4f6fe' }),
+      svgEl('rect', { x: HUB.x + 3.8, y: HUB.y + 3.8, width: 53.5, height: 53.5, rx: 9, fill: 'url(#hubfill)' }));
+    const gear = svgEl('g', {});
+    const cx = 238.2, cy = 230.6;
+    for (let i = 0; i < 8; i++) gear.append(svgEl('rect', { x: cx - 2.4, y: cy - 11, width: 4.8, height: 5, rx: 1, fill: '#0b3a46', transform: `rotate(${i * 45} ${cx} ${cy})` }));
+    gear.append(svgEl('circle', { cx, cy, r: 7.6, fill: '#0b3a46' }), svgEl('circle', { cx, cy, r: 3.2, fill: '#8cf9e5' }));
+    svg.append(gear);
+    qm.gear = gear;
+  }
+
+  function readQmParams() {
+    document.querySelectorAll('#qm-controls input[type=range]').forEach((i) => {
+      qm.params[i.dataset.k] = Number(i.value);
+      document.querySelector(`output[data-for="${i.dataset.k}"]`).textContent = i.value;
+    });
+    choice.queueManager = { ...qm.params };
+  }
+
+  function buildQmTimeline() {
+    (timelines.qm || []).forEach((t) => t.kill());
+    const { segment, offset, gear, zoom, pause } = qm.params;
+    const maxDepth = 4;
+    const tl = gsap.timeline({ repeat: -1 });
+    // wave: deepest segments start first; each impulse slides to its node/hub and fades out on arrival
+    qm.impulses.forEach(({ rect, dx, dy, depth }) => {
+      const start = (maxDepth - depth) * offset;
+      tl.fromTo(rect, { x: 0, y: 0, opacity: 1 }, { x: dx, y: dy, duration: segment, ease: 'power1.in' }, start)
+        .to(rect, { opacity: 0, duration: Math.min(0.15, segment / 3), ease: 'none' }, start + segment - Math.min(0.15, segment / 3));
+    });
+    const arrive = (maxDepth - 1) * offset + segment;
+    // gear: full turn + zoom in/out, smooth return (no overshoot)
+    tl.fromTo(qm.gear, { rotation: 0, scale: 1, svgOrigin: '238.2 230.6' }, { rotation: 360, duration: gear, ease: 'power2.inOut', svgOrigin: '238.2 230.6' }, arrive)
+      .to(qm.gear, { scale: zoom, duration: gear / 2, ease: 'power2.out', svgOrigin: '238.2 230.6' }, arrive)
+      .to(qm.gear, { scale: 1, duration: gear / 2, ease: 'power2.inOut', svgOrigin: '238.2 230.6' }, arrive + gear / 2);
+    // impulses return to their design places while the gear turns → rest frame = design
+    qm.impulses.forEach(({ rect }) => tl.set(rect, { x: 0, y: 0 }, arrive + 0.01).to(rect, { opacity: 1, duration: 0.35, ease: 'power2.out' }, arrive + gear * 0.5));
+    tl.to({}, { duration: pause }, arrive + gear);
+    timelines.qm = [tl];
+    const cycle = arrive + gear + pause;
+    document.getElementById('qm-stat').innerHTML =
+      `волна до карточки: ${arrive.toFixed(2)} с<br>волна + gear: ${(arrive + gear).toFixed(2)} с<br>полный цикл с паузой: ${cycle.toFixed(2)} с`;
+    choice.queueManager.waveSeconds = +arrive.toFixed(2);
+    choice.queueManager.cycleSeconds = +cycle.toFixed(2);
+  }
+
+  // ---------------------------------------------------------------- 6. trigger
+  let io;
+  function setupTrigger() {
+    const scroller = document.getElementById('scroller');
+    io?.disconnect();
+    const blocks = [...scroller.querySelectorAll('.tblock')];
+    blocks.forEach((b) => {
+      gsap.set(b.querySelectorAll('.item'), { opacity: 0, y: 12 });
+      b.dataset.played = '';
+      b.classList.toggle('chosen', Number(b.dataset.threshold) === choice.trigger.threshold);
+    });
+    io = new IntersectionObserver((entries) => entries.forEach((e) => {
+      const b = e.target;
+      if (b.dataset.played || e.intersectionRatio < Number(b.dataset.threshold)) return;
+      b.dataset.played = '1';
+      gsap.to(b.querySelectorAll('.item'), { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out', stagger: 0.08, delay: choice.trigger.delay });
+    }), { root: scroller, threshold: [0, 0.25, 0.35, 0.5, 1] });
+    blocks.forEach((b) => io.observe(b));
+  }
+
+  // ---------------------------------------------------------------- summary
+  function renderSummary() {
+    const s = choice;
+    const out = {
+      ease: s.ease, duration: s.duration, distance_px: s.distance, scale_from: s.scale, stagger: s.stagger,
+      queueManager: s.queueManager, trigger: s.trigger,
+    };
+    document.getElementById('summary-out').textContent = JSON.stringify(out, (k, v) => (v === null ? '—' : v), 2);
+  }
+
+  function render() { renderEase(); renderDur(); renderAppear(); renderStagger(); renderSummary(); }
+
+  // ---------------------------------------------------------------- wiring
+  document.querySelectorAll('[data-roles]').forEach((seg) => seg.addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    activeRole[seg.dataset.roles] = b.dataset.role;
+    seg.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+    render();
+  }));
+  document.querySelectorAll('[data-replay]').forEach((b) => b.addEventListener('click', () => {
+    const k = b.dataset.replay;
+    const keys = k === 'appear' ? ['shift', 'scale'] : [k];
+    keys.forEach((key) => (timelines[key] || []).forEach((t) => t.restart()));
+  }));
+  document.getElementById('replay-all').addEventListener('click', () => {
+    Object.values(timelines).flat().forEach((t) => t.restart());
+    setupTrigger(); document.getElementById('scroller').scrollTop = 0;
+  });
+  document.getElementById('speed').addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    gsap.globalTimeline.timeScale(Number(b.dataset.v));
+    e.currentTarget.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+  });
+  document.querySelectorAll('#qm-controls input[type=range]').forEach((i) => i.addEventListener('input', () => { readQmParams(); buildQmTimeline(); renderSummary(); }));
+  document.getElementById('delay-seg').addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    choice.trigger.delay = Number(b.dataset.v);
+    e.currentTarget.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+    renderSummary();
+  });
+  document.getElementById('scroller').addEventListener('click', (e) => {
+    const b = e.target.closest('.tblock'); if (!b) return;
+    choice.trigger.threshold = Number(b.dataset.threshold);
+    document.querySelectorAll('.tblock').forEach((x) => x.classList.toggle('chosen', x === b));
+    renderSummary();
+  });
+  document.getElementById('trigger-reset').addEventListener('click', () => { document.getElementById('scroller').scrollTop = 0; setupTrigger(); });
+  document.getElementById('copy').addEventListener('click', async () => {
+    const text = document.getElementById('summary-out').textContent;
+    const status = document.getElementById('copy-status');
+    try { await navigator.clipboard.writeText(text); status.textContent = 'Скопировано'; }
+    catch { const r = document.createRange(); r.selectNodeContents(document.getElementById('summary-out')); getSelection().removeAllRanges(); getSelection().addRange(r); status.textContent = 'Выделено — нажмите Ctrl/Cmd+C'; }
+  });
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) document.getElementById('rm-banner').style.display = 'block';
+
+  // ---------------------------------------------------------------- init
+  if (!window.gsap) { document.body.insertAdjacentHTML('afterbegin', '<p style="padding:16px;background:#5a1f1f">GSAP не загрузился (нужен интернет для CDN).</p>'); return; }
+  buildQmScene(); readQmParams(); buildQmTimeline(); setupTrigger(); render();
+  window.__playground = { choice, timelines };
+})();
+</script>
+</body>
+</html>
