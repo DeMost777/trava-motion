@@ -1,0 +1,369 @@
+{
+  "$description": "Trava illustration palette. Source of truth: Figma variable collection 'Illustration' (file Landing page, 9EMDUpk6j30cPIIzRENFQh). Values are the exact colours of the approved illustrations; new illustrations take colours from here. Format: W3C Design Tokens (DTCG).",
+  "illustration": {
+    "$type": "color",
+    "impulse": {
+      "tail": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.0627,
+            0.6902,
+            0.5804
+          ],
+          "alpha": 0,
+          "hex": "#10b094"
+        },
+        "$description": "Impulse gradient, tail (transparent)",
+        "$extensions": {
+          "com.figma": {
+            "collection": "Illustration",
+            "variable": "impulse/tail"
+          }
+        }
+      },
+      "head": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.0667,
+            0.6902,
+            0.5843
+          ],
+          "alpha": 1,
+          "hex": "#11b095"
+        },
+        "$description": "Impulse gradient, head (points toward the hub)",
+        "$extensions": {
+          "com.figma": {
+            "collection": "Illustration",
+            "variable": "impulse/head"
+          }
+        }
+      }
+    },
+    "accent": {
+      "edge": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.1647,
+            0.7412,
+            0.6392
+          ],
+          "alpha": 1,
+          "hex": "#2abda3"
+        },
+        "$description": "Teal gradient edges (hub card fill; Fare Optimizer points)",
+        "$extensions": {
+          "com.figma": {
+            "collection": "Illustration",
+            "variable": "accent/edge"
+          }
+        }
+      },
+      "highlight": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.549,
+            0.9765,
+            0.898
+          ],
+          "alpha": 1,
+          "hex": "#8cf9e5"
+        },
+        "$description": "Teal gradient highlight (middle stop)",
+        "$extensions": {
+          "com.figma": {
+            "collection": "Illustration",
+            "variable": "accent/highlight"
+          }
+        }
+      }
+    },
+    "card": {
+      "frame-edge": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.9647,
+            0.9647,
+            0.9961
+          ],
+          "alpha": 1,
+          "hex": "#f6f6fe"
+        },
+        "$description": "Hub card light frame, gradient edges",
+        "$extensions": {
+          "com.figma": {
+            "collection": "Illustration",
+            "variable": "card/frame-edge"
+          }
+        }
+      },
+      "frame-mid": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.949,
+            0.9647,
+            1.0
+          ],
+          "alpha": 1,
+          "hex": "#f2f6ff"
+        },
+        "$description": "Hub card light frame, gradient middle",
+        "$extensions": {
+          "com.figma": {
+            "collection": "Illustration",
+            "variable": "card/frame-mid"
+          }
+        }
+      }
+    },
+    "glow": {
+      "center": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.051,
+            0.2745,
+            0.3373
+          ],
+          "alpha": 0.24,
+          "hex": "#0d4656"
+        },
+        "$description": "Background glow, centre (layer opacity 60%)",
+        "$extensions": {
+          "com.figma": {
+            "collection": "Illustration",
+            "variable": "glow/center"
+          }
+        }
+      },
+      "edge": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.0353,
+            0.1804,
+            0.2235
+          ],
+          "alpha": 1,
+          "hex": "#092e39"
+        },
+        "$description": "Background glow, edge",
+        "$extensions": {
+          "com.figma": {
+            "collection": "Illustration",
+            "variable": "glow/edge"
+          }
+        }
+      }
+    },
+    "avatar": {
+      "circle-start": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.0157,
+            0.3098,
+            0.3922
+          ],
+          "alpha": 1,
+          "hex": "#044f64"
+        },
+        "$description": "Avatar circle gradient, start",
+        "$extensions": {
+          "com.figma": {
+            "collection": "Illustration",
+            "variable": "avatar/circle-start"
+          }
+        }
+      },
+      "circle-end": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.0039,
+            0.2157,
+            0.2745
+          ],
+          "alpha": 1,
+          "hex": "#013746"
+        },
+        "$description": "Avatar circle gradient, end",
+        "$extensions": {
+          "com.figma": {
+            "collection": "Illustration",
+            "variable": "avatar/circle-end"
+          }
+        }
+      },
+      "glyph-start": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "alpha": 1,
+          "hex": "#ffffff"
+        },
+        "$description": "Passenger glyph gradient, start",
+        "$extensions": {
+          "com.figma": {
+            "collection": "Illustration",
+            "variable": "avatar/glyph-start"
+          }
+        }
+      },
+      "glyph-end": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.7961,
+            0.8235,
+            0.8196
+          ],
+          "alpha": 1,
+          "hex": "#cbd2d1"
+        },
+        "$description": "Passenger glyph gradient, end",
+        "$extensions": {
+          "com.figma": {
+            "collection": "Illustration",
+            "variable": "avatar/glyph-end"
+          }
+        }
+      }
+    },
+    "shadow": {
+      "card-frame": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.0275,
+            0.5882,
+            0.4863
+          ],
+          "alpha": 1,
+          "hex": "#07967c"
+        },
+        "$description": "Inner shadow of the hub card frame",
+        "$extensions": {
+          "com.figma": {
+            "collection": "Illustration",
+            "variable": "shadow/card-frame"
+          }
+        }
+      },
+      "card-fill": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.0196,
+            0.5333,
+            0.4431
+          ],
+          "alpha": 1,
+          "hex": "#058871"
+        },
+        "$description": "Inner shadow of the hub card fill",
+        "$extensions": {
+          "com.figma": {
+            "collection": "Illustration",
+            "variable": "shadow/card-fill"
+          }
+        }
+      },
+      "frame-inner": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.0118,
+            0.1804,
+            0.2235
+          ],
+          "alpha": 1,
+          "hex": "#032e39"
+        },
+        "$description": "Inner shadow of the illustration frame",
+        "$extensions": {
+          "com.figma": {
+            "collection": "Illustration",
+            "variable": "shadow/frame-inner"
+          }
+        }
+      },
+      "avatar": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.0078,
+            0.0471,
+            0.0824
+          ],
+          "alpha": 0.24,
+          "hex": "#020c15"
+        },
+        "$description": "Drop shadow under avatars",
+        "$extensions": {
+          "com.figma": {
+            "collection": "Illustration",
+            "variable": "shadow/avatar"
+          }
+        }
+      },
+      "avatar-glyph": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "alpha": 0.15,
+          "hex": "#000000"
+        },
+        "$description": "Drop shadow of the passenger glyph",
+        "$extensions": {
+          "com.figma": {
+            "collection": "Illustration",
+            "variable": "shadow/avatar-glyph"
+          }
+        }
+      },
+      "gear-inner": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "alpha": 0.25,
+          "hex": "#000000"
+        },
+        "$description": "Inner shadow of the gear",
+        "$extensions": {
+          "com.figma": {
+            "collection": "Illustration",
+            "variable": "shadow/gear-inner"
+          }
+        }
+      }
+    },
+    "$extensions": {
+      "com.trava": {
+        "alsoUses": {
+          "Primary/700": "#075a70 (dotted connections)",
+          "Neutral/700 secondary": "#454545 (gear)"
+        },
+        "note": "These two come from the site colour variables and will be exported with them."
+      }
+    }
+  }
+}

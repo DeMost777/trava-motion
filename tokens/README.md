@@ -20,5 +20,6 @@
 
 ## Статус
 - `motion.tokens.json` — motion tokens v0, утверждены ([ADR 0010](../docs/decisions/0010-motion-tokens-v0.md)).
-  Формат W3C Design Tokens (DTCG) — предложение до задачи 1.8.
-- Design tokens (цвета и т.д.) — задачи 1.7–1.9.
+- `illustration.tokens.json` — палитра иллюстраций (18 цветов, Queue Manager), выгружена из Figma-коллекции
+  **Illustration** ([ADR 0011](../docs/decisions/0011-illustration-palette.md)). Fare Optimizer добавится в фазе 11.
+- Формат — **W3C DTCG** (утверждено). Цвета: source of truth — Figma, файлы не правятся руками.

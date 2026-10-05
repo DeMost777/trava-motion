@@ -15,3 +15,4 @@
 | [0008](0008-queue-manager-storyboard.md) | Сценарий Queue Manager | утверждено | 2026-10-02 |
 | [0009](0009-figma-layer-naming.md) | Именование слоёв в Figma (`m-<роль>`) | утверждено | 2026-10-05 |
 | [0010](0010-motion-tokens-v0.md) | Motion tokens v0 | утверждено | 2026-10-05 |
+| [0011](0011-illustration-palette.md) | Палитра иллюстраций: Figma «Illustration» + DTCG | утверждено | 2026-10-05 |
