@@ -139,15 +139,16 @@
   <section id="s-qm">
     <h2>5. Темп Queue Manager</h2>
     <p class="hint">Упрощённая схема по координатам фрейма Figma (480×459), не настоящий SVG. Цикл по сценарию:
-      волна импульсов к центру по эстафете → поворот + zoom gear без отскока → импульсы возвращаются на места → пауза → снова.</p>
+      волна импульсов к центру по эстафете → поворот + zoom gear без отскока → импульсы возвращаются на места → пауза → снова.
+      Геометрия — точные границы слоёв из Figma; импульс «уходит» в аватар/карточку и не рисуется поверх них. Слайдеры стоят на выбранных значениях.</p>
     <div class="grid2">
       <div class="qm-stage"><svg id="qm" viewBox="0 0 480 459" aria-label="Схема Queue Manager"></svg></div>
       <div class="controls" id="qm-controls">
-        <label>Время одного отрезка (с) <output data-for="segment"></output><input type="range" data-k="segment" min="0.2" max="1.2" step="0.05" value="0.45"></label>
-        <label>Сдвиг между волнами по глубине (с) <output data-for="offset"></output><input type="range" data-k="offset" min="0.1" max="1" step="0.05" value="0.35"></label>
-        <label>Поворот + zoom gear, длительность (с) <output data-for="gear"></output><input type="range" data-k="gear" min="0.6" max="2" step="0.05" value="1.2"></label>
+        <label>Время одного отрезка (с) <output data-for="segment"></output><input type="range" data-k="segment" min="0.2" max="1.2" step="0.05" value="0.5"></label>
+        <label>Сдвиг между волнами по глубине (с) <output data-for="offset"></output><input type="range" data-k="offset" min="0.1" max="1" step="0.05" value="0.2"></label>
+        <label>Поворот + zoom gear, длительность (с) <output data-for="gear"></output><input type="range" data-k="gear" min="0.6" max="2" step="0.05" value="1.5"></label>
         <label>Zoom gear (масштаб) <output data-for="zoom"></output><input type="range" data-k="zoom" min="1" max="1.4" step="0.05" value="1.2"></label>
-        <label>Пауза в конце цикла (с) <output data-for="pause"></output><input type="range" data-k="pause" min="0" max="3" step="0.1" value="1"></label>
+        <label>Пауза в конце цикла (с) <output data-for="pause"></output><input type="range" data-k="pause" min="0" max="3" step="0.1" value="1.2"></label>
         <div class="stat" id="qm-stat"></div>
         <button data-replay="qm">↻ Перезапустить цикл</button>
       </div>
@@ -312,19 +313,23 @@
   }
 
   // ---------------------------------------------------------------- 5. Queue Manager
-  // Geometry from the Figma frame 732:12579 (480×459): node centres, impulse rectangles, hub card.
+  // Exact frame-relative geometry read from Figma (frame 732:12579, 480×459) via absoluteBoundingBox.
   const NS = 'http://www.w3.org/2000/svg';
-  const COLS = [71.5, 155.6, 239.75, 323.9, 408];
-  const ROWS = [55.4, 143.4, 231.3, 319.3, 407.2];
-  const HUB = { x: 207.25, y: 199.6, size: 61.95 };
-  const NODE_R = 16.5;
-  const IMPULSES = [ // [x, y, w, h] from Figma metadata
-    [182.01,56.59,24.47,1.53],[182.01,143.77,24.47,1.53],[182.01,318.90,24.47,1.53],[182.01,230.96,13.77,1.53],[182.01,406.85,24.47,1.53],
-    [97.12,56.59,25.24,1.53],[97.12,143.77,25.24,1.53],[97.12,318.90,25.24,1.53],[97.12,230.96,25.24,1.53],[97.12,406.85,25.24,1.53],
-    [299.78,56.59,18.35,1.53],[299.78,143.77,18.35,1.53],[299.78,318.90,18.35,1.53],[299.78,230.96,18.35,1.53],[299.78,406.85,18.35,1.53],
-    [373.20,56.59,19.88,1.53],[373.20,143.77,19.88,1.53],[373.20,318.90,19.88,1.53],[373.20,230.96,19.88,1.53],[373.20,406.85,19.88,1.53],
-    [239.37,171.30,1.53,19.12],[239.37,88.71,1.53,19.12],[239.37,286.78,1.53,19.12],[239.37,376.26,1.53,19.12],
+  const AV_R = 16.44;                                            // avatar circle radius (Ellipse 32.88)
+  const AV_X = [71.5, 155.62, 239.75, 323.87, 407.99];           // avatar centres
+  const AV_Y = [55.44, 143.39, 231.33, 319.28, 407.23];
+  const HUB = { x: 207.25, y: 199.6, size: 61.94 };
+  const GEAR_C = [237.84, 230.19];                               // gear bbox centre
+  const LINES = [                                                // dotted connections: [x1, y1, x2, y2]
+    ...[57.36, 144.54, 231.72, 319.67, 407.61].flatMap((y) => [[87.95, y, 137.66, y], [172.07, y, 223.31, y], [255.43, y, 307.43, y], [339.55, y, 391.55, y]]),
+    [239.37, 77.24, 239.37, 123.89], [239.37, 164.42, 239.37, 204.19], [239.37, 251.6, 239.37, 298.25], [239.37, 341.08, 239.37, 387.73],
   ];
+  const IMPULSES = [                                             // m-impulse bounds [x, y, w, h]
+    ...[56.59, 143.77, 318.9, 406.85].flatMap((y) => [[97.12, y, 25.24, 1.53], [182.01, y, 24.47, 1.53], [281.43, y, 18.35, 1.53], [353.32, y, 19.88, 1.53]]),
+    [97.12, 230.96, 25.24, 1.53], [182.01, 230.96, 13.77, 1.53], [281.43, 230.96, 18.35, 1.53], [353.32, 230.96, 19.88, 1.53],
+    [238.6, 88.71, 1.53, 19.12], [238.6, 171.3, 1.53, 19.12], [238.6, 267.66, 1.53, 19.12], [238.6, 357.14, 1.53, 19.12],
+  ];
+  const IMP_TAIL = 'rgba(16,176,148,0)', IMP_HEAD = 'rgba(17,176,149,1)'; // impulse gradient from Figma
   const svgEl = (tag, attrs) => { const n = document.createElementNS(NS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); return n; };
 
   const qm = { params: {}, impulses: [], gear: null };
@@ -334,57 +339,65 @@
     const defs = svgEl('defs', {});
     defs.innerHTML = `
       <radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#0e5a63" stop-opacity=".55"/><stop offset="1" stop-color="#0e5a63" stop-opacity="0"/></radialGradient>
-      <linearGradient id="hubfill" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2abda3"/><stop offset=".5" stop-color="#8cf9e5"/><stop offset="1" stop-color="#2abda3"/></linearGradient>
-      <linearGradient id="imp" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2abda3" stop-opacity=".2"/><stop offset=".5" stop-color="#5ee8c4"/><stop offset="1" stop-color="#2abda3" stop-opacity=".2"/></linearGradient>`;
-    svg.append(defs, svgEl('circle', { cx: 240, cy: 231, r: 226, fill: 'url(#glow)' }));
-    // dotted lines between neighbours (rows + centre column)
-    ROWS.forEach((y) => COLS.slice(0, 4).forEach((x, i) => svg.append(svgEl('line', { x1: x + NODE_R, y1: y, x2: COLS[i + 1] - NODE_R, y2: y, stroke: '#2a6f76', 'stroke-dasharray': '1 3', 'stroke-width': 1 }))));
-    ROWS.slice(0, 4).forEach((y, i) => svg.append(svgEl('line', { x1: 240.5, y1: y + NODE_R, x2: 240.5, y2: ROWS[i + 1] - NODE_R, stroke: '#2a6f76', 'stroke-dasharray': '1 3', 'stroke-width': 1 })));
-    // passengers
-    ROWS.forEach((y, r) => COLS.forEach((x, c) => {
+      <linearGradient id="hubfill" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2abda3"/><stop offset=".5" stop-color="#8cf9e5"/><stop offset="1" stop-color="#2abda3"/></linearGradient>`;
+    svg.append(defs, svgEl('circle', { cx: 240, cy: 230.6, r: 226, fill: 'url(#glow)' }));
+    LINES.forEach(([x1, y1, x2, y2]) => svg.append(svgEl('line', { x1, y1, x2, y2, stroke: '#2a6f76', 'stroke-width': 0.76, 'stroke-dasharray': '1.53 1.53' })));
+
+    // Each impulse lives inside a clip = its connection line, trimmed at the hub edge.
+    // The bar slides toward the centre and disappears by sliding *into* the clip edge,
+    // so it never draws over an avatar or the hub card.
+    qm.impulses = IMPULSES.map(([x, y, w, h], i) => {
+      const horizontal = w > h;
+      const cx = x + w / 2, cy = y + h / 2;
+      const line = LINES.find(([x1, y1, x2, y2]) => horizontal
+        ? Math.abs(y1 - cy) < 1 && y1 === y2 && cx >= x1 && cx <= x2
+        : Math.abs(x1 - cx) < 1 && x1 === x2 && cy >= y1 && cy <= y2);
+      const dir = horizontal ? (cx < 239.37 ? 1 : -1) : (cy < 230.6 ? 1 : -1);
+      let [a, b] = horizontal ? [line[0], line[2]] : [line[1], line[3]];
+      if (horizontal && Math.abs(cy - 231.72) < 1) { a = Math.min(a, HUB.x + HUB.size); b = Math.min(b, HUB.x); if (dir < 0) { a = Math.max(line[0], HUB.x + HUB.size); b = line[2]; } }
+      if (!horizontal) { if (dir > 0) b = Math.min(b, HUB.y); else a = Math.max(a, HUB.y + HUB.size); }
+      // never past an avatar edge (in the design some lines start ~0.8 px inside the circle)
+      const centres = horizontal ? AV_X : AV_Y, pos = horizontal ? cx : cy, GAP = 0.5;
+      centres.forEach((c) => { if (c < pos) a = Math.max(a, c + AV_R + GAP); else b = Math.min(b, c - AV_R - GAP); });
+      const end = dir > 0 ? b : a;                                  // edge the impulse runs into
+      const head = horizontal ? (dir > 0 ? x + w : x) : (dir > 0 ? y + h : y);
+      const len = horizontal ? w : h;
+      const travel = Math.abs(end - head) + len;                    // until the tail passes the edge
+
+      const clip = svgEl('clipPath', { id: `clip${i}`, clipPathUnits: 'userSpaceOnUse' });
+      clip.append(horizontal ? svgEl('rect', { x: a, y: cy - 3, width: b - a, height: 6 }) : svgEl('rect', { x: cx - 3, y: a, width: 6, height: b - a }));
+      const grad = svgEl('linearGradient', { id: `imp${i}`, gradientUnits: 'objectBoundingBox',
+        x1: horizontal ? (dir > 0 ? 0 : 1) : 0, x2: horizontal ? (dir > 0 ? 1 : 0) : 0,
+        y1: horizontal ? 0 : (dir > 0 ? 0 : 1), y2: horizontal ? 0 : (dir > 0 ? 1 : 0) });
+      grad.innerHTML = `<stop offset="0" stop-color="${IMP_TAIL}"/><stop offset="1" stop-color="${IMP_HEAD}"/>`;
+      defs.append(clip, grad);
+      const wrap = svgEl('g', { 'clip-path': `url(#clip${i})` });
+      const rect = svgEl('rect', { x, y, width: w, height: h, fill: `url(#imp${i})` });
+      wrap.append(rect);
+      svg.append(wrap);
+
+      const row = AV_Y.findIndex((ay) => Math.abs(ay - cy) < 3);
+      const depth = horizontal
+        ? ((cx < 130 || cx > 350) ? 2 : 1) + (row === 2 ? 0 : row === 1 || row === 3 ? 1 : 2)
+        : (cy > 150 && cy < 310 ? 1 : 2);
+      return { rect, depth, dx: horizontal ? dir * travel : 0, dy: horizontal ? 0 : dir * travel };
+    });
+
+    // passengers (approximation of "Icon: user")
+    AV_Y.forEach((ay, r) => AV_X.forEach((ax, c) => {
       if (r === 2 && c === 2) return;
       const g = svgEl('g', { opacity: (r === 0 || r === 4) && (c === 0 || c === 4) ? 0.45 : 1 });
-      g.append(svgEl('circle', { cx: x, cy: y, r: NODE_R, fill: '#06475a' }), svgEl('circle', { cx: x, cy: y - 4, r: 4, fill: '#3f8090' }),
-        svgEl('path', { d: `M${x - 7} ${y + 9}c0-4 3-6 7-6s7 2 7 6z`, fill: '#3f8090' }));
+      g.append(svgEl('circle', { cx: ax, cy: ay, r: AV_R, fill: '#06475a' }), svgEl('circle', { cx: ax, cy: ay - 4, r: 3.8, fill: '#3f8090' }),
+        svgEl('path', { d: `M${ax - 7} ${ay + 8.5}c0-4 3-6 7-6s7 2 7 6z`, fill: '#3f8090' }));
       svg.append(g);
     }));
-    // impulses (design positions) + their travel to the next node / hub edge
-    qm.impulses = IMPULSES.map(([x, y, w, h]) => {
-      const horizontal = w > h;
-      const rect = svgEl('rect', { x, y, width: w, height: h, rx: 0.75, fill: horizontal ? 'url(#imp)' : '#5ee8c4' });
-      svg.append(rect);
-      let dx = 0, dy = 0, depth;
-      if (horizontal) {
-        const rowIdx = ROWS.findIndex((ry) => Math.abs(ry - (y + h / 2)) < 3);
-        const toRight = x + w / 2 < 240;
-        const isCentreRow = rowIdx === 2;
-        if (toRight) {
-          const nextCol = COLS.find((cx) => cx > x + w);
-          const targetX = isCentreRow && nextCol === COLS[2] ? HUB.x : nextCol - NODE_R;
-          dx = targetX - (x + w);
-        } else {
-          const nextCol = [...COLS].reverse().find((cx) => cx < x);
-          const targetX = isCentreRow && nextCol === COLS[2] ? HUB.x + HUB.size : nextCol + NODE_R;
-          dx = targetX - x;
-        }
-        const outer = x < 120 || x > 360;
-        depth = (outer ? 2 : 1) + (rowIdx === 2 ? 0 : rowIdx === 1 || rowIdx === 3 ? 1 : 2);
-      } else {
-        const down = y < 231;
-        const near = y > 150 && y < 300;
-        if (down) dy = (near ? HUB.y : ROWS[1] - NODE_R) - (y + h);
-        else dy = (near ? HUB.y + HUB.size : ROWS[3] + NODE_R) - y;
-        depth = near ? 1 : 2;
-      }
-      return { rect, dx, dy, depth };
-    });
     // hub + gear
-    svg.append(svgEl('rect', { x: HUB.x, y: HUB.y, width: HUB.size, height: HUB.size, rx: 12, fill: '#f4f6fe' }),
-      svgEl('rect', { x: HUB.x + 3.8, y: HUB.y + 3.8, width: 53.5, height: 53.5, rx: 9, fill: 'url(#hubfill)' }));
+    svg.append(svgEl('rect', { x: HUB.x, y: HUB.y, width: HUB.size, height: HUB.size, rx: 12.24, fill: '#f4f6fe' }),
+      svgEl('rect', { x: 211.07, y: 203.42, width: 53.53, height: 53.53, rx: 9.18, fill: 'url(#hubfill)' }));
     const gear = svgEl('g', {});
-    const cx = 238.2, cy = 230.6;
-    for (let i = 0; i < 8; i++) gear.append(svgEl('rect', { x: cx - 2.4, y: cy - 11, width: 4.8, height: 5, rx: 1, fill: '#0b3a46', transform: `rotate(${i * 45} ${cx} ${cy})` }));
-    gear.append(svgEl('circle', { cx, cy, r: 7.6, fill: '#0b3a46' }), svgEl('circle', { cx, cy, r: 3.2, fill: '#8cf9e5' }));
+    const [gx, gy] = GEAR_C;
+    for (let i = 0; i < 8; i++) gear.append(svgEl('rect', { x: gx - 2.4, y: gy - 10.7, width: 4.8, height: 5, rx: 1, fill: '#0b3a46', transform: `rotate(${i * 45} ${gx} ${gy})` }));
+    gear.append(svgEl('circle', { cx: gx, cy: gy, r: 7.4, fill: '#0b3a46' }), svgEl('circle', { cx: gx, cy: gy, r: 3.1, fill: '#8cf9e5' }));
     svg.append(gear);
     qm.gear = gear;
   }
@@ -401,20 +414,19 @@
     (timelines.qm || []).forEach((t) => t.kill());
     const { segment, offset, gear, zoom, pause } = qm.params;
     const maxDepth = 4;
+    const origin = GEAR_C.join(' ');
     const tl = gsap.timeline({ repeat: -1 });
-    // wave: deepest segments start first; each impulse slides to its node/hub and fades out on arrival
+    // wave: deepest segments start first; each impulse slides toward the centre and into the clip edge
     qm.impulses.forEach(({ rect, dx, dy, depth }) => {
-      const start = (maxDepth - depth) * offset;
-      tl.fromTo(rect, { x: 0, y: 0, opacity: 1 }, { x: dx, y: dy, duration: segment, ease: 'power1.in' }, start)
-        .to(rect, { opacity: 0, duration: Math.min(0.15, segment / 3), ease: 'none' }, start + segment - Math.min(0.15, segment / 3));
+      tl.fromTo(rect, { x: 0, y: 0, opacity: 1 }, { x: dx, y: dy, duration: segment, ease: 'power1.inOut' }, (maxDepth - depth) * offset);
     });
     const arrive = (maxDepth - 1) * offset + segment;
     // gear: full turn + zoom in/out, smooth return (no overshoot)
-    tl.fromTo(qm.gear, { rotation: 0, scale: 1, svgOrigin: '238.2 230.6' }, { rotation: 360, duration: gear, ease: 'power2.inOut', svgOrigin: '238.2 230.6' }, arrive)
-      .to(qm.gear, { scale: zoom, duration: gear / 2, ease: 'power2.out', svgOrigin: '238.2 230.6' }, arrive)
-      .to(qm.gear, { scale: 1, duration: gear / 2, ease: 'power2.inOut', svgOrigin: '238.2 230.6' }, arrive + gear / 2);
-    // impulses return to their design places while the gear turns → rest frame = design
-    qm.impulses.forEach(({ rect }) => tl.set(rect, { x: 0, y: 0 }, arrive + 0.01).to(rect, { opacity: 1, duration: 0.35, ease: 'power2.out' }, arrive + gear * 0.5));
+    tl.fromTo(qm.gear, { rotation: 0, scale: 1, svgOrigin: origin }, { rotation: 360, duration: gear, ease: 'power1.inOut', svgOrigin: origin }, arrive)
+      .to(qm.gear, { scale: zoom, duration: gear / 2, ease: 'sine.out', svgOrigin: origin }, arrive)
+      .to(qm.gear, { scale: 1, duration: gear / 2, ease: 'power1.inOut', svgOrigin: origin }, arrive + gear / 2);
+    // impulses fade back in at their design places while the gear turns → rest frame = design
+    qm.impulses.forEach(({ rect }) => tl.set(rect, { x: 0, y: 0, opacity: 0 }, arrive + 0.01).to(rect, { opacity: 1, duration: 0.5, ease: 'sine.out' }, arrive + gear * 0.5));
     tl.to({}, { duration: pause }, arrive + gear);
     timelines.qm = [tl];
     const cycle = arrive + gear + pause;
