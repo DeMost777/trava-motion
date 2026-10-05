@@ -1,0 +1,56 @@
+{
+  "$description": "Trava motion tokens v0. Values chosen by the team on the playground (playground/motion/index.html), 2026-10-05. Format: W3C Design Tokens (DTCG). Animations must take timing values from here and never invent their own.",
+  "motion": {
+    "ease": {
+      "$type": "cubicBezier",
+      "enter": {
+        "$value": [0.61, 1, 0.88, 1],
+        "$description": "Objects appearing. Soft deceleration, no overshoot (principle §1).",
+        "$extensions": { "com.gsap": { "ease": "sine.out" } }
+      },
+      "standard": {
+        "$value": [0.45, 0, 0.55, 1],
+        "$description": "Movement from A to B (e.g. impulses along a line, gear turn). Symmetric, calm.",
+        "$extensions": { "com.gsap": { "ease": "power1.inOut" } }
+      },
+      "exit": {
+        "$value": [0.12, 0, 0.39, 0],
+        "$description": "Objects disappearing. Gentle acceleration.",
+        "$extensions": { "com.gsap": { "ease": "sine.in" } }
+      },
+      "draw": {
+        "$value": [0.45, 0, 0.55, 1],
+        "$description": "Lines and graphs being drawn. Same curve as standard.",
+        "$extensions": { "com.gsap": { "ease": "power1.inOut" } }
+      }
+    },
+    "duration": {
+      "$type": "duration",
+      "micro": { "$value": { "value": 250, "unit": "ms" }, "$description": "Small details: fades, tiny markers." },
+      "short": { "$value": { "value": 500, "unit": "ms" }, "$description": "Small objects appearing (cards, nodes)." },
+      "medium": { "$value": { "value": 600, "unit": "ms" }, "$description": "Transitions and medium movements." },
+      "long": { "$value": { "value": 1000, "unit": "ms" }, "$description": "Lines, graphs, large movements." }
+    },
+    "distance": {
+      "$type": "dimension",
+      "enter": {
+        "$value": { "value": 16, "unit": "px" },
+        "$description": "Offset for fade + shift appearance. In SVG this is user units of the illustration frame, so it scales with the illustration."
+      }
+    },
+    "scale": {
+      "$type": "number",
+      "enter": { "$value": 0.9, "$description": "Start scale for fade + scale appearance." }
+    },
+    "stagger": {
+      "$type": "duration",
+      "tight": { "$value": { "value": 40, "unit": "ms" }, "$description": "Dense groups (many small elements)." },
+      "default": { "$value": { "value": 80, "unit": "ms" }, "$description": "Typical groups." },
+      "relaxed": { "$value": { "value": 120, "unit": "ms" }, "$description": "Few large elements, e.g. notifications." }
+    },
+    "trigger": {
+      "threshold": { "$type": "number", "$value": 0.35, "$description": "Share of the illustration that must be visible before it starts." },
+      "delay": { "$type": "duration", "$value": { "value": 0, "unit": "ms" }, "$description": "Delay between becoming visible and starting." }
+    }
+  }
+}

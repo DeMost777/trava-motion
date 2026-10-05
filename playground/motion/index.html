@@ -313,7 +313,8 @@
   }
 
   // ---------------------------------------------------------------- 5. Queue Manager
-  // Exact frame-relative geometry read from Figma (frame 732:12579, 480×459) via absoluteBoundingBox.
+  // Exact frame-relative geometry read from Figma (frame 732:12579, 480×459) via absoluteBoundingBox,
+  // after aligning lines and impulses to avatar centres in Figma (2026-10-05).
   const NS = 'http://www.w3.org/2000/svg';
   const AV_R = 16.44;                                            // avatar circle radius (Ellipse 32.88)
   const AV_X = [71.5, 155.62, 239.75, 323.87, 407.99];           // avatar centres
@@ -321,13 +322,13 @@
   const HUB = { x: 207.25, y: 199.6, size: 61.94 };
   const GEAR_C = [237.84, 230.19];                               // gear bbox centre
   const LINES = [                                                // dotted connections: [x1, y1, x2, y2]
-    ...[57.36, 144.54, 231.72, 319.67, 407.61].flatMap((y) => [[87.95, y, 137.66, y], [172.07, y, 223.31, y], [255.43, y, 307.43, y], [339.55, y, 391.55, y]]),
-    [239.37, 77.24, 239.37, 123.89], [239.37, 164.42, 239.37, 204.19], [239.37, 251.6, 239.37, 298.25], [239.37, 341.08, 239.37, 387.73],
+    ...[55.44, 143.39, 231.33, 319.28, 407.23].flatMap((y) => [[87.95, y, 137.66, y], [172.07, y, 223.31, y], [255.43, y, 307.43, y], [339.55, y, 391.55, y]]),
+    [239.75, 77.24, 239.75, 123.89], [239.75, 164.42, 239.75, 204.19], [239.75, 251.6, 239.75, 298.25], [239.75, 341.08, 239.75, 387.73],
   ];
   const IMPULSES = [                                             // m-impulse bounds [x, y, w, h]
-    ...[56.59, 143.77, 318.9, 406.85].flatMap((y) => [[97.12, y, 25.24, 1.53], [182.01, y, 24.47, 1.53], [281.43, y, 18.35, 1.53], [353.32, y, 19.88, 1.53]]),
-    [97.12, 230.96, 25.24, 1.53], [182.01, 230.96, 13.77, 1.53], [281.43, 230.96, 18.35, 1.53], [353.32, 230.96, 19.88, 1.53],
-    [238.6, 88.71, 1.53, 19.12], [238.6, 171.3, 1.53, 19.12], [238.6, 267.66, 1.53, 19.12], [238.6, 357.14, 1.53, 19.12],
+    ...[54.67, 142.62, 318.51, 406.47].flatMap((y) => [[97.12, y, 25.24, 1.53], [182.01, y, 24.47, 1.53], [281.43, y, 18.35, 1.53], [353.32, y, 19.88, 1.53]]),
+    [97.12, 230.57, 25.24, 1.53], [182.01, 230.57, 13.77, 1.53], [281.43, 230.57, 18.35, 1.53], [353.32, 230.57, 19.88, 1.53],
+    [238.98, 88.71, 1.53, 19.12], [238.98, 171.3, 1.53, 19.12], [238.98, 267.66, 1.53, 19.12], [238.98, 357.14, 1.53, 19.12],
   ];
   const IMP_TAIL = 'rgba(16,176,148,0)', IMP_HEAD = 'rgba(17,176,149,1)'; // impulse gradient from Figma
   const svgEl = (tag, attrs) => { const n = document.createElementNS(NS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); return n; };
@@ -352,9 +353,9 @@
       const line = LINES.find(([x1, y1, x2, y2]) => horizontal
         ? Math.abs(y1 - cy) < 1 && y1 === y2 && cx >= x1 && cx <= x2
         : Math.abs(x1 - cx) < 1 && x1 === x2 && cy >= y1 && cy <= y2);
-      const dir = horizontal ? (cx < 239.37 ? 1 : -1) : (cy < 230.6 ? 1 : -1);
+      const dir = horizontal ? (cx < 239.75 ? 1 : -1) : (cy < 230.6 ? 1 : -1);
       let [a, b] = horizontal ? [line[0], line[2]] : [line[1], line[3]];
-      if (horizontal && Math.abs(cy - 231.72) < 1) { a = Math.min(a, HUB.x + HUB.size); b = Math.min(b, HUB.x); if (dir < 0) { a = Math.max(line[0], HUB.x + HUB.size); b = line[2]; } }
+      if (horizontal && Math.abs(cy - 231.33) < 1) { a = Math.min(a, HUB.x + HUB.size); b = Math.min(b, HUB.x); if (dir < 0) { a = Math.max(line[0], HUB.x + HUB.size); b = line[2]; } }
       if (!horizontal) { if (dir > 0) b = Math.min(b, HUB.y); else a = Math.max(a, HUB.y + HUB.size); }
       // never past an avatar edge (in the design some lines start ~0.8 px inside the circle)
       const centres = horizontal ? AV_X : AV_Y, pos = horizontal ? cx : cy, GAP = 0.5;

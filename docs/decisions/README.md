@@ -14,3 +14,4 @@
 | [0007](0007-meaningful-loop-exception.md) | Исключение для смыслового цикла | утверждено | 2026-10-02 |
 | [0008](0008-queue-manager-storyboard.md) | Сценарий Queue Manager | утверждено | 2026-10-02 |
 | [0009](0009-figma-layer-naming.md) | Именование слоёв в Figma (`m-<роль>`) | утверждено | 2026-10-05 |
+| [0010](0010-motion-tokens-v0.md) | Motion tokens v0 | утверждено | 2026-10-05 |
