@@ -6,14 +6,14 @@
 |---|---|---|
 | Файл с продуктовыми карточками | [Landing page, node 271-17280](https://www.figma.com/design/9EMDUpk6j30cPIIzRENFQh/Landing-page?node-id=271-17280) | все карточки и иллюстрации |
 | Стили: цвета, эффекты, типографика | | Variables или Color Styles? (Q20) |
-| Queue Manager — иллюстрация | [node 732-12579](https://www.figma.com/design/9EMDUpk6j30cPIIzRENFQh/Landing-page?node-id=732-12579) | POC 1, фрейм 480×459, прозрачный фон; в gear есть keyframe-анимация (цикл 2 с) |
-| Fare Optimizer — иллюстрация | node `271:8710` | POC 2, 480×459 |
-| Ticketing | | |
-| Quality Control | | |
-| Schedule Changes | | |
-| Client Interaction | | |
-| Virtual Payments | | |
-| Unused Tickets | | |
+| Queue Manager — иллюстрация (рабочая `732:12579`) | [node 732-12579](https://www.figma.com/design/9EMDUpk6j30cPIIzRENFQh/Landing-page?node-id=732-12579) | POC 1, фрейм 480×459, прозрачный фон; в gear есть keyframe-анимация (цикл 2 с) |
+| Fare Optimizer — иллюстрация | рабочая: `761:9491` (экземпляр «Optimization», 480×480); оригинал в карточках `271:8710` | POC 2, есть keyframes |
+| Ticketing | `761:9201` (секция «ai task» `732:13130`) | 480×480, есть keyframes |
+| Quality Control | `761:9334` | 480×480, есть keyframes |
+| Schedule Changes | `761:8758` | 480×394 |
+| Client Interaction | `761:8858` | 480×459 |
+| Virtual Payments | `761:8921` | 477×456 |
+| Unused Tickets | `761:9124` | 477×456 |
 
 Доступ: Figma подключается к Claude Code через Figma MCP (задача 0.3). Через него Claude читает
 структуру фреймов, переменные (Variables) и делает скриншоты для сверки.
