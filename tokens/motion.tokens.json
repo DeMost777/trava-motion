@@ -22,6 +22,11 @@
         "$value": [0.45, 0, 0.55, 1],
         "$description": "Lines and graphs being drawn. Same curve as standard.",
         "$extensions": { "com.gsap": { "ease": "power1.inOut" } }
+      },
+      "flow": {
+        "$value": [0, 0, 1, 1],
+        "$description": "Continuous streams (e.g. impulses flowing along lines). Constant speed, so the stream reads as one steady flow. Added 2026-10-06, ADR 0013.",
+        "$extensions": { "com.gsap": { "ease": "none" } }
       }
     },
     "duration": {

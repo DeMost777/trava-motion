@@ -140,20 +140,20 @@
     <h2>5. Темп Queue Manager</h2>
     <p class="hint">Упрощённая схема по координатам фрейма Figma (480×459), не настоящий SVG. Геометрия — точные границы слоёв из Figma;
       импульс выходит из-под аватара и уходит под следующий узел, поверх них не рисуется.</p>
-    <p class="hint"><b>Поток (поправка 2026-10-06, Q23):</b> по каждой линии импульсы идут непрерывно, один за другим, к центру.
+    <p class="hint"><b>Поток (утверждено 2026-10-06, ADR 0013; слайдеры стоят на выбранных значениях):</b> по каждой линии импульсы идут непрерывно, один за другим, к центру.
       Первый кадр = макет: импульсы из макета продолжают движение, новые заполняют сеть от краёв к центру.
-      Gear периодически делает поворот + zoom без отскока. <b>Волны</b> — прежний утверждённый вариант, для сравнения.</p>
+      Gear периодически делает поворот + zoom без отскока. <b>Волны</b> — прежний вариант (ADR 0008, заменён), для сравнения.</p>
     <div class="grid2">
       <div class="qm-stage"><svg id="qm" viewBox="0 0 480 459" aria-label="Схема Queue Manager"></svg></div>
       <div class="controls" id="qm-controls">
         <div class="seg" id="qm-mode"><button data-v="flow" aria-pressed="true">Поток (новое)</button><button data-v="wave" aria-pressed="false">Волны (было)</button></div>
-        <label data-mode="flow">Время прохода одного отрезка (с) <output data-for="crossing"></output><input type="range" data-k="crossing" min="0.4" max="2.5" step="0.05" value="1"></label>
-        <label data-mode="flow">Импульсов на отрезке одновременно <output data-for="perSegment"></output><input type="range" data-k="perSegment" min="1" max="4" step="0.5" value="2"></label>
+        <label data-mode="flow">Время прохода одного отрезка (с) <output data-for="crossing"></output><input type="range" data-k="crossing" min="0.4" max="2.5" step="0.05" value="1.2"></label>
+        <label data-mode="flow">Импульсов на отрезке одновременно <output data-for="perSegment"></output><input type="range" data-k="perSegment" min="1" max="4" step="0.5" value="1"></label>
         <div data-mode="flow" class="seg" id="qm-flow-ease"><button data-v="none" aria-pressed="true">равномерно</button><button data-v="power1.inOut" aria-pressed="false">standard</button></div>
-        <label data-mode="flow">Gear: интервал между реакциями (с) <output data-for="gearEvery"></output><input type="range" data-k="gearEvery" min="2" max="6" step="0.1" value="3.5"></label>
+        <label data-mode="flow">Gear: интервал между реакциями (с) <output data-for="gearEvery"></output><input type="range" data-k="gearEvery" min="2" max="6" step="0.1" value="3"></label>
         <label data-mode="wave">Время одного отрезка (с) <output data-for="segment"></output><input type="range" data-k="segment" min="0.2" max="1.2" step="0.05" value="0.5"></label>
         <label data-mode="wave">Сдвиг между волнами по глубине (с) <output data-for="offset"></output><input type="range" data-k="offset" min="0.1" max="1" step="0.05" value="0.2"></label>
-        <label>Поворот + zoom gear, длительность (с) <output data-for="gear"></output><input type="range" data-k="gear" min="0.6" max="2" step="0.05" value="1.5"></label>
+        <label>Поворот + zoom gear, длительность (с) <output data-for="gear"></output><input type="range" data-k="gear" min="0.6" max="2" step="0.05" value="1.3"></label>
         <label>Zoom gear (масштаб) <output data-for="zoom"></output><input type="range" data-k="zoom" min="1" max="1.4" step="0.05" value="1.2"></label>
         <label data-mode="wave">Пауза в конце цикла (с) <output data-for="pause"></output><input type="range" data-k="pause" min="0" max="3" step="0.1" value="1.2"></label>
         <div class="stat" id="qm-stat"></div>

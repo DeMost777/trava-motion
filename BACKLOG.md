@@ -37,7 +37,7 @@
 | 1.7 | Аудит дизайн-стилей в Figma | `docs/figma-sources.md` заполнен; таблица: цвета, градиенты, тени, скругления, типографика иллюстраций + где используются | каждый цвет иллюстраций POC соотнесён со стилем Figma; найденные «чужие» цвета перечислены | ✅ `docs/audits/1.7-figma-styles.md` |
 | 1.8 | Формат и структура системы токенов | решение: формат файлов, именование, как синхронизировать с Figma, как design и motion токены живут вместе | утверждено, записано в ADR | ✅ [ADR 0011](docs/decisions/0011-illustration-palette.md) |
 | 1.9 | Design tokens v0 | design-токены в `tokens/` по решению 1.8 | значения совпадают с Figma (сверка по таблице 1.7) | 🟡 Queue Manager готов (`tokens/illustration.tokens.json`); Fare Optimizer — в фазе 11 |
-| 1.10 | Сценарий Queue Manager | `animations/queue-manager/brief.md` + `storyboard.md` (сцены, решения) | сценарий утверждён целиком | ✅ [ADR 0008](docs/decisions/0008-queue-manager-storyboard.md) |
+| 1.10 | Сценарий Queue Manager | `animations/queue-manager/brief.md` + `storyboard.md` (сцены, решения) | сценарий утверждён целиком | ✅ [ADR 0008](docs/decisions/0008-queue-manager-storyboard.md), поток — [ADR 0013](docs/decisions/0013-queue-manager-continuous-flow.md) |
 
 ## Фаза 2 — SVG: от Figma до чистого исходника (на Queue Manager)
 Цель: доказать, что SVG из Figma пригоден для анимации без изменения внешнего вида.

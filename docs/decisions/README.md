@@ -12,8 +12,9 @@
 | [0005](0005-ai-environment-principles.md) | Структура, флоу, принципы AI-среды | утверждено | 2026-10-02 |
 | [0006](0006-motion-principles.md) | Motion principles | утверждено | 2026-10-02 |
 | [0007](0007-meaningful-loop-exception.md) | Исключение для смыслового цикла | утверждено | 2026-10-02 |
-| [0008](0008-queue-manager-storyboard.md) | Сценарий Queue Manager | утверждено | 2026-10-02 |
+| [0008](0008-queue-manager-storyboard.md) | Сценарий Queue Manager | утверждено; сцены 2–4 заменены 0013 | 2026-10-02 |
 | [0009](0009-figma-layer-naming.md) | Именование слоёв в Figma (`m-<роль>`) | утверждено | 2026-10-05 |
 | [0010](0010-motion-tokens-v0.md) | Motion tokens v0 | утверждено | 2026-10-05 |
 | [0011](0011-illustration-palette.md) | Палитра иллюстраций: Figma «Illustration» + DTCG | утверждено | 2026-10-05 |
 | [0012](0012-illustration-audit.md) | Итоги аудита иллюстраций: `m-impulse`, keyframes Figma как прототип, порядок | утверждено | 2026-10-06 |
+| [0013](0013-queue-manager-continuous-flow.md) | Queue Manager: непрерывный поток импульсов вместо волн | утверждено | 2026-10-06 |
