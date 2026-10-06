@@ -28,8 +28,8 @@
 
 | ID | Задача | Результат | Готово, когда | |
 |---|---|---|---|---|
-| 1.1 | Аудит всех иллюстраций в Figma | таблица: иллюстрация → элементы → повторяющиеся паттерны движения | вместе прошли таблицу | ✋ 🟡 `docs/audits/1.1-illustrations.md` |
-| 1.2 | Сбор референсов движения | 5–10 примеров «нравится / не нравится» с комментариями | подборка обсуждена | ⬜ |
+| 1.1 | Аудит всех иллюстраций в Figma | таблица: иллюстрация → элементы → повторяющиеся паттерны движения | вместе прошли таблицу | ✅ [ADR 0012](docs/decisions/0012-illustration-audit.md) |
+| 1.2 | Сбор референсов движения | 5–10 примеров «нравится / не нравится» с комментариями | подборка обсуждена | 🟡 план |
 | 1.3 | Motion principles | интервью (Claude задаёт вопросы через AskUserQuestion) → `motion/principles.md`: характер, длительность, запуск, повтор, idle, табы, mobile, reduced motion (Q4–Q10) | утверждено, записано в ADR | ✅ [ADR 0006](docs/decisions/0006-motion-principles.md) |
 | 1.4 | Motion tokens v0 | motion-токены в `tokens/` с обоснованием каждого значения | утверждено после просмотра демо (1.5) | ✅ [ADR 0010](docs/decisions/0010-motion-tokens-v0.md) |
 | 1.5 | Демо-стенд токенов | одна простая HTML-страница: те же объекты с разными easing и длительностями рядом | по нему выбрали значения для 1.4 | ✅ значения выбраны, `playground/motion/index.html` |
@@ -132,5 +132,5 @@ Skills пишутся **после** того, как этап пройден в
 | 12.6 | Subagents (если нужны) | Builder / независимый reviewer | решено по факту: нужна ли изоляция | ✋ ⬜ |
 
 ## Фаза 13 — Остальные иллюстрации
-Ticketing, Quality Control, Schedule Changes, Client Interaction, Virtual Payments, Unused Tickets.
-Порядок и приоритеты определим после фазы 11.
+Порядок ([ADR 0012](docs/decisions/0012-illustration-audit.md)): **Client Interaction → Quality Control**, затем
+Ticketing, Schedule Changes, Virtual Payments, Unused Tickets (порядок остальных — после фазы 11).

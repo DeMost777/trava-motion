@@ -16,3 +16,4 @@
 | [0009](0009-figma-layer-naming.md) | Именование слоёв в Figma (`m-<роль>`) | утверждено | 2026-10-05 |
 | [0010](0010-motion-tokens-v0.md) | Motion tokens v0 | утверждено | 2026-10-05 |
 | [0011](0011-illustration-palette.md) | Палитра иллюстраций: Figma «Illustration» + DTCG | утверждено | 2026-10-05 |
+| [0012](0012-illustration-audit.md) | Итоги аудита иллюстраций: `m-impulse`, keyframes Figma как прототип, порядок | утверждено | 2026-10-06 |
