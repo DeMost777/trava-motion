@@ -138,17 +138,24 @@
   <!-- 5. QUEUE MANAGER -->
   <section id="s-qm">
     <h2>5. Темп Queue Manager</h2>
-    <p class="hint">Упрощённая схема по координатам фрейма Figma (480×459), не настоящий SVG. Цикл по сценарию:
-      волна импульсов к центру по эстафете → поворот + zoom gear без отскока → импульсы возвращаются на места → пауза → снова.
-      Геометрия — точные границы слоёв из Figma; импульс «уходит» в аватар/карточку и не рисуется поверх них. Слайдеры стоят на выбранных значениях.</p>
+    <p class="hint">Упрощённая схема по координатам фрейма Figma (480×459), не настоящий SVG. Геометрия — точные границы слоёв из Figma;
+      импульс выходит из-под аватара и уходит под следующий узел, поверх них не рисуется.</p>
+    <p class="hint"><b>Поток (поправка 2026-10-06, Q23):</b> по каждой линии импульсы идут непрерывно, один за другим, к центру.
+      Первый кадр = макет: импульсы из макета продолжают движение, новые заполняют сеть от краёв к центру.
+      Gear периодически делает поворот + zoom без отскока. <b>Волны</b> — прежний утверждённый вариант, для сравнения.</p>
     <div class="grid2">
       <div class="qm-stage"><svg id="qm" viewBox="0 0 480 459" aria-label="Схема Queue Manager"></svg></div>
       <div class="controls" id="qm-controls">
-        <label>Время одного отрезка (с) <output data-for="segment"></output><input type="range" data-k="segment" min="0.2" max="1.2" step="0.05" value="0.5"></label>
-        <label>Сдвиг между волнами по глубине (с) <output data-for="offset"></output><input type="range" data-k="offset" min="0.1" max="1" step="0.05" value="0.2"></label>
+        <div class="seg" id="qm-mode"><button data-v="flow" aria-pressed="true">Поток (новое)</button><button data-v="wave" aria-pressed="false">Волны (было)</button></div>
+        <label data-mode="flow">Время прохода одного отрезка (с) <output data-for="crossing"></output><input type="range" data-k="crossing" min="0.4" max="2.5" step="0.05" value="1"></label>
+        <label data-mode="flow">Импульсов на отрезке одновременно <output data-for="perSegment"></output><input type="range" data-k="perSegment" min="1" max="4" step="0.5" value="2"></label>
+        <div data-mode="flow" class="seg" id="qm-flow-ease"><button data-v="none" aria-pressed="true">равномерно</button><button data-v="power1.inOut" aria-pressed="false">standard</button></div>
+        <label data-mode="flow">Gear: интервал между реакциями (с) <output data-for="gearEvery"></output><input type="range" data-k="gearEvery" min="2" max="6" step="0.1" value="3.5"></label>
+        <label data-mode="wave">Время одного отрезка (с) <output data-for="segment"></output><input type="range" data-k="segment" min="0.2" max="1.2" step="0.05" value="0.5"></label>
+        <label data-mode="wave">Сдвиг между волнами по глубине (с) <output data-for="offset"></output><input type="range" data-k="offset" min="0.1" max="1" step="0.05" value="0.2"></label>
         <label>Поворот + zoom gear, длительность (с) <output data-for="gear"></output><input type="range" data-k="gear" min="0.6" max="2" step="0.05" value="1.5"></label>
         <label>Zoom gear (масштаб) <output data-for="zoom"></output><input type="range" data-k="zoom" min="1" max="1.4" step="0.05" value="1.2"></label>
-        <label>Пауза в конце цикла (с) <output data-for="pause"></output><input type="range" data-k="pause" min="0" max="3" step="0.1" value="1.2"></label>
+        <label data-mode="wave">Пауза в конце цикла (с) <output data-for="pause"></output><input type="range" data-k="pause" min="0" max="3" step="0.1" value="1.2"></label>
         <div class="stat" id="qm-stat"></div>
         <button data-replay="qm">↻ Перезапустить цикл</button>
       </div>
@@ -333,7 +340,7 @@
   const IMP_TAIL = 'rgba(16,176,148,0)', IMP_HEAD = 'rgba(17,176,149,1)'; // impulse gradient from Figma
   const svgEl = (tag, attrs) => { const n = document.createElementNS(NS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); return n; };
 
-  const qm = { params: {}, impulses: [], gear: null };
+  const qm = { params: {}, impulses: [], gear: null, mode: 'flow', flowEase: 'none' };
   function buildQmScene() {
     const svg = document.getElementById('qm');
     svg.innerHTML = '';
@@ -381,7 +388,8 @@
       const depth = horizontal
         ? ((cx < 130 || cx > 350) ? 2 : 1) + (row === 2 ? 0 : row === 1 || row === 3 ? 1 : 2)
         : (cy > 150 && cy < 310 ? 1 : 2);
-      return { rect, depth, dx: horizontal ? dir * travel : 0, dy: horizontal ? 0 : dir * travel };
+      return { rect, wrap, depth, horizontal, dir, a, b, p: horizontal ? x : y, len, clones: [],
+        dx: horizontal ? dir * travel : 0, dy: horizontal ? 0 : dir * travel };
     });
 
     // passengers (approximation of "Icon: user")
@@ -408,33 +416,104 @@
       qm.params[i.dataset.k] = Number(i.value);
       document.querySelector(`output[data-for="${i.dataset.k}"]`).textContent = i.value;
     });
-    choice.queueManager = { ...qm.params };
+  }
+
+  function resetQmImpulses() {
+    qm.impulses.forEach((imp) => {
+      imp.clones.forEach((c) => c.remove()); imp.clones = [];
+      gsap.killTweensOf(imp.rect);
+      gsap.set(imp.rect, { x: 0, y: 0, opacity: 1 }); imp.rect.style.visibility = '';
+    });
+    gsap.killTweensOf(qm.gear);
+    gsap.set(qm.gear, { rotation: 0, scale: 1, svgOrigin: GEAR_C.join(' ') });
+  }
+
+  function gearReaction(tl, at) {
+    const { gear, zoom } = qm.params, origin = GEAR_C.join(' ');
+    tl.fromTo(qm.gear, { rotation: 0, scale: 1, svgOrigin: origin }, { rotation: 360, duration: gear, ease: 'power1.inOut', svgOrigin: origin }, at)
+      .to(qm.gear, { scale: zoom, duration: gear / 2, ease: 'sine.out', svgOrigin: origin }, at)
+      .to(qm.gear, { scale: 1, duration: gear / 2, ease: 'power1.inOut', svgOrigin: origin }, at + gear / 2);
   }
 
   function buildQmTimeline() {
     (timelines.qm || []).forEach((t) => t.kill());
-    const { segment, offset, gear, zoom, pause } = qm.params;
+    resetQmImpulses();
+    if (qm.mode === 'flow') buildQmFlow(); else buildQmWave();
+  }
+
+  // Wave (approved 2026-10-05, ADR 0008): relay wave → gear → impulses back in place → pause.
+  function buildQmWave() {
+    const { segment, offset, gear, pause } = qm.params;
     const maxDepth = 4;
-    const origin = GEAR_C.join(' ');
     const tl = gsap.timeline({ repeat: -1 });
-    // wave: deepest segments start first; each impulse slides toward the centre and into the clip edge
     qm.impulses.forEach(({ rect, dx, dy, depth }) => {
       tl.fromTo(rect, { x: 0, y: 0, opacity: 1 }, { x: dx, y: dy, duration: segment, ease: 'power1.inOut' }, (maxDepth - depth) * offset);
     });
     const arrive = (maxDepth - 1) * offset + segment;
-    // gear: full turn + zoom in/out, smooth return (no overshoot)
-    tl.fromTo(qm.gear, { rotation: 0, scale: 1, svgOrigin: origin }, { rotation: 360, duration: gear, ease: 'power1.inOut', svgOrigin: origin }, arrive)
-      .to(qm.gear, { scale: zoom, duration: gear / 2, ease: 'sine.out', svgOrigin: origin }, arrive)
-      .to(qm.gear, { scale: 1, duration: gear / 2, ease: 'power1.inOut', svgOrigin: origin }, arrive + gear / 2);
-    // impulses fade back in at their design places while the gear turns → rest frame = design
+    gearReaction(tl, arrive);
     qm.impulses.forEach(({ rect }) => tl.set(rect, { x: 0, y: 0, opacity: 0 }, arrive + 0.01).to(rect, { opacity: 1, duration: 0.5, ease: 'sine.out' }, arrive + gear * 0.5));
     tl.to({}, { duration: pause }, arrive + gear);
     timelines.qm = [tl];
     const cycle = arrive + gear + pause;
     document.getElementById('qm-stat').innerHTML =
       `волна до карточки: ${arrive.toFixed(2)} с<br>волна + gear: ${(arrive + gear).toFixed(2)} с<br>полный цикл с паузой: ${cycle.toFixed(2)} с`;
-    choice.queueManager.waveSeconds = +arrive.toFixed(2);
-    choice.queueManager.cycleSeconds = +cycle.toFixed(2);
+    choice.queueManager = { mode: 'wave', segment, offset, gear, zoom: qm.params.zoom, pause, waveSeconds: +arrive.toFixed(2), cycleSeconds: +cycle.toFixed(2) };
+  }
+
+  // Flow (team correction 2026-10-06, Q23): a continuous stream of impulses on every line toward the centre.
+  // Path coordinate s ∈ [0, P]: s = 0 → bar hidden behind the start edge, head on it; s = P → tail past the end edge.
+  function buildQmFlow() {
+    const { crossing, perSegment, gearEvery, gear } = qm.params;
+    const median = (arr) => arr.slice().sort((m, n) => m - n)[Math.floor(arr.length / 2)];
+    const paths = qm.impulses.map((i) => i.b - i.a + i.len);
+    const refPath = median(paths);
+    const speed = refPath / crossing;                       // user units per second, same on every line
+    const interval = crossing / perSegment;                 // time between two impulses on one line
+    const level = median(qm.impulses.map((i) => i.b - i.a)) / speed; // head crosses one segment
+    const maxDepth = 4;
+    const ease = gsap.parseEase(qm.flowEase);
+    const lanes = qm.impulses.map((imp, k) => {
+      const P = paths[k], dur = P / speed;
+      const from = imp.dir > 0 ? imp.a - imp.len - imp.p : imp.b - imp.p;
+      const s0 = imp.dir > 0 ? imp.p - (imp.a - imp.len) : imp.b - imp.p;   // design position on the path
+      const count = Math.ceil(dur / interval) + 1;
+      imp.clones = Array.from({ length: count }, () => { const c = imp.rect.cloneNode(); c.style.visibility = 'hidden'; imp.wrap.append(c); return c; });
+      const prop = imp.horizontal ? 'x' : 'y';
+      const setters = imp.clones.map((c) => gsap.quickSetter(c, prop, 'px'));
+      return { imp, P, dur, from, s0, prop, setters, start: (maxDepth - imp.depth) * level, designSetter: gsap.quickSetter(imp.rect, prop, 'px') };
+    });
+    const place = (lane, setter, el, sPath) => { setter(lane.from + lane.imp.dir * sPath); el.style.visibility = ''; };
+    const update = (t) => {
+      lanes.forEach((lane) => {
+        const { imp, P, dur, start, s0 } = lane;
+        // impulse from the design keeps moving from its place, then leaves
+        const sd = s0 + speed * t;
+        if (sd <= P) place(lane, lane.designSetter, imp.rect, sd); else imp.rect.style.visibility = 'hidden';
+        // new impulses emitted from the start edge every `interval` seconds after `start`
+        imp.clones.forEach((c) => (c.style.visibility = 'hidden'));
+        if (t < start) return;
+        const last = Math.floor((t - start) / interval);
+        const first = Math.max(0, Math.ceil((t - start - dur) / interval));
+        for (let j = first; j <= last; j++) {
+          const u = (t - start - j * interval) / dur;
+          if (u < 0 || u > 1) continue;
+          const slot = j % imp.clones.length;
+          place(lane, lane.setters[slot], imp.clones[slot], P * ease(u));
+        }
+      });
+    };
+    const proxy = { t: 0 };
+    const driver = gsap.fromTo(proxy, { t: 0 }, { t: 3600, duration: 3600, ease: 'none', onUpdate: () => update(proxy.t) });
+    update(0);
+    const firstArrival = maxDepth * level;
+    const gearTl = gsap.timeline({ repeat: -1, repeatDelay: Math.max(0, gearEvery - gear), delay: firstArrival });
+    gearReaction(gearTl, 0);
+    timelines.qm = [driver, gearTl];
+    document.getElementById('qm-stat').innerHTML =
+      `скорость: ${speed.toFixed(0)} ед./с (одинаковая на всех линиях)<br>интервал между импульсами: ${interval.toFixed(2)} с<br>` +
+      `поток доходит до карточки: ${firstArrival.toFixed(2)} с<br>gear: каждые ${Math.max(gearEvery, gear).toFixed(1)} с`;
+    choice.queueManager = { mode: 'flow', crossing, perSegment, ease: qm.flowEase, gearEvery, gear, zoom: qm.params.zoom,
+      intervalSeconds: +interval.toFixed(2), fillSeconds: +firstArrival.toFixed(2) };
   }
 
   // ---------------------------------------------------------------- 6. trigger
@@ -491,6 +570,14 @@
     e.currentTarget.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
   });
   document.querySelectorAll('#qm-controls input[type=range]').forEach((i) => i.addEventListener('input', () => { readQmParams(); buildQmTimeline(); renderSummary(); }));
+  const showQmMode = () => document.querySelectorAll('#qm-controls [data-mode]').forEach((n) => (n.style.display = n.dataset.mode === qm.mode ? '' : 'none'));
+  [['qm-mode', 'mode'], ['qm-flow-ease', 'flowEase']].forEach(([id, key]) => document.getElementById(id).addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    qm[key] = b.dataset.v;
+    e.currentTarget.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+    showQmMode(); buildQmTimeline(); renderSummary();
+  }));
+  showQmMode();
   document.getElementById('delay-seg').addEventListener('click', (e) => {
     const b = e.target.closest('button'); if (!b) return;
     choice.trigger.delay = Number(b.dataset.v);
