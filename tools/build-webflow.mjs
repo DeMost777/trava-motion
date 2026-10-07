@@ -2,7 +2,7 @@
 // Build the files that go to Webflow (task 10.1, short path for Queue Manager).
 // Usage: node tools/build-webflow.mjs
 // Output: exports/webflow/trava-motion.js  — tokens + runtime + primitives + every animations/<name>/animation.js
-//         exports/webflow/webflow-custom-code.html — ready to paste into Webflow page Custom code (GSAP + trava-motion.js)
+//         exports/webflow/webflow-custom-code.html — ready to paste into Webflow page Custom code (site CSS + GSAP + trava-motion.js)
 //         exports/webflow/<name>.svg       — copy of animations/<name>/illustration.svg (upload to Webflow assets)
 // Checks: tempo numbers in animation.js equal the `tempo` block of motion.yaml; every package passes qa/check-package.mjs.
 import { readFileSync, writeFileSync, readdirSync, existsSync, copyFileSync } from 'node:fs';
@@ -45,6 +45,7 @@ if (problems.length) { console.error(problems.join('\n')); process.exit(1); }
 const parts = [
   `/*! Trava Motion — built ${new Date().toISOString().slice(0, 10)} from github repo trava-motion. Animations: ${packages.join(', ')}. */`,
   `window.TravaMotion = window.TravaMotion || {}; window.TravaMotion.tokens = ${JSON.stringify(tokens)};`,
+  readFileSync(join(repo, 'src/site/trava-co.js'), 'utf8'),
   readFileSync(join(repo, 'src/runtime/trava-motion.js'), 'utf8'),
   ...readdirSync(join(repo, 'src/primitives')).filter((f) => f.endsWith('.js')).sort().map((f) => readFileSync(join(repo, 'src/primitives', f), 'utf8')),
   ...packages.map((n) => readFileSync(join(repo, 'animations', n, 'animation.js'), 'utf8')),
@@ -53,6 +54,7 @@ const bundle = parts.join('\n');
 writeFileSync(join(out, 'trava-motion.js'), bundle);
 writeFileSync(join(out, 'webflow-custom-code.html'),
   `<!-- Trava Motion: paste everything into Webflow → Page settings → Custom code → Before </body> tag -->\n` +
+  `<style>\n${readFileSync(join(repo, 'src/site/trava-co.css'), 'utf8')}</style>\n` +
   `<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>\n<script>\n${bundle}\n</script>\n`);
 for (const n of packages) copyFileSync(join(repo, 'animations', n, 'illustration.svg'), join(out, `${n}.svg`));
 console.log(JSON.stringify({ ok: true, packages, tokens, files: ['trava-motion.js', 'webflow-custom-code.html', ...packages.map((n) => `${n}.svg`)].map((f) => `${f}: ${readFileSync(join(out, f)).length} B`) }, null, 2));

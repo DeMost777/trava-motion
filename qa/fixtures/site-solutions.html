@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Solutions block — replica of the site markup for tests</title>
+<link rel="stylesheet" href="../../src/site/trava-co.css">
+<style>
+/* Replica of the site's CSS for this block (Webflow classes + the embed's own CSS). Breakpoint: tablet and below = 991px. */
+body { margin: 0; background: #032B36; color: #fff; font: 15px/1.5 system-ui, sans-serif; }
+.spacer { height: 90vh; }
+img { max-width: 100%; vertical-align: middle; display: inline-block; }
+.solutions-scroll-track { position: relative; display: grid; width: 100%; grid-template-columns: 1fr; gap: 16px; }
+.solutions-sticky { position: sticky; top: 80px; z-index: 2; display: block; width: 100%; grid-area: 1 / 1; align-self: start; }
+.solutions-scroll-steps { position: relative; z-index: 1; width: 100%; pointer-events: none; grid-area: 1 / 1; }
+.solution-scroll-step { height: 70vh; }
+.solution-cards { position: relative; display: grid; overflow: hidden; width: 100%; min-height: 620px; grid-template-columns: 180px 1fr; border: 1px solid #1d5260; border-radius: 16px; background: #063f4c; }
+.solution-card-nav { padding: 16px; }
+.solution-card-stage { display: grid; position: relative; }
+.solution-state { grid-area: 1 / 1; display: flex; align-items: center; justify-content: center; }
+[data-solution-state] { opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 300ms ease; }
+[data-solution-state].is-active { opacity: 1; visibility: visible; pointer-events: auto; }
+[data-solution-nav] { color: #fff; cursor: pointer; padding: 6px 0; }
+[data-solution-nav].is-active { color: #32BBA2; }
+.solution-card-visual { position: relative; display: flex; overflow: hidden; justify-content: center; align-items: center; width: 100%; }
+.solution-visual-image { width: 85%; min-width: 500px; }
+.solution-responsive { display: none; width: 100%; }
+.solution-responsive-card { margin-bottom: 32px; border: 1px solid #1d5260; border-radius: 16px; overflow: hidden; }
+.solution-responsive-visual { display: flex; }
+@media (max-width: 991px) {
+  .solutions-scroll-track { display: none; }
+  .solution-responsive { display: flex; flex-direction: column; }
+  .solution-responsive-card { display: grid; width: 100%; grid-template-columns: 1.2fr 1fr; }
+  .solution-responsive-content { padding: 32px 24px; }
+  .solution-responsive-visual { width: 100%; padding: 16px; justify-content: center; align-items: center; }
+  .solution-responsive-image { width: 100%; max-width: 400px; }
+}
+@media (max-width: 767px) {
+  .solution-responsive-card { grid-template-columns: 1.2fr; }
+  .solution-responsive-visual { min-height: 280px; }
+  .solution-responsive-image { width: 80%; max-width: 340px; }
+}
+@media (max-width: 479px) {
+  .solution-responsive-visual { min-height: 220px; }
+  .solution-responsive-image { width: 90%; max-width: 300px; }
+}
+</style></head>
+<body>
+<div class="spacer">spacer</div>
+<div class="solutions-scroll-track">
+  <div class="solutions-sticky">
+    <div class="solution-cards">
+      <div class="solution-card-nav"><div class="solution-nav-item is-active" data-solution-nav="queue-manager">queue-manager</div><div class="solution-nav-item" data-solution-nav="ticketing">ticketing</div><div class="solution-nav-item" data-solution-nav="quality-control">quality-control</div></div>
+      <div class="solution-card-stage">
+          <div class="solution-state is-active" data-solution-state="queue-manager">
+            <div class="solution-card-visual"><img class="solution-visual-image" src="../../exports/webflow/queue-manager.svg" alt="Automated queue management workflow" data-trava-animation="queue-manager"></div>
+          </div>
+          <div class="solution-state" data-solution-state="ticketing">
+            <div class="solution-card-visual"><img class="solution-visual-image" src="placeholder.svg" alt="Other solution ticketing"></div>
+          </div>
+          <div class="solution-state" data-solution-state="quality-control">
+            <div class="solution-card-visual"><img class="solution-visual-image" src="placeholder.svg" alt="Other solution quality-control"></div>
+          </div>
+      </div>
+    </div>
+  </div>
+  <div class="solutions-scroll-steps"><div class="solution-scroll-step" data-solution-step="queue-manager"></div><div class="solution-scroll-step" data-solution-step="ticketing"></div><div class="solution-scroll-step" data-solution-step="quality-control"></div></div>
+</div>
+<div class="solution-responsive">
+    <div class="solution-responsive-card"><div class="solution-responsive-content"><h3>queue-manager</h3><p>Card text</p></div>
+      <div class="solution-responsive-visual"><img class="solution-responsive-image" src="../../exports/webflow/queue-manager.svg" alt="Automated queue management workflow" data-trava-animation="queue-manager"></div></div>
+    <div class="solution-responsive-card"><div class="solution-responsive-content"><h3>ticketing</h3><p>Card text</p></div>
+      <div class="solution-responsive-visual"><img class="solution-responsive-image" src="placeholder.svg" alt="Other solution ticketing"></div></div>
+    <div class="solution-responsive-card"><div class="solution-responsive-content"><h3>quality-control</h3><p>Card text</p></div>
+      <div class="solution-responsive-visual"><img class="solution-responsive-image" src="placeholder.svg" alt="Other solution quality-control"></div></div>
+    <div class="solution-responsive-card"><div class="solution-responsive-content"><h3>control</h3></div>
+      <div class="solution-responsive-visual"><img id="control" class="solution-responsive-image" src="../../exports/webflow/queue-manager.svg" alt="control"></div></div>
+</div>
+<div class="spacer">spacer</div>
+<script src="site-solutions.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+<script src="../../exports/webflow/trava-motion.js"></script>
+</body></html>

@@ -8,3 +8,4 @@
 | `svg-compare.mjs` | рендер SVG в Chromium и попиксельное сравнение с эталоном Figma: `render.png`, `diff.png`, `report.json`. Нужен Playwright (`NODE_PATH`) | 2.2 |
 | `svg-perf.mjs` | кадры/с при движении слоёв `m-*`: файл как есть, без фильтра корня, без всех фильтров. Ориентировочно (headless) | 2.2 |
 | `check-package.mjs` | проверка пакета `animations/<name>/` по ADR 0015: файлы на месте, хэши `figma.json` совпадают, `illustration.svg` актуален | 2.5 |
+| `site-solutions.mjs` | проверка на реплике блока «Solutions» с главной (`qa/fixtures/site-solutions.html`: разметка, CSS и **настоящий скрипт сайта**): переключение карточек с Trava Motion и без него одинаково, высота карточки та же, на десктопе анимация идёт только на активной карточке, на планшете и телефоне — пока карточка на экране, размеры и рисунок как у `<img>` сайта, нет дублей id, alt перенесён, поворот экрана, reduced motion. Нужен Playwright (`NODE_PATH`), `GSAP_JS` | QM → планшет/телефон |
