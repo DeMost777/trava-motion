@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Client Interaction — стенд</title>
+<style>
+  body { margin: 0; background: #032B36; color: #cfe; font: 15px/1.4 system-ui, sans-serif; }
+  .row { display: flex; gap: 20px; padding: 14px 20px; }
+  h3 { margin: 0 0 6px; font-weight: 600; color: #8cf9e5; font-size: 16px; }
+  .art { width: 600px; height: 574px; background: radial-gradient(ellipse at 50% 50%, #0d4656 0%, #092e39 70%); border-radius: 16px; overflow: hidden; }
+  .art [data-trava-animation] { width: 600px; display: block; }
+  .zoom { width: 290px; height: 290px; overflow: hidden; border-radius: 12px; background: radial-gradient(ellipse at 50% 50%, #0d4656 0%, #092e39 80%); position: relative; }
+  .zoom [data-trava-animation] { position: absolute; width: 1344px; left: calc(-239.7px * 2.8 + 145px); top: calc(-223.7px * 2.8 + 145px); }
+  .zooms p { margin: 6px 0 0; }
+  .zooms { width: 290px; }
+  [hidden] { display: none; }
+</style>
+</head>
+<body>
+  <div class="row" id="main" hidden>
+    <div><h3>A · штрихи выходят с шагом 0.7 с</h3>
+      <div class="art"><img src="../animations/client-interaction/illustration.svg" alt="Client interaction" data-trava-animation="client-interaction" data-trava-tempo='{"alignArrival":0}'></div></div>
+    <div><h3>B · штрихи приходят в монитор с шагом 0.7 с</h3>
+      <div class="art"><img src="../animations/client-interaction/illustration.svg" alt="Client interaction" data-trava-animation="client-interaction" data-trava-tempo='{"alignArrival":1}'></div></div>
+  </div>
+  <div id="bounce" hidden>
+    <h3 style="padding:10px 20px 0">Монитор крупно: размер отскока (порядок B)</h3>
+    <div class="row">
+      <div class="zooms"><div class="zoom"><img src="../animations/client-interaction/illustration.svg" alt="" data-trava-animation="client-interaction" data-trava-tempo='{"alignArrival":1,"coreOvershoot":0}'></div><p>1 · без отскока</p></div>
+      <div class="zooms"><div class="zoom"><img src="../animations/client-interaction/illustration.svg" alt="" data-trava-animation="client-interaction" data-trava-tempo='{"alignArrival":1,"coreOvershoot":0.15}'></div><p>2 · малый (0.15)</p></div>
+      <div class="zooms"><div class="zoom"><img src="../animations/client-interaction/illustration.svg" alt="" data-trava-animation="client-interaction" data-trava-tempo='{"alignArrival":1,"coreOvershoot":0.3}'></div><p>3 · средний (0.3)</p></div>
+      <div class="zooms"><div class="zoom"><img src="../animations/client-interaction/illustration.svg" alt="" data-trava-animation="client-interaction" data-trava-tempo='{"alignArrival":1,"coreOvershoot":0.5}'></div><p>4 · заметный (0.5)</p></div>
+    </div>
+  </div>
+  <script>
+    // ?view=bounce shows the hub close up; by default the two orders side by side
+    var view = new URLSearchParams(location.search).get('view') === 'bounce' ? 'bounce' : 'main';
+    document.getElementById(view).hidden = false;
+    var other = document.getElementById(view === 'main' ? 'bounce' : 'main'); other.parentNode.removeChild(other);
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+  <script>
+    // stand only: the same files the site bundle is built from, loaded one by one (no build step)
+    window.TravaMotion = { tokens: null };
+    fetch('../tokens/motion.tokens.json').then(function (r) { return r.json(); }).then(function (j) {
+      var mt = j.motion, ms = function (v) { return v.unit === 'ms' ? v.value : v.value * 1000; };
+      var ease = {}; Object.keys(mt.ease).filter(function (k) { return k[0] !== '$'; }).forEach(function (k) { ease[k] = mt.ease[k].$extensions['com.gsap'].ease; });
+      window.TravaMotion.tokens = { ease: ease, trigger: { threshold: mt.trigger.threshold.$value, delay: ms(mt.trigger.delay.$value) } };
+      var files = ['../src/runtime/trava-motion.js', '../src/primitives/geometry.js', '../src/primitives/route-flow.js', '../src/primitives/ambient-flow.js', '../src/primitives/pulse.js', '../animations/client-interaction/animation.js'];
+      var chain = Promise.resolve();
+      files.forEach(function (f) { chain = chain.then(function () { return new Promise(function (ok) { var s = document.createElement('script'); s.src = f; s.onload = ok; document.body.appendChild(s); }); }); });
+      chain.then(function () { window.TravaMotion.mountAll(); window.__ready = true; });
+    });
+  </script>
+</body>
+</html>

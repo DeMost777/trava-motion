@@ -1,0 +1,115 @@
+# Motion Specification — Client Interaction
+# Format: docs/motion-spec.md (ADR 0016). Language: English (ADR 0002).
+# Sources: brief.md (team, RU), storyboard.md, ADR 0019 (scenario, roles, bounce exception), motion/principles.md (ADR 0006).
+# Status: draft for review (scenario approved 2026-10-07; stand values to be confirmed).
+
+animation: client-interaction
+story: >
+  Five different services work as one system. Each service sends an impulse along its dashed line into the
+  computer in the centre, the icon inside the computer fills up on every arrival, and quiet streams in the
+  background keep the composition alive.
+
+layers:                       # roles from figma.json; animate nothing else
+  connection: 5               # dashed lines service → hub; the routes of the stream
+  node: 5                     # service icons (circles)
+  hub: 1                      # central card (static in this animation)
+  core: 1                     # glyph inside the card
+  impulse: 9                  # background bars on short lines, drawn in the design
+
+tempo:                        # illustration-specific values (ADR 0019); speed matches Queue Manager (60 px/s)
+  speed: 60                   # px/s, bar speed on every route (same as Queue Manager)
+  step: 0.7s                  # time between two services
+  round: 3.5s                 # one pass over all five services; then again without a pause
+  alignArrival: 0             # 0 = departures are one step apart, 1 = arrivals are one step apart
+  nodeScale: 1.08             # service icon pulse: peak scale, no bounce
+  nodeUp: 0.22s
+  nodeDown: 0.3s
+  coreScale: 1.2              # hub icon pulse: peak scale
+  coreUp: 0.25s
+  coreHold: 0s
+  coreDown: 0.4s
+  coreOvershoot: 0.3          # small bounce on the way up: share of the growth it overshoots, 0.3 = reaches 1.26 and settles at 1.2 (exception to principles §1, ADR 0019); 0 = none
+  ambientSpeed: 36            # px/s, background bars (slower than the stream)
+  ambientGapMin: 0.6s         # pause before a background bar returns, different on every line
+  ambientGapMax: 1.8s
+
+trigger:
+  when: card-active           # the card becomes active by scrolling to it or by a click in the sidebar
+  threshold: motion.trigger.threshold   # token: 35 % of the illustration visible
+  delay: motion.trigger.delay           # token: 0
+  replay: on-every-activation           # principles §5
+
+loop:
+  mode: infinite
+  basis: ADR 0007             # meaningful-loop exception to principles §6
+  pauseWhen: [off-screen, card-inactive]
+
+staticState: design           # first frame, reduced motion and any error show the Figma design as is
+
+scenes:
+  - id: background
+    intent: >
+      The nine short bars drawn in the design keep running toward the centre along their own lines,
+      one bar per line, with a pause before each returns. Quiet, never in step.
+    primitive: ambientFlow
+    targets: impulse
+    starts: on-trigger
+    params:
+      direction: as-drawn                 # read from the design: mirrored bars run left, others run right (all toward the centre)
+      speed: tempo.ambientSpeed
+      gap: [tempo.ambientGapMin, tempo.ambientGapMax]
+      clip: own-line
+
+  - id: stream
+    intent: >
+      The services take turns clockwise from the top left (Email, SMS, Web, network, HTTP). As a service pulses,
+      a bar leaves from under its icon, runs along the dashed line, goes round the rounded corner and
+      disappears under the hub card. The bars are copies of a bar of the design and exist only while playing.
+    primitive: routeFlow
+    targets: [connection, node, hub]
+    starts: on-trigger
+    params:
+      order: clockwise-from-top-left
+      bar: longest-unmirrored-impulse
+      speed: tempo.speed
+      step: tempo.step
+      cycle: tempo.round
+      alignArrival: tempo.alignArrival
+      ease: motion.ease.flow              # token: linear
+      cornerRadius: from-design           # the radius of the dashed lines
+    approxDuration: infinite
+
+  - id: service-pulse
+    intent: A service icon grows a little and returns at the moment its bar leaves.
+    primitive: pulse
+    targets: node
+    starts: when stream departs from node
+    params:
+      scale: tempo.nodeScale
+      up: tempo.nodeUp
+      down: tempo.nodeDown
+      ease: { up: motion.ease.enter, down: motion.ease.standard }
+      overshoot: none
+
+  - id: core-fill
+    intent: >
+      When a bar reaches the hub, the glyph inside the card zooms in with a small bounce and returns smoothly,
+      as if the icon were filled; no rotation. Overlapping pulses never jump (the larger one wins).
+    primitive: pulse
+    targets: core
+    starts: when stream reaches hub
+    params:
+      scale: tempo.coreScale
+      up: tempo.coreUp
+      hold: tempo.coreHold
+      down: tempo.coreDown
+      ease: { up: back-out-by-overshoot, down: motion.ease.standard }
+      overshoot: tempo.coreOvershoot      # ADR 0019, the only bounce in this animation
+
+interrupt: jump-to-design     # leaving the card: show the design state immediately (principles §5)
+
+reducedMotion: static         # principles §9
+
+mobile:
+  same: true                  # principles §8: same animation, scaled
+  simplifyIf: the stream looks noisy on small screens   # open question, check in task 6.4

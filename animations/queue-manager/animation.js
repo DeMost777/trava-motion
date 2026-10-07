@@ -38,6 +38,7 @@
     return {
       start: function () {
         prepare();
+        if (tick) gsap.ticker.remove(tick);     // a second start() must not leave the first clock running
         t0 = gsap.ticker.time;
         tick = function () { seek(gsap.ticker.time - t0); };
         gsap.ticker.add(tick);

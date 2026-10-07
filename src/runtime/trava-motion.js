@@ -74,7 +74,7 @@
       // size comes from the site's own classes (the <img> had them); only what an <img> did by itself is kept
       node.style.height = 'auto';
       node.style.display = node.style.display || 'block';
-      node.setAttribute('data-trava-animation', el.getAttribute('data-trava-animation'));
+      list(el.attributes).forEach(function (a) { if (a.name.indexOf('data-trava-') === 0) node.setAttribute(a.name, a.value); });   // data-trava-animation and any other data-trava-* setting
       // the text alternative of the <img> moves to the SVG; without alt the illustration stays decorative
       var alt = el.getAttribute('alt');
       if (alt) { node.setAttribute('role', 'img'); node.setAttribute('aria-label', alt); node.removeAttribute('aria-hidden'); }

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Build the files that go to Webflow (task 10.1, short path for Queue Manager).
-// Usage: node tools/build-webflow.mjs
+// Usage: node tools/build-webflow.mjs [package …]   (no names = every package in animations/)
 // Output: exports/webflow/trava-motion.js  — tokens + runtime + primitives + every animations/<name>/animation.js
 //         exports/webflow/webflow-custom-code.html — ready to paste into Webflow page Custom code (site CSS + GSAP + trava-motion.js)
 //         exports/webflow/<name>.svg       — copy of animations/<name>/illustration.svg (upload to Webflow assets)
@@ -22,8 +22,10 @@ const tokens = {
   trigger: { threshold: mt.trigger.threshold.$value, delay: ms(mt.trigger.delay.$value) },
 };
 
+const only = process.argv.slice(2);
 const packages = readdirSync(join(repo, 'animations'), { withFileTypes: true })
-  .filter((d) => d.isDirectory() && existsSync(join(repo, 'animations', d.name, 'animation.js'))).map((d) => d.name);
+  .filter((d) => d.isDirectory() && existsSync(join(repo, 'animations', d.name, 'animation.js')) && (!only.length || only.includes(d.name))).map((d) => d.name);
+if (only.length && packages.length !== only.length) { console.error('unknown package in: ' + only.join(', ')); process.exit(1); }
 
 for (const name of packages) {
   const dir = join(repo, 'animations', name);

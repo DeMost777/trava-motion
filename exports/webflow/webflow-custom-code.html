@@ -94,7 +94,7 @@ window.TravaMotion.config.gate = { selector: '[data-solution-state]', activeClas
       // size comes from the site's own classes (the <img> had them); only what an <img> did by itself is kept
       node.style.height = 'auto';
       node.style.display = node.style.display || 'block';
-      node.setAttribute('data-trava-animation', el.getAttribute('data-trava-animation'));
+      list(el.attributes).forEach(function (a) { if (a.name.indexOf('data-trava-') === 0) node.setAttribute(a.name, a.value); });   // data-trava-animation and any other data-trava-* setting
       // the text alternative of the <img> moves to the SVG; without alt the illustration stays decorative
       var alt = el.getAttribute('alt');
       if (alt) { node.setAttribute('role', 'img'); node.setAttribute('aria-label', alt); node.removeAttribute('aria-hidden'); }
@@ -158,6 +158,90 @@ window.TravaMotion.config.gate = { selector: '[data-solution-state]', activeClas
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { TM.mountAll(); });
   else root.setTimeout(function () { TM.mountAll(); }, 0);
+})(window);
+
+/* Primitive: ambientFlow (new in Client Interaction, ADR 0019).
+ * Quiet background streams: every bar drawn in the design keeps running along its own short line, one bar per line,
+ * with a pause before it comes back, so the lines are never in step. The direction is the one the designer drew
+ * (a bar mirrored by `transform="matrix(-1 …)"` runs to the left, otherwise to the right). A bar leaves the line
+ * at its end (clipped to the line). Frame 0 = design: every bar continues from where it is drawn.
+ * Driven by an external clock: update(t). Geometry is read lazily in prepare().
+ * opt: impulses ([rect]), tracks ([path], thin horizontal dashed lines), speed (px/s), gapMin / gapMax (s)
+ */
+(function (root) {
+  'use strict';
+  var TM = root.TravaMotion = root.TravaMotion || {};
+  TM.primitives = TM.primitives || {};
+  var NS = 'http://www.w3.org/2000/svg';
+
+  TM.primitives.ambientFlow = function (svg, opt) {
+    var uid = 'tm' + Math.random().toString(36).slice(2, 8), lanes = null;
+
+    function prepare() {
+      if (lanes) return;
+      var boxIn = TM.util.boxIn;
+      var tracks = opt.tracks.map(function (t) { return boxIn(svg, t); });
+      var defs = document.createElementNS(NS, 'defs'); svg.appendChild(defs);
+      lanes = opt.impulses.map(function (rect, i) {
+        var r = boxIn(svg, rect), cx = r.x + r.w / 2, cy = r.y + r.h / 2;
+        var tr = tracks.filter(function (t) { return t.h < 2 && Math.abs(t.y + t.h / 2 - cy) < 2 && cx >= t.x - 1 && cx <= t.x + t.w + 1; })[0];
+        if (!tr) throw new Error('ambientFlow: no line for bar ' + i);
+        var dir = /^matrix\(\s*-/.test(rect.getAttribute('transform') || '') ? -1 : 1;
+        var a = tr.x, b = tr.x + tr.w, p = r.x, len = r.w;
+        var clip = document.createElementNS(NS, 'clipPath'), cr = document.createElementNS(NS, 'rect'), id = uid + '-' + i;
+        clip.setAttribute('id', id); clip.setAttribute('clipPathUnits', 'userSpaceOnUse');
+        cr.setAttribute('x', a); cr.setAttribute('y', cy - 3); cr.setAttribute('width', b - a); cr.setAttribute('height', 6);
+        clip.appendChild(cr); defs.appendChild(clip);
+        var outer = document.createElementNS(NS, 'g'), mover = document.createElementNS(NS, 'g');
+        outer.setAttribute('clip-path', 'url(#' + id + ')');
+        rect.parentNode.insertBefore(outer, rect); outer.appendChild(mover); mover.appendChild(rect);
+        var P = b - a + len;
+        var gap = opt.gapMin + (opt.gapMax - opt.gapMin) * ((i * 0.618034) % 1);   // fixed, different on every line
+        return { dir: dir, mover: mover, P: P, from: dir > 0 ? a - len - p : b - p, s0: dir > 0 ? p - (a - len) : b - p, cycle: P / opt.speed + gap };
+      });
+    }
+
+    function update(t) {
+      lanes.forEach(function (l) {
+        var u = (l.s0 / opt.speed + t) % l.cycle, s = u * opt.speed;
+        if (s > l.P) { l.mover.style.visibility = 'hidden'; return; }
+        l.mover.setAttribute('transform', 'translate(' + (l.from + l.dir * s) + ' 0)'); l.mover.style.visibility = '';
+      });
+    }
+
+    function reset() {
+      if (!lanes) return;
+      lanes.forEach(function (l) { l.mover.removeAttribute('transform'); l.mover.style.visibility = ''; });
+    }
+
+    return { prepare: prepare, update: update, reset: reset };
+  };
+})(window);
+
+/* Shared geometry helpers for primitives (read from the rendered SVG, so call them after layout). */
+(function (root) {
+  'use strict';
+  var TM = root.TravaMotion = root.TravaMotion || {};
+  TM.util = TM.util || {};
+
+  // bounding box of an element in the coordinates of the root <svg>
+  TM.util.boxIn = function (svg, el) {
+    var b = el.getBBox();
+    var m = svg.getScreenCTM().inverse().multiply(el.getScreenCTM());
+    var xs = [], ys = [];
+    [[b.x, b.y], [b.x + b.width, b.y], [b.x, b.y + b.height], [b.x + b.width, b.y + b.height]].forEach(function (p) {
+      xs.push(m.a * p[0] + m.c * p[1] + m.e); ys.push(m.b * p[0] + m.d * p[1] + m.f);
+    });
+    var x = Math.min.apply(null, xs), y = Math.min.apply(null, ys);
+    return { x: x, y: y, w: Math.max.apply(null, xs) - x, h: Math.max.apply(null, ys) - y };
+  };
+
+  // a point of a <path> (at arc length `at`, or its end when at < 0) in the coordinates of the root <svg>
+  TM.util.pointOn = function (svg, path, at) {
+    var p = path.getPointAtLength(at < 0 ? path.getTotalLength() : at);
+    var m = svg.getScreenCTM().inverse().multiply(path.getScreenCTM());
+    return { x: m.a * p.x + m.c * p.y + m.e, y: m.b * p.x + m.d * p.y + m.f };
+  };
 })(window);
 
 /* Primitive: hubAccent (draft name, audit 1.1; confirmed in 5.1).
@@ -344,6 +428,218 @@ window.TravaMotion.config.gate = { selector: '[data-solution-state]', activeClas
   };
 })(window);
 
+/* Primitive: pulse (new in Client Interaction, ADR 0019).
+ * An element grows about its own centre and returns: up (ease), hold, down (ease). With `overshoot` the way up
+ * overshoots a little and settles (the "filled up" effect of the hub icon, an exception to principles §1, ADR 0019).
+ * Several overlapping pulses on one element do not add up or jump: the largest one wins.
+ * Driven by an external clock: update(t). Events are first-occurrence times (s), repeated every `cycle`.
+ * opt: gsap, targets ([el]), events ([[t, …] per target]), cycle (s),
+ *      scale (peak, e.g. 1.2), up (s), hold (s), down (s), easeUp / easeDown (GSAP ease names),
+ *      overshoot: fraction of the growth the way up overshoots, 0 = none (0.3 with scale 1.2 → reaches 1.26 and settles at 1.2)
+ */
+(function (root) {
+  'use strict';
+  var TM = root.TravaMotion = root.TravaMotion || {};
+  TM.primitives = TM.primitives || {};
+
+  // the strength of GSAP's back.out that overshoots by `frac` of the travel (found by bisection)
+  function backFor(gsap, frac) {
+    var lo = 0.05, hi = 30, i, mid, e, x, max;
+    for (i = 0; i < 40; i++) {
+      mid = (lo + hi) / 2; e = gsap.parseEase('back.out(' + mid + ')'); max = 1;
+      for (x = 0.3; x <= 0.9; x += 0.01) max = Math.max(max, e(x));
+      if (max - 1 < frac) lo = mid; else hi = mid;
+    }
+    return +((lo + hi) / 2).toFixed(3);
+  }
+
+  TM.primitives.pulse = function (svg, opt) {
+    var gsap = opt.gsap, items = null;
+    var up = gsap.parseEase(opt.overshoot > 0 ? 'back.out(' + backFor(gsap, opt.overshoot) + ')' : (opt.easeUp || 'sine.out'));
+    var down = gsap.parseEase(opt.easeDown || 'power1.inOut');
+    var peak = opt.scale - 1, hold = opt.hold || 0, total = opt.up + hold + opt.down;
+
+    function delta(local) {
+      if (local < 0 || local > total) return 0;
+      if (local <= opt.up) return peak * up(local / opt.up);
+      if (local <= opt.up + hold) return peak;
+      return peak * (1 - down((local - opt.up - hold) / opt.down));
+    }
+
+    function prepare() {
+      if (items) return;
+      items = opt.targets.map(function (el, i) {
+        var b = el.getBBox();
+        return { el: el, cx: b.x + b.width / 2, cy: b.y + b.height / 2, orig: el.getAttribute('transform'), events: opt.events[i] || [], last: 0 };
+      });
+    }
+
+    function apply(it, k) {
+      var s = 1 + k;
+      var tf = 'translate(' + it.cx + ' ' + it.cy + ') scale(' + s + ') translate(' + (-it.cx) + ' ' + (-it.cy) + ')';
+      it.el.setAttribute('transform', (it.orig ? it.orig + ' ' : '') + tf);
+    }
+
+    function update(t) {
+      items.forEach(function (it) {
+        var k = 0;
+        it.events.forEach(function (e) {
+          if (t < e) return;
+          var local = (t - e) % opt.cycle;
+          k = Math.max(k, delta(local));
+        });
+        if (Math.abs(k - it.last) < 1e-5) return;
+        it.last = k;
+        if (k === 0) { if (it.orig === null) it.el.removeAttribute('transform'); else it.el.setAttribute('transform', it.orig); }
+        else apply(it, k);
+      });
+    }
+
+    function reset() {
+      if (!items) return;
+      items.forEach(function (it) {
+        it.last = 0;
+        if (it.orig === null) it.el.removeAttribute('transform'); else it.el.setAttribute('transform', it.orig);
+      });
+    }
+
+    return { prepare: prepare, update: update, reset: reset };
+  };
+})(window);
+
+/* Primitive: routeFlow (new in Client Interaction, ADR 0019).
+ * A bar (a copy of a bar drawn in the design) travels along a route made of straight runs joined by rounded
+ * right-angle corners, like the dashed lines of the design. The bar bends around corners: it is cut into thin
+ * slices of the same gradient, each slice follows its own point of the route. On straight runs it is one piece.
+ * Bars exist only while the animation plays; at rest nothing is added to the design (principles §9).
+ * Driven by an external clock: update(t), t in seconds. Geometry is read lazily in prepare() (needs layout).
+ *
+ * opt.routes[i] = { points: [{x, y}, …] in root coordinates, at: first departure (s), emerge: route length hidden
+ *                   under the start node (px), before: element the copies of this route are inserted before }
+ * opt.bar    — the <rect> to copy: unflipped, head (opaque end) on the right
+ * The copies go right before the route's own node: above the dashed lines, under the nodes and the hub card.
+ * opt.speed (px/s), opt.cycle (s between departures on one route), opt.radius (corner radius, px)
+ */
+(function (root) {
+  'use strict';
+  var TM = root.TravaMotion = root.TravaMotion || {};
+  TM.primitives = TM.primitives || {};
+  var NS = 'http://www.w3.org/2000/svg', HALF_PI = Math.PI / 2;
+
+  function dir(a, b) { var dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 1; return { x: dx / d, y: dy / d, d: d }; }
+
+  // straight runs + quarter-circle corners; positions outside [0, length] continue the first / last run
+  function buildRoute(points, radius) {
+    var segs = [], total = 0, start = points[0], i;
+    function line(a, b) {
+      var d = dir(a, b); if (d.d < 1e-6) return;
+      segs.push({ kind: 'line', x: a.x, y: a.y, dx: d.x, dy: d.y, len: d.d, a: Math.atan2(d.y, d.x), from: total }); total += d.d;
+    }
+    for (i = 1; i < points.length; i++) {
+      var v = points[i];
+      if (i === points.length - 1) { line(start, v); break; }
+      var d1 = dir(points[i - 1], v), d2 = dir(v, points[i + 1]);
+      var right = Math.abs(d1.x * d2.x + d1.y * d2.y) < 1e-6, cross = d1.x * d2.y - d1.y * d2.x;
+      var r = right ? Math.min(radius, dir(start, v).d, d2.d / 2) : 0;
+      var p1 = { x: v.x - d1.x * r, y: v.y - d1.y * r }, p2 = { x: v.x + d2.x * r, y: v.y + d2.y * r };
+      line(start, p1);
+      if (r > 0) {
+        var c = { x: p1.x + d2.x * r, y: p1.y + d2.y * r };
+        segs.push({ kind: 'arc', cx: c.x, cy: c.y, r: r, a0: Math.atan2(p1.y - c.y, p1.x - c.x), sweep: cross > 0 ? HALF_PI : -HALF_PI, len: r * HALF_PI, from: total });
+        total += r * HALF_PI;
+      }
+      start = p2;
+    }
+    function indexAt(s) { if (s <= 0) return 0; for (var k = 0; k < segs.length; k++) if (s < segs[k].from + segs[k].len) return k; return segs.length - 1; }
+    function pointAt(s) {
+      var g = segs[indexAt(s)], u = s - g.from;
+      if (g.kind === 'line') return { x: g.x + g.dx * u, y: g.y + g.dy * u, a: g.a };
+      var ang = g.a0 + g.sweep * (u / g.len);
+      return { x: g.cx + g.r * Math.cos(ang), y: g.cy + g.r * Math.sin(ang), a: ang + (g.sweep > 0 ? HALF_PI : -HALF_PI) };
+    }
+    return { length: total, indexAt: indexAt, pointAt: pointAt, segs: segs };
+  }
+
+  function matrix(px, py, ang, ax, ay) {
+    var c = Math.cos(ang), s = Math.sin(ang);
+    return 'matrix(' + c + ' ' + s + ' ' + (-s) + ' ' + c + ' ' + (px - (c * ax - s * ay)) + ' ' + (py - (s * ax + c * ay)) + ')';
+  }
+
+  TM.util = TM.util || {};
+  TM.util.buildRoute = buildRoute;   // length of a route is needed to plan departures before the bars exist
+
+  TM.primitives.routeFlow = function (svg, opt) {
+    var uid = 'tm' + Math.random().toString(36).slice(2, 8), lanes = null;
+    var SLICE = 2;   // px of bar per slice while it bends
+
+    function prepare() {
+      if (lanes) return;
+      var tpl = opt.bar, parent = tpl.parentNode;
+      var bx = +tpl.getAttribute('x'), by = +tpl.getAttribute('y'), bw = +tpl.getAttribute('width'), bh = +tpl.getAttribute('height');
+      var n = Math.max(2, Math.round(bw / SLICE)), sw = bw / n, ax0 = bx, ay = by + bh / 2;
+      var defs = document.createElementNS(NS, 'defs'); svg.appendChild(defs);
+      function copy(ref) {
+        var c = tpl.cloneNode(true); c.removeAttribute('data-m'); c.removeAttribute('id'); c.removeAttribute('transform');
+        c.style.visibility = 'hidden'; (ref ? ref.parentNode : parent).insertBefore(c, ref || null); return c;
+      }
+      lanes = opt.routes.map(function (r, ri) {
+        var route = buildRoute(r.points, opt.radius), slices = [], i;
+        var full = copy(r.before);
+        for (i = 0; i < n; i++) {
+          var cp = document.createElementNS(NS, 'clipPath'), cr = document.createElementNS(NS, 'rect'), id = uid + '-' + ri + '-' + i;
+          cp.setAttribute('id', id); cp.setAttribute('clipPathUnits', 'userSpaceOnUse');
+          cr.setAttribute('x', bx + i * sw); cr.setAttribute('y', by - 1); cr.setAttribute('width', sw); cr.setAttribute('height', bh + 2);
+          cp.appendChild(cr); defs.appendChild(cp);
+          var sl = copy(r.before); sl.setAttribute('clip-path', 'url(#' + id + ')'); slices.push(sl);
+        }
+        return { route: route, at: r.at, emerge: r.emerge || 0, full: full, slices: slices, mode: 'hidden' };
+      });
+      lanes.sw = sw; lanes.n = n; lanes.ax0 = ax0; lanes.ay = ay; lanes.bw = bw; lanes.bx = bx; lanes.by = by; lanes.bh = bh;
+    }
+
+    function show(l, mode) {
+      if (l.mode === mode) return;
+      l.full.style.visibility = mode === 'rigid' ? '' : 'hidden';
+      l.slices.forEach(function (s) { s.style.visibility = mode === 'sliced' ? '' : 'hidden'; });
+      l.mode = mode;
+    }
+
+    function place(l, head) {
+      var tail = head - lanes.bw, rt = l.route;
+      var iT = rt.indexAt(tail), iH = rt.indexAt(head);
+      if (iT === iH && rt.segs[iT].kind === 'line') {
+        show(l, 'rigid');
+        var p = rt.pointAt(head);
+        l.full.setAttribute('transform', matrix(p.x, p.y, p.a, lanes.bx + lanes.bw, lanes.ay));
+      } else {
+        show(l, 'sliced');
+        for (var i = 0; i < lanes.n; i++) {
+          var q = rt.pointAt(tail + (i + 0.5) * lanes.sw);
+          l.slices[i].setAttribute('transform', matrix(q.x, q.y, q.a, lanes.bx + (i + 0.5) * lanes.sw, lanes.ay));
+        }
+      }
+    }
+
+    function update(t) {
+      lanes.forEach(function (l) {
+        if (t < l.at) { show(l, 'hidden'); return; }
+        var k = Math.floor((t - l.at) / opt.cycle), head = l.emerge + (t - l.at - k * opt.cycle) * opt.speed;
+        if (head - lanes.bw > l.route.length) show(l, 'hidden'); else place(l, head);
+      });
+    }
+
+    function reset() {
+      if (!lanes) return;
+      lanes.forEach(function (l) { show(l, 'hidden'); });
+    }
+
+    return {
+      prepare: prepare, update: update, reset: reset,
+      length: function (i) { prepare(); return lanes[i].route.length; },
+    };
+  };
+})(window);
+
 /* Queue Manager animation — implements animations/queue-manager/motion.yaml (approved, task 3.1).
  * Scenes: flow (impulseFlow) → gear-reaction (hubAccent). Infinite while visible (ADR 0007);
  * the runtime calls reset() when the card leaves the screen (interrupt: jump-to-design).
@@ -384,6 +680,7 @@ window.TravaMotion.config.gate = { selector: '[data-solution-state]', activeClas
     return {
       start: function () {
         prepare();
+        if (tick) gsap.ticker.remove(tick);     // a second start() must not leave the first clock running
         t0 = gsap.ticker.time;
         tick = function () { seek(gsap.ticker.time - t0); };
         gsap.ticker.add(tick);
