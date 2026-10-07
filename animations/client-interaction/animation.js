@@ -10,7 +10,7 @@
 
   // motion.yaml → tempo (ADR 0019). Keep in sync: the build fails if these differ from the spec.
   var TEMPO = {
-    speed: 60, step: 0.7, round: 3.5, alignArrival: 0,
+    speed: 60, step: 0.7, round: 3.5, alignArrival: 1,
     nodeScale: 1.08, nodeUp: 0.22, nodeDown: 0.3,
     coreScale: 1.2, coreUp: 0.25, coreHold: 0, coreDown: 0.4, coreOvershoot: 0.3,
     ambientSpeed: 36, ambientGapMin: 0.6, ambientGapMax: 1.8,

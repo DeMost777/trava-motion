@@ -317,6 +317,25 @@
           }
         }
       },
+      "node": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.0943685,
+            0.0943685,
+            0.0943685
+          ],
+          "alpha": 0.25,
+          "hex": "#181818"
+        },
+        "$description": "Drop shadow under service icons (Client interaction); differs from shadow/avatar, kept as in Figma (Q24)",
+        "$extensions": {
+          "com.figma": {
+            "collection": "Illustration",
+            "variable": "shadow/node"
+          }
+        }
+      },
       "avatar-glyph": {
         "$value": {
           "colorSpace": "srgb",

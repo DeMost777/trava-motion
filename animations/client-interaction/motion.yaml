@@ -1,7 +1,7 @@
 # Motion Specification — Client Interaction
 # Format: docs/motion-spec.md (ADR 0016). Language: English (ADR 0002).
 # Sources: brief.md (team, RU), storyboard.md, ADR 0019 (scenario, roles, bounce exception), motion/principles.md (ADR 0006).
-# Status: draft for review (scenario approved 2026-10-07; stand values to be confirmed).
+# Status: values chosen on the stand 2026-10-07 (order B, overshoot 0.3); movement awaits team review.
 
 animation: client-interaction
 story: >
@@ -20,7 +20,7 @@ tempo:                        # illustration-specific values (ADR 0019); speed m
   speed: 60                   # px/s, bar speed on every route (same as Queue Manager)
   step: 0.7s                  # time between two services
   round: 3.5s                 # one pass over all five services; then again without a pause
-  alignArrival: 0             # 0 = departures are one step apart, 1 = arrivals are one step apart
+  alignArrival: 1             # 1 = arrivals at the hub are one step apart (steady beat, chosen 2026-10-07); 0 = departures are one step apart
   nodeScale: 1.08             # service icon pulse: peak scale, no bounce
   nodeUp: 0.22s
   nodeDown: 0.3s
