@@ -1,0 +1,80 @@
+# Motion Specification — Queue Manager
+# Format: docs/motion-spec.md (ADR 0016). Language: English (ADR 0002).
+# Sources: brief.md (team, RU), storyboard.md (approved: ADR 0008, ADR 0013), motion/principles.md (ADR 0006).
+# Status: draft for approval (task 3.1).
+
+animation: queue-manager
+story: >
+  One mechanism manages every queue: passengers on all sides send a steady stream of
+  impulses along the lines into the central card, and the gear inside keeps processing it.
+
+layers:                       # roles from figma.json; animate nothing else
+  impulse: 24                 # short glowing bars, one per line segment
+  hub: 1                      # central card (static in this animation)
+  gear: 1                     # gear icon inside the card
+
+tempo:                        # illustration-specific values approved on the playground (ADR 0013)
+  segmentTime: 1.2s           # time for an impulse to cross a typical avatar-to-avatar segment
+  impulsesPerSegment: 1       # next impulse leaves the avatar 1.2 s after the previous one
+  gearDuration: 1.3s          # one gear reaction
+  gearZoom: 1.2
+  gearEvery: 3s               # time between gear reactions
+
+trigger:
+  when: card-active           # the card becomes active by scrolling to it or by a click in the sidebar
+  threshold: motion.trigger.threshold   # token: 35 % of the illustration visible
+  delay: motion.trigger.delay           # token: 0
+  replay: on-every-activation           # principles §5
+
+loop:
+  mode: infinite
+  basis: ADR 0007             # meaningful-loop exception to principles §6
+  pauseWhen: [off-screen, card-inactive]
+
+staticState: design           # first frame, reduced motion and any error show the Figma design as is
+
+scenes:
+  - id: flow
+    intent: >
+      Impulses stream toward the hub without pauses: along the rows from both edges to the
+      centre column, along the centre column from the top and bottom into the card.
+      Impulses already drawn in the design continue from their places; new ones leave from
+      under the outer avatars, so the stream fills the network from the edges to the centre.
+    primitive: impulseFlow    # draft name from audit 1.1, confirmed in task 5.1
+    targets: impulse
+    starts: on-trigger
+    params:
+      direction: toward-hub
+      speed: constant-across-lines        # same speed on every line; short segments near the card take less time
+      segmentTime: tempo.segmentTime
+      perSegment: tempo.impulsesPerSegment
+      ease: motion.ease.flow              # token: linear, a stream reads as one steady flow
+      start: fill-from-edges
+      clip: under-avatars-and-hub         # an impulse never draws over an avatar or the card
+    approxDuration: infinite              # reaches the card about 3.4 s after start
+
+  - id: gear-reaction
+    intent: >
+      When the stream first reaches the card, the gear turns once and zooms in and out
+      smoothly, without bounce; then it repeats every 3 s while the stream runs.
+    primitive: hubAccent      # draft name from audit 1.1, confirmed in task 5.1
+    targets: gear
+    starts: when flow reaches hub
+    params:
+      rotate: 360deg
+      zoom: tempo.gearZoom
+      duration: tempo.gearDuration
+      ease:
+        rotate: motion.ease.standard      # token
+        zoomIn: motion.ease.enter         # token, first half
+        zoomOut: motion.ease.standard     # token, second half
+      every: tempo.gearEvery
+      overshoot: none                     # principles §1; the Figma prototype bounce is not used (ADR 0012)
+
+interrupt: jump-to-design     # leaving the card: show the design state immediately (principles §5)
+
+reducedMotion: static         # principles §9
+
+mobile:
+  same: true                  # principles §8: same animation, scaled
+  simplifyIf: the stream looks noisy on small screens   # open question, check in task 6.4
