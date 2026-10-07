@@ -1,0 +1,326 @@
+<!-- Trava Motion: paste everything into Webflow → Page settings → Custom code → Before </body> tag -->
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+<script>
+/*! Trava Motion — built 2026-10-07 from github repo trava-motion. Animations: queue-manager. */
+window.TravaMotion = window.TravaMotion || {}; window.TravaMotion.tokens = {"ease":{"enter":"sine.out","standard":"power1.inOut","exit":"sine.in","draw":"power1.inOut","flow":"none"},"trigger":{"threshold":0.35,"delay":0}};
+/* Trava Motion runtime (task 6.1–6.3, short path for Queue Manager).
+ * Finds elements with data-trava-animation, turns an <img> of the prepared SVG into inline SVG,
+ * and plays the registered animation while the illustration is visible.
+ * Animation is an enhancement: no GSAP, reduced motion, a failed fetch or any error leave the
+ * illustration exactly as designed (principles §9, ADR 0014).
+ * Plain browser script, no modules: tools/build-webflow.mjs concatenates it with primitives and animations.
+ */
+(function (root) {
+  'use strict';
+  var TM = root.TravaMotion = root.TravaMotion || {};
+  TM.animations = TM.animations || {};
+  TM.primitives = TM.primitives || {};
+  TM.tokens = TM.tokens || { trigger: { threshold: 0.35, delay: 0 } };
+  TM.register = function (name, factory) { TM.animations[name] = factory; };
+  TM.controllers = [];
+
+  function warn(msg, err) { if (root.console) root.console.warn('[trava-motion] ' + msg, err || ''); }
+  function reducedMotion() { return !!(root.matchMedia && root.matchMedia('(prefers-reduced-motion: reduce)').matches); }
+
+  // <img src="….svg" data-trava-animation> → the same SVG inline, so its layers can move.
+  function inlineSvg(el) {
+    if (el.tagName.toLowerCase() === 'svg') return Promise.resolve(el);
+    var src = el.currentSrc || el.src;
+    return fetch(src, { mode: 'cors', credentials: 'omit' }).then(function (res) {
+      if (!res.ok) throw new Error('HTTP ' + res.status + ' for ' + src);
+      return res.text();
+    }).then(function (text) {
+      var doc = new DOMParser().parseFromString(text, 'image/svg+xml');
+      var svg = doc.documentElement;
+      if (!svg || svg.nodeName.toLowerCase() !== 'svg' || doc.getElementsByTagName('parsererror').length) throw new Error('not an SVG: ' + src);
+      var node = document.importNode(svg, true);
+      if (el.getAttribute('class')) node.setAttribute('class', el.getAttribute('class'));
+      if (el.getAttribute('style')) node.setAttribute('style', el.getAttribute('style'));
+      node.style.width = node.style.width || '100%';
+      node.style.height = 'auto';
+      node.style.display = node.style.display || 'block';
+      node.setAttribute('data-trava-animation', el.getAttribute('data-trava-animation'));
+      el.parentNode.replaceChild(node, el);
+      return node;
+    });
+  }
+
+  function mount(el) {
+    var name = el.getAttribute('data-trava-animation');
+    var factory = TM.animations[name];
+    if (!factory) return warn('no animation registered for "' + name + '"');
+    if (!root.gsap) return warn('GSAP is not loaded; illustration stays static');
+    if (reducedMotion()) return; // static design, as approved
+    var threshold = TM.tokens.trigger.threshold, delay = TM.tokens.trigger.delay || 0;
+
+    inlineSvg(el).then(function (svg) {
+      var ctrl = factory(svg, { gsap: root.gsap, tokens: TM.tokens, primitives: TM.primitives });
+      var running = false, timer = null;
+      function safe(fn) { try { fn(); } catch (e) { warn('animation error, back to design', e); try { ctrl.reset(); } catch (_) { /* ignore */ } running = false; } }
+      TM.controllers.push({ name: name, svg: svg, controller: ctrl });
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          var visible = entry.isIntersecting && entry.intersectionRatio >= threshold;
+          if (visible && !running) {
+            running = true;
+            timer = root.setTimeout(function () { safe(function () { ctrl.start(); }); }, delay);
+          } else if (!visible && running) {
+            root.clearTimeout(timer);
+            safe(function () { ctrl.reset(); }); // interrupt: jump to design; replays on next activation
+            running = false;
+          }
+        });
+      }, { threshold: [0, threshold] });
+      io.observe(svg);
+    }).catch(function (e) { warn('could not inline "' + name + '", illustration stays static', e); });
+  }
+
+  TM.mountAll = function (scope) {
+    var list = (scope || document).querySelectorAll('[data-trava-animation]');
+    for (var i = 0; i < list.length; i++) mount(list[i]);
+  };
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { TM.mountAll(); });
+  else root.setTimeout(function () { TM.mountAll(); }, 0);
+})(window);
+
+/* Primitive: hubAccent (draft name, audit 1.1; confirmed in 5.1).
+ * A central element turns and zooms in/out around its own centre, without overshoot (principles §1),
+ * first at `firstAt`, then every `every` seconds. Driven by an external clock: update(t).
+ */
+(function (root) {
+  'use strict';
+  var TM = root.TravaMotion = root.TravaMotion || {};
+  TM.primitives = TM.primitives || {};
+
+  TM.primitives.hubAccent = function (svg, opt) {
+    var gsap = opt.gsap, el = opt.target, tl = null, firstAt = 0;
+    var originalTransform = el.getAttribute('transform');
+
+    function prepare(at) {
+      firstAt = at;
+      if (tl) return;
+      var b = el.getBBox();
+      var origin = (b.x + b.width / 2) + ' ' + (b.y + b.height / 2);
+      var d = opt.duration;
+      tl = gsap.timeline({ paused: true, repeat: -1, repeatDelay: Math.max(0, opt.every - d) });
+      tl.fromTo(el, { rotation: 0, svgOrigin: origin }, { rotation: opt.rotate, duration: d, ease: opt.ease.rotate, svgOrigin: origin }, 0)
+        .fromTo(el, { scale: 1, svgOrigin: origin }, { scale: opt.zoom, duration: d / 2, ease: opt.ease.zoomIn, svgOrigin: origin }, 0)
+        .to(el, { scale: 1, duration: d / 2, ease: opt.ease.zoomOut, svgOrigin: origin }, d / 2);
+    }
+
+    function update(t) { tl.totalTime(Math.max(0, t - firstAt)); }
+
+    function reset() {
+      if (!tl) return;
+      tl.totalTime(0);
+      if (originalTransform === null) el.removeAttribute('transform'); else el.setAttribute('transform', originalTransform);
+    }
+
+    return { prepare: prepare, update: update, reset: reset };
+  };
+})(window);
+
+/* Primitive: impulseFlow (draft name, audit 1.1; confirmed in 5.1).
+ * A continuous stream of impulses along their tracks toward a hub (Queue Manager, ADR 0013).
+ * - Every impulse moves only inside its track and disappears under the avatar / hub edge (clip).
+ * - Constant speed on every track; time per typical segment = segmentTime.
+ * - Frame 0 = design: impulses drawn in the design continue from their places; new ones are emitted
+ *   from the start of each track, deeper tracks first, so the stream fills the network toward the hub.
+ * Driven by an external clock: update(t) with t in seconds. Geometry is read lazily on prepare(),
+ * when the SVG is rendered (getScreenCTM needs layout).
+ */
+(function (root) {
+  'use strict';
+  var TM = root.TravaMotion = root.TravaMotion || {};
+  TM.primitives = TM.primitives || {};
+  var NS = 'http://www.w3.org/2000/svg';
+
+  function boxIn(svg, el) {
+    var b = el.getBBox();
+    var m = svg.getScreenCTM().inverse().multiply(el.getScreenCTM());
+    var xs = [], ys = [];
+    [[b.x, b.y], [b.x + b.width, b.y], [b.x, b.y + b.height], [b.x + b.width, b.y + b.height]].forEach(function (p) {
+      xs.push(m.a * p[0] + m.c * p[1] + m.e); ys.push(m.b * p[0] + m.d * p[1] + m.f);
+    });
+    var x = Math.min.apply(null, xs), y = Math.min.apply(null, ys);
+    return { x: x, y: y, w: Math.max.apply(null, xs) - x, h: Math.max.apply(null, ys) - y };
+  }
+  function median(a) { var s = a.slice().sort(function (p, q) { return p - q; }); return s[Math.floor(s.length / 2)]; }
+
+  TM.primitives.impulseFlow = function (svg, opt) {
+    var gsap = opt.gsap, uid = 'tm' + Math.random().toString(36).slice(2, 8);
+    var lanes = null, speed = 0, interval = 0, level = 0, maxDepth = 0, ease = gsap.parseEase(opt.ease || 'none');
+
+    function prepare() {
+      if (lanes) return;
+      var hub = boxIn(svg, opt.hub);
+      var hubC = { x: hub.x + hub.w / 2, y: hub.y + hub.h / 2 };
+      var tracks = opt.tracks.map(function (t) { return boxIn(svg, t); });
+      var defs = document.createElementNS(NS, 'defs');
+      svg.appendChild(defs);
+
+      lanes = opt.impulses.map(function (rect, i) {
+        var r = boxIn(svg, rect), horizontal = r.w > r.h;
+        var cx = r.x + r.w / 2, cy = r.y + r.h / 2;
+        var track = tracks.filter(function (t) {
+          return horizontal ? (t.h < 2 && Math.abs(t.y + t.h / 2 - cy) < 2 && cx >= t.x - 1 && cx <= t.x + t.w + 1)
+                            : (t.w < 2 && Math.abs(t.x + t.w / 2 - cx) < 2 && cy >= t.y - 1 && cy <= t.y + t.h + 1);
+        })[0];
+        if (!track) throw new Error('impulseFlow: no track for impulse ' + i);
+        var dir = horizontal ? (cx < hubC.x ? 1 : -1) : (cy < hubC.y ? 1 : -1);
+        var a = horizontal ? track.x : track.y, b = horizontal ? track.x + track.w : track.y + track.h;
+        // tracks pass under the hub: stop at its edge
+        if (horizontal && cy > hub.y && cy < hub.y + hub.h) { if (dir > 0) b = Math.min(b, hub.x); else a = Math.max(a, hub.x + hub.w); }
+        if (!horizontal && cx > hub.x && cx < hub.x + hub.w) { if (dir > 0) b = Math.min(b, hub.y); else a = Math.max(a, hub.y + hub.h); }
+        var p = horizontal ? r.x : r.y, len = horizontal ? r.w : r.h;
+
+        // clip = the track; mover carries the translate, the original rect stays untouched inside
+        var clip = document.createElementNS(NS, 'clipPath');
+        clip.setAttribute('id', uid + '-clip' + i);
+        clip.setAttribute('clipPathUnits', 'userSpaceOnUse');
+        var cr = document.createElementNS(NS, 'rect');
+        if (horizontal) { cr.setAttribute('x', a); cr.setAttribute('y', cy - 3); cr.setAttribute('width', b - a); cr.setAttribute('height', 6); }
+        else { cr.setAttribute('x', cx - 3); cr.setAttribute('y', a); cr.setAttribute('width', 6); cr.setAttribute('height', b - a); }
+        clip.appendChild(cr); defs.appendChild(clip);
+        var outer = document.createElementNS(NS, 'g'), mover = document.createElementNS(NS, 'g');
+        outer.setAttribute('clip-path', 'url(#' + uid + '-clip' + i + ')');
+        rect.parentNode.insertBefore(outer, rect);
+        outer.appendChild(mover); mover.appendChild(rect);
+
+        var startPt = dir > 0 ? a : b, endPt = dir > 0 ? b : a;
+        return {
+          horizontal: horizontal, dir: dir, a: a, b: b, len: len, outer: outer, mover: mover, clones: [],
+          P: b - a + len,
+          from: dir > 0 ? a - len - p : b - p,          // translate when the bar is hidden behind the start edge
+          s0: dir > 0 ? p - (a - len) : b - p,           // design position on the path
+          up: horizontal ? { x: startPt, y: cy } : { x: cx, y: startPt },
+          down: horizontal ? { x: endPt, y: cy } : { x: cx, y: endPt },
+        };
+      });
+
+      // depth: 1 = enters the hub, n = n segments away (fill-from-edges order)
+      function nearHub(pt) { return pt.x >= hub.x - 6 && pt.x <= hub.x + hub.w + 6 && pt.y >= hub.y - 6 && pt.y <= hub.y + hub.h + 6; }
+      function depthOf(l, seen) {
+        if (l.depth) return l.depth;
+        if (nearHub(l.down) || seen.indexOf(l) >= 0) return (l.depth = 1);
+        var next = null, best = 60;
+        lanes.forEach(function (m) {
+          if (m === l) return;
+          var d = Math.hypot(m.up.x - l.down.x, m.up.y - l.down.y);
+          if (d < best) { best = d; next = m; }
+        });
+        return (l.depth = next ? 1 + depthOf(next, seen.concat([l])) : 1);
+      }
+      lanes.forEach(function (l) { depthOf(l, []); });
+
+      var refPath = median(lanes.map(function (l) { return l.P; }));
+      speed = refPath / opt.segmentTime;
+      interval = opt.segmentTime / opt.perSegment;
+      level = median(lanes.map(function (l) { return l.b - l.a; })) / speed;
+      maxDepth = Math.max.apply(null, lanes.map(function (l) { return l.depth; }));
+      lanes.forEach(function (l) {
+        l.dur = l.P / speed;
+        l.start = (maxDepth - l.depth) * level;
+        var count = Math.ceil(l.dur / interval) + 1;
+        for (var k = 0; k < count; k++) {
+          var c = l.mover.cloneNode(true);
+          c.style.visibility = 'hidden';
+          l.outer.appendChild(c); l.clones.push(c);
+        }
+      });
+    }
+
+    function place(l, node, s) {
+      var d = l.from + l.dir * s;
+      node.setAttribute('transform', l.horizontal ? 'translate(' + d + ' 0)' : 'translate(0 ' + d + ')');
+      node.style.visibility = '';
+    }
+
+    function update(t) {
+      lanes.forEach(function (l) {
+        var sd = l.s0 + speed * t;                       // design impulse keeps going, then leaves
+        if (sd <= l.P) place(l, l.mover, sd); else l.mover.style.visibility = 'hidden';
+        l.clones.forEach(function (c) { c.style.visibility = 'hidden'; });
+        if (t < l.start) return;
+        var last = Math.floor((t - l.start) / interval);
+        var first = Math.max(0, Math.ceil((t - l.start - l.dur) / interval));
+        for (var j = first; j <= last; j++) {
+          var u = (t - l.start - j * interval) / l.dur;
+          if (u < 0 || u > 1) continue;
+          place(l, l.clones[j % l.clones.length], l.P * ease(u));
+        }
+      });
+    }
+
+    function reset() {
+      if (!lanes) return;
+      lanes.forEach(function (l) {
+        l.mover.removeAttribute('transform'); l.mover.style.visibility = '';
+        l.clones.forEach(function (c) { c.style.visibility = 'hidden'; c.removeAttribute('transform'); });
+      });
+    }
+
+    return {
+      prepare: prepare, update: update, reset: reset,
+      arrivalTime: function () { prepare(); return maxDepth * level; },
+    };
+  };
+})(window);
+
+/* Queue Manager animation — implements animations/queue-manager/motion.yaml (approved, task 3.1).
+ * Scenes: flow (impulseFlow) → gear-reaction (hubAccent). Infinite while visible (ADR 0007);
+ * the runtime calls reset() when the card leaves the screen (interrupt: jump-to-design).
+ * Values: tempo from motion.yaml (checked by tools/build-webflow.mjs), eases from tokens.
+ */
+(function (root) {
+  'use strict';
+  var TM = root.TravaMotion;
+
+  // motion.yaml → tempo (ADR 0013). Keep in sync: the build fails if these differ from the spec.
+  var TEMPO = { segmentTime: 1.2, impulsesPerSegment: 1, gearDuration: 1.3, gearZoom: 1.2, gearEvery: 3 };
+
+  TM.register('queue-manager', function (svg, env) {
+    var gsap = env.gsap, ease = env.tokens.ease;
+    var role = function (r) { return Array.prototype.slice.call(svg.querySelectorAll('[data-m="' + r + '"]')); };
+    var hub = role('hub')[0], gear = role('gear')[0];
+
+    var flow = env.primitives.impulseFlow(svg, {
+      gsap: gsap,
+      impulses: role('impulse'),
+      // dotted connection lines: the tracks impulses run on (no role in Figma yet, see audit 2.4 notes)
+      tracks: Array.prototype.slice.call(svg.querySelectorAll('path[stroke-dasharray]')),
+      hub: hub,
+      segmentTime: TEMPO.segmentTime,
+      perSegment: TEMPO.impulsesPerSegment,
+      ease: ease.flow,
+    });
+    var accent = env.primitives.hubAccent(svg, {
+      gsap: gsap, target: gear,
+      rotate: 360, zoom: TEMPO.gearZoom, duration: TEMPO.gearDuration, every: TEMPO.gearEvery,
+      ease: { rotate: ease.standard, zoomIn: ease.enter, zoomOut: ease.standard },
+    });
+
+    var t0 = 0, tick = null;
+    function seek(t) { flow.update(t); accent.update(t); }
+    function prepare() { flow.prepare(); accent.prepare(flow.arrivalTime()); }
+
+    return {
+      start: function () {
+        prepare();
+        t0 = gsap.ticker.time;
+        tick = function () { seek(gsap.ticker.time - t0); };
+        gsap.ticker.add(tick);
+        seek(0);
+      },
+      reset: function () {
+        if (tick) gsap.ticker.remove(tick);
+        tick = null;
+        flow.reset(); accent.reset();
+      },
+      seek: function (t) { prepare(); seek(t); },   // for previews and tests
+    };
+  });
+})(window);
+
+</script>

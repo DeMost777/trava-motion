@@ -8,7 +8,8 @@
 | Файл | Куда |
 |---|---|
 | `queue-manager.svg` | загрузить в **Assets** Webflow |
-| `trava-motion.js` | вставить текстом в **Custom code** страницы (16 КБ) |
+| `webflow-custom-code.html` | **скопировать целиком** в Custom code страницы (GSAP + код, 16 КБ) |
+| `trava-motion.js` | тот же код отдельным файлом (для разработки; в Webflow не нужен) |
 
 Файлы собирает `node tools/build-webflow.mjs` — руками не редактировать.
 
@@ -21,13 +22,9 @@
 3. **Добавить атрибут.** У того же изображения: **Element settings** (иконка шестерёнки) → **Custom attributes** → **+**:
    - Name: `data-trava-animation`
    - Value: `queue-manager`
-4. **Подключить код.** **Pages** → настройки главной страницы → **Custom code** → поле **Before `</body>` tag** → вставить:
-   ```html
-   <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
-   <script>
-   /* сюда целиком содержимое файла trava-motion.js */
-   </script>
-   ```
+4. **Подключить код.** Открыть `webflow-custom-code.html` в любом текстовом редакторе (или в браузере через
+   «Просмотр кода»), выделить **всё** и скопировать. **Pages** → настройки главной страницы → **Custom code** →
+   поле **Before `</body>` tag** → вставить. Ничего не менять внутри.
 5. **Опубликовать на staging** (Publish → только `*.webflow.io`).
 
 ## Проверка на staging
