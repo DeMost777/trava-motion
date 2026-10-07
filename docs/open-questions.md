@@ -34,3 +34,8 @@
 - [x] Q15. Бэклог → BACKLOG.md, [ADR 0001](decisions/0001-backlog-in-markdown.md).
 - [ ] Q16. Кто утверждает анимацию со стороны дизайна?
 - [x] Q17. Claude Code локально → [ADR 0003](decisions/0003-claude-code-local.md).
+
+## Client Interaction
+- [ ] Q24. Тень кругов-сервисов (`m-node`) в Figma — `#181818`, 25 % (фильтр drop shadow), а в токенах для аватаров Queue Manager `shadow.avatar` = `#020c15`, 24 %. Варианты:
+  (A) добавить в `tokens/illustration.tokens.json` отдельный токен `shadow.node` = `#181818 / 0.25` как в Figma — **рекомендую** (макет — источник правды, дизайн не меняем);
+  (B) дизайнер выравнивает тень в Figma под `shadow.avatar` (визуально почти не отличается, но это правка дизайна). Блокирует только финальную проверку пакета (`prepare-svg` пакетный режим).

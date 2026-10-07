@@ -1,0 +1,27 @@
+{
+  "$description": "Package passport (ADR 0015). Where the illustration comes from in Figma, which animated layers the storyboard needs, and the exact files the preparation tool must use.",
+  "figma": {
+    "fileKey": "9EMDUpk6j30cPIIzRENFQh",
+    "node": "761:8858",
+    "name": "Client interaction",
+    "note": "work copy in section 'ai task'; layers renamed to m-* roles 2026-10-07 (names only, geometry unchanged, ADR 0019)"
+  },
+  "roles": {
+    "impulse": 9,
+    "connection": 5,
+    "node": 5,
+    "hub": 1,
+    "core": 1
+  },
+  "export": {
+    "file": "source/figma-export.svg",
+    "sha256": "a20b464335c25e765d7b9451a267db6b3afdcfc1670e534c448546b723a26f49",
+    "exportedAt": "2026-10-07",
+    "how": "Figma export SVG with 'Include id attribute', sent by the team"
+  },
+  "reference": {
+    "file": "source/figma-reference@1x.png",
+    "sha256": "9cc94631e5d75c0e32f670e903c76034e752b5f35acd7d0d67160e84927c62b8",
+    "how": "Figma MCP screenshot of the frame, contentsOnly, 1x, lossless RGBA (taken before the role renames; names do not change pixels)"
+  }
+}
