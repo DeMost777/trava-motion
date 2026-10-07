@@ -11,10 +11,12 @@
 ---
 
 ## Текущий приоритет (2026-10-07)
-**Queue Manager до проверки на сайте** — короткий путь через фазы 4–10, [план](docs/plans/qm-to-site.md).
-Шаги 1–5 ✅ ([проверка](docs/audits/qm-local-check.md)), доставка — [ADR 0017](docs/decisions/0017-webflow-delivery.md).
-Ждём: ✋ анимация по видео `preview/queue-manager.mp4`, затем вставка по `exports/webflow/README.md` и проверка на staging.
+**Queue Manager принят** ([ADR 0018](docs/decisions/0018-queue-manager-ready-for-production.md)): проверен командой на staging (десктоп, планшет, телефон, Safari), держим как *ready to production*;
+выкатка на trava.co — отдельным «утверждаю». Следующая иллюстрация — **Client Interaction** ([ADR 0012](docs/decisions/0012-illustration-audit.md)), одна анимация за раз:
+сделали → проверили на сайте → только потом следующая.
 Отложено: 3.2 (три дополнения к формату spec), 3.3, полные версии фаз 5, 7, 9.
+
+---
 
 ## Фаза 0 — Фундамент
 Цель: договориться, как работаем, и получить доступы.
@@ -100,7 +102,7 @@
 ## Фаза 8 — POC 1: Queue Manager end-to-end
 | ID | Задача | Результат | Готово, когда | |
 |---|---|---|---|---|
-| 8.1 | Анимация по spec | работает в preview | утверждена после ревью | ✋ ⬜ |
+| 8.1 | Анимация по spec | работает в preview | утверждена после ревью | ✋ ✅ Queue Manager: видео и staging приняты командой |
 | 8.2 | Итерации по фидбеку | правки только в spec / токенах | правки делаются без переписывания кода | ⬜ |
 
 ## Фаза 9 — QA
@@ -115,7 +117,7 @@
 | ID | Задача | Результат | Готово, когда | |
 |---|---|---|---|---|
 | 10.1 | Формат вставки | embed-блок + подключение runtime | утверждён | ✋ ⬜ |
-| 10.2 | Проверка на staging | Queue Manager на staging-странице | работает на desktop/tablet/mobile | ⬜ |
+| 10.2 | Проверка на staging | Queue Manager на staging-странице | работает на desktop/tablet/mobile | ✅ команда проверила, вкл. Safari ([аудит](docs/audits/qm-staging.md), [ADR 0018](docs/decisions/0018-queue-manager-ready-for-production.md)) |
 | 10.3 | Процесс обновления | как выкатываем новую версию | описан и проверен один раз | ⬜ |
 
 ## Фаза 11 — POC 2: Fare Optimizer

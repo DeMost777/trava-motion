@@ -21,4 +21,5 @@
 | [0014](0014-svg-preparation-rules.md) | Правила подготовки SVG из Figma | утверждено | 2026-10-07 |
 | [0015](0015-animation-package-standard.md) | Стандарт пакета анимации | утверждено | 2026-10-07 |
 | [0016](0016-motion-spec-format.md) | Формат Motion Specification: сцены и приёмы | утверждено | 2026-10-07 |
-| [0017](0017-webflow-delivery.md) | Доставка анимаций на сайт Webflow | утверждено, проверка на staging впереди | 2026-10-07 |
+| [0017](0017-webflow-delivery.md) | Доставка анимаций на сайт Webflow | утверждено, проверено на staging | 2026-10-07 |
+| [0018](0018-queue-manager-ready-for-production.md) | Queue Manager принят: ready to production, правила для планшета/телефона и сайта | утверждено | 2026-10-07 |
