@@ -4,6 +4,7 @@
 
 | Скрипт | Что делает | Задача |
 |---|---|---|
+| `build-webflow.mjs` | собирает `exports/webflow/`: `trava-motion.js` (токены + runtime + primitives + анимации) и SVG; сверяет темп кода с `motion.yaml`, проверяет пакеты | QM → сайт |
 | `prepare-svg.mjs` | сырой экспорт Figma → SVG для анимации по правилам [ADR 0014](../docs/decisions/0014-svg-preparation-rules.md); пишет файл только если все проверки прошли | 2.4 |
 
 ## prepare-svg.mjs

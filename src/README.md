@@ -1,5 +1,10 @@
 # src/
 
-Код: motion primitives и Trava Motion Runtime (монтирование по `data-trava-animation`, запуск, reduced motion).
+Код, который попадает на сайт.
 
-**Фазы 5–6.** Пока пусто: стек утверждается в фазе 4.
+| Папка | Что |
+|---|---|
+| `runtime/trava-motion.js` | находит `data-trava-animation`, встраивает SVG, запускает/сбрасывает анимацию (ADR 0017) |
+| `primitives/` | приёмы движения: `impulse-flow.js`, `hub-accent.js` (черновые названия, словарь — 5.1) |
+
+Сборка в один файл для Webflow: `node tools/build-webflow.mjs` → `exports/webflow/trava-motion.js`.
