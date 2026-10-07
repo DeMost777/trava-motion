@@ -23,3 +23,4 @@
 | [0016](0016-motion-spec-format.md) | Формат Motion Specification: сцены и приёмы | утверждено | 2026-10-07 |
 | [0017](0017-webflow-delivery.md) | Доставка анимаций на сайт Webflow | утверждено, проверено на staging | 2026-10-07 |
 | [0018](0018-queue-manager-ready-for-production.md) | Queue Manager принят: ready to production, правила для планшета/телефона и сайта | утверждено | 2026-10-07 |
+| [0019](0019-client-interaction-scenario.md) | Client Interaction: сценарий, роли слоёв, исключение «наполнение» | утверждено (величина bounce — на стенде) | 2026-10-07 |
