@@ -72,6 +72,25 @@ const notInTokens = tokenFiles.length ? [...new Set([...uniqHex, ...shadowHex])]
 const onlyInExtensions = tokenFiles.length ? [...new Set([...uniqHex, ...shadowHex])].filter((h) => !tokenHex.has(h) && extra.has(h)) : null;
 
 const root = nodes[0];
+
+// --- warnings: effects Figma exports incorrectly (task 2.3, docs/svg-prep-rules.md) ---
+// Figma builds inner shadows from the layer's alpha; a browser then darkens everything under a frame-level
+// or semi-transparent layer. Flag: a filter on the first group (the illustration frame), and any inner shadow
+// (filter id "filter<N>_i_") on a layer whose subtree has fill-opacity < 1 or a gradient stop-opacity < 1.
+const warnings = [];
+const firstGroup = nodes.find((n) => n.tag === 'g');
+if (firstGroup && firstGroup.attrs.filter) warnings.push(`filter on the illustration frame (${firstGroup.attrs.id || 'g'}): remove the effect in Figma`);
+const gradOpaque = new Map(); // gradient id -> every stop opaque?
+for (const g of nodes.filter((n) => /Gradient$/.test(n.tag))) {
+  const stops = nodes.filter((n) => n.tag === 'stop' && n.parent === g);
+  gradOpaque.set(g.attrs.id, stops.every((st) => st.attrs['stop-opacity'] === undefined || Number(st.attrs['stop-opacity']) >= 1));
+}
+const translucent = (n) => (n.attrs['fill-opacity'] !== undefined && Number(n.attrs['fill-opacity']) < 1)
+  || (/^url\(#(.+)\)$/.test(n.attrs.fill || '') && gradOpaque.get(n.attrs.fill.slice(5, -1)) === false);
+for (const n of nodes.filter((x) => /_i_/.test(x.attrs.filter || ''))) {
+  const subtree = nodes.filter((m) => { for (let p = m; p; p = p.parent) if (p === n) return true; return false; });
+  if (subtree.some(translucent)) warnings.push(`inner shadow on a semi-transparent layer (${n.attrs.id || nearestId(n)}): exports wrong, replace in Figma`);
+}
 console.log(JSON.stringify({
   file,
   bytes: Buffer.byteLength(svg),
@@ -89,4 +108,5 @@ console.log(JSON.stringify({
   clipPaths: { total: byTag('clipPath').length, usedBy: usage('clip-path') },
   gradients: { linear: byTag('linearGradient').length, radial: byTag('radialGradient').length },
   colours: { hex: uniqHex, shadows: [...new Set(matrices)].sort(), notInTokens, onlyInExtensions },
+  warnings,
 }, null, 2));
