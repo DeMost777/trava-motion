@@ -7,6 +7,13 @@
 | `prepare-svg.mjs` | сырой экспорт Figma → SVG для анимации по правилам [ADR 0014](../docs/decisions/0014-svg-preparation-rules.md); пишет файл только если все проверки прошли | 2.4 |
 
 ## prepare-svg.mjs
+Обычный запуск — по пакету (ADR 0015), всё берётся из `figma.json`:
+```
+node tools/prepare-svg.mjs animations/queue-manager
+```
+Если экспорт или эталон не совпадают с хэшами `figma.json`, скрипт остановится.
+
+Режим с файлами (как в 2.4):
 ```
 NODE_PATH=<папка с playwright>/node_modules \
 node tools/prepare-svg.mjs animations/queue-manager/source/figma-export.svg animations/queue-manager/illustration.svg \

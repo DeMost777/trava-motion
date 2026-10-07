@@ -1,8 +1,11 @@
 #!/usr/bin/env node
 // Prepare a raw Figma SVG export for animation (task 2.4, rules: docs/svg-prep-rules.md, ADR 0014).
-// Usage: node tools/prepare-svg.mjs <raw.svg> <out.svg> --name <illustration> --expect impulse=24,hub=1,gear=1
+// Usage (package, ADR 0015): node tools/prepare-svg.mjs animations/<name> [--out <file>]
+//   reads animations/<name>/figma.json: roles, export and reference files with their sha256;
+//   writes animations/<name>/illustration.svg (or --out).
+// Usage (files): node tools/prepare-svg.mjs <raw.svg> <out.svg> --name <illustration> --expect impulse=24,hub=1,gear=1
 //        [--reference <figma.png>] [--tokens <tokens.json>]
-// --expect: animated layers the storyboard needs; a layer lost in Figma stops the tool.
+// --expect / figma.json roles: animated layers the storyboard needs; a layer lost in Figma stops the tool.
 //
 // Only technical edits, everything else stays byte for byte:
 //   id="m-<role>[_N]"  -> data-m="<role>"        (animated layers, ADR 0014 decision 2)
@@ -10,21 +13,38 @@
 //   <svg>              -> no width/height, + data-trava-animation, aria-hidden, focusable
 // The output is written only if every check passes. Visual checks need Playwright on NODE_PATH
 // (see qa/svg-compare.mjs); without it the tool says so and skips them.
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, statSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { dirname, resolve } from 'node:path';
+import { dirname, resolve, basename, join } from 'node:path';
 
 const args = process.argv.slice(2);
 const opt = (k) => { const i = args.indexOf(k); return i >= 0 ? args.splice(i, 2)[1] : null; };
-const name = opt('--name'), reference = opt('--reference'), tokens = opt('--tokens'), expectArg = opt('--expect');
-const [rawPath, outPath] = args;
+const here = dirname(fileURLToPath(import.meta.url));
+const sha256 = (file) => createHash('sha256').update(readFileSync(file)).digest('hex');
+let name = opt('--name'), reference = opt('--reference'), tokens = opt('--tokens'), expectArg = opt('--expect');
+const outOpt = opt('--out');
+let [rawPath, outPath] = args;
+const preflight = [];
+if (rawPath && !outPath && existsSync(rawPath) && statSync(rawPath).isDirectory()) {
+  // package mode: everything comes from figma.json
+  const dir = rawPath;
+  const manifest = JSON.parse(readFileSync(join(dir, 'figma.json'), 'utf8'));
+  name = basename(resolve(dir));
+  expectArg = Object.entries(manifest.roles).map(([k, v]) => `${k}=${v}`).join(',');
+  rawPath = join(dir, manifest.export.file);
+  reference = join(dir, manifest.reference.file);
+  tokens = tokens || resolve(here, '../tokens/illustration.tokens.json');
+  outPath = outOpt || join(dir, 'illustration.svg');
+  if (sha256(rawPath) !== manifest.export.sha256) preflight.push(`${manifest.export.file} does not match figma.json sha256: the export changed, update figma.json after checking it`);
+  if (sha256(reference) !== manifest.reference.sha256) preflight.push(`${manifest.reference.file} does not match figma.json sha256`);
+}
 if (!rawPath || !outPath || !name || !/^[a-z0-9-]+$/.test(name) || !expectArg || !/^([a-z][a-z0-9-]*=\d+,?)+$/.test(expectArg)) {
-  console.error('usage: node tools/prepare-svg.mjs <raw.svg> <out.svg> --name <kebab-name> --expect role=N,... [--reference <png>] [--tokens <json>]');
+  console.error('usage: node tools/prepare-svg.mjs animations/<name> [--out <file>]\n   or: node tools/prepare-svg.mjs <raw.svg> <out.svg> --name <kebab-name> --expect role=N,... [--reference <png>] [--tokens <json>]');
   process.exit(2);
 }
-const here = dirname(fileURLToPath(import.meta.url));
 
 // ---------------------------------------------------------------- transform
 function prepare(svg) {
@@ -51,7 +71,7 @@ function prepare(svg) {
 // ---------------------------------------------------------------- structural checks
 const raw = readFileSync(rawPath, 'utf8');
 const out = prepare(raw);
-const problems = [];
+const problems = [...preflight];
 const check = (ok, msg) => { if (!ok) problems.push(msg); return ok; };
 const results = {};
 

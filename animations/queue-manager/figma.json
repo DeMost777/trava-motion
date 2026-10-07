@@ -1,0 +1,25 @@
+{
+  "$description": "Package passport (ADR 0015). Where the illustration comes from in Figma, which animated layers the storyboard needs, and the exact files the preparation tool must use.",
+  "figma": {
+    "fileKey": "9EMDUpk6j30cPIIzRENFQh",
+    "node": "732:12579",
+    "name": "Queue Manager",
+    "note": "work copy in section 'ai task'; original 418:30757 is not changed (Q22)"
+  },
+  "roles": {
+    "impulse": 24,
+    "hub": 1,
+    "gear": 1
+  },
+  "export": {
+    "file": "source/figma-export.svg",
+    "sha256": "d8ff9b46eb77c0eec658a3dd3380954d5fe171eb4cd101aa9e04b37704b0ede6",
+    "exportedAt": "2026-10-07",
+    "how": "Figma export SVG with 'Include id attribute'; verified against Figma by length and FNV-1a a4c8ccfe"
+  },
+  "reference": {
+    "file": "source/figma-reference@1x.png",
+    "sha256": "93ddd63e59071a3610addae8e03cd83826573789e584f177af2b981ea02c539e",
+    "how": "Figma MCP screenshot of the frame, contentsOnly, 1x, lossless RGBA"
+  }
+}

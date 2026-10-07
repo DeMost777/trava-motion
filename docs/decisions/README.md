@@ -19,3 +19,4 @@
 | [0012](0012-illustration-audit.md) | Итоги аудита иллюстраций: `m-impulse`, keyframes Figma как прототип, порядок | утверждено | 2026-10-06 |
 | [0013](0013-queue-manager-continuous-flow.md) | Queue Manager: непрерывный поток импульсов вместо волн | утверждено | 2026-10-06 |
 | [0014](0014-svg-preparation-rules.md) | Правила подготовки SVG из Figma | утверждено | 2026-10-07 |
+| [0015](0015-animation-package-standard.md) | Стандарт пакета анимации | утверждено | 2026-10-07 |
