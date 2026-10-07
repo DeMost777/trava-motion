@@ -1,7 +1,7 @@
 # Motion Specification — Queue Manager
 # Format: docs/motion-spec.md (ADR 0016). Language: English (ADR 0002).
 # Sources: brief.md (team, RU), storyboard.md (approved: ADR 0008, ADR 0013), motion/principles.md (ADR 0006).
-# Status: draft for approval (task 3.1).
+# Status: approved 2026-10-07 (task 3.1).
 
 animation: queue-manager
 story: >
