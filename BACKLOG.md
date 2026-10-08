@@ -14,7 +14,7 @@
 **Queue Manager принят** ([ADR 0018](docs/decisions/0018-queue-manager-ready-for-production.md)): проверен командой на staging (десктоп, планшет, телефон, Safari), держим как *ready to production*;
 выкатка на trava.co — отдельным «утверждаю». Следующая иллюстрация — **Client Interaction** ([ADR 0012](docs/decisions/0012-illustration-audit.md)), одна анимация за раз:
 сделали → проверили на сайте → только потом следующая.
-**Client Interaction принят** ([ADR 0022](docs/decisions/0022-client-interaction-ready-for-production.md)): проверен на staging, держим как *ready to production*; trava.co — отдельным «утверждаю». **Quality Control** собран на стенде ([ADR 0024](docs/decisions/0024-quality-control-scenario.md), [0025](docs/decisions/0025-quality-control-colours-to-tokens.md)): `preview/quality-control-final.mp4`, ждёт ревью команды ✋; на staging не выложен.
+**Client Interaction принят** ([ADR 0022](docs/decisions/0022-client-interaction-ready-for-production.md)): проверен на staging, держим как *ready to production*; trava.co — отдельным «утверждаю». **Quality Control принят** ([ADR 0026](docs/decisions/0026-quality-control-ready-for-production.md)): проверен командой на staging, *ready to production*; trava.co — отдельным «утверждаю». Следующая иллюстрация — только после утверждения.
 Отложено: 3.2 (три дополнения к формату spec), 3.3, полные версии фаз 5, 7, 9.
 
 ---
