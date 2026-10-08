@@ -11,8 +11,8 @@
   // motion.yaml → tempo (ADR 0024). Keep in sync: the build fails if these differ from the spec.
   var TEMPO = {
     step: 0.7, nodeScale: 1.08, nodeUp: 0.22, nodeDown: 0.3,
-    round: 7, fillEnd: 2.5, numberIn: 0.4, holdEnd: 5.5, numberOut: 0.4, backEnd: 6.3, rest: 3, riseY: 2,
-    lensScale: 1.2, lensUp: 0.4, lensHold: 0, lensDown: 0.9, lensOvershoot: 0.3,
+    round: 7, fillEnd: 1.5, fillPower: 3, numberIn: 0.4, holdEnd: 5, numberOut: 0.4, backEnd: 5.8, rest: 3, riseY: 2,
+    lensScale: 1.2, lensUp: 0.4, lensHold: 0, lensDown: 0.9, lensOvershoot: 0.3, lensRoom: 12,
     skeletonAlpha: 0.18, shineAlpha: 0.35, shinePeriod: 1.4,
     ambientSpeed: 36, ambientGapMin: 0.6, ambientGapMax: 1.8,
   };
@@ -36,7 +36,7 @@
     var local = function (t) { return (t + T.rest) % T.round; };
     var progress = function (t) {
       var u = local(t);
-      if (u < T.fillEnd) return easeStd(u / T.fillEnd);
+      if (u < T.fillEnd) return Math.pow(u / T.fillEnd, T.fillPower);   // slow start, then faster and faster, a sharp arrival
       if (u < T.holdEnd) return 1;
       if (u < T.backEnd) return 1 - easeStd((u - T.holdEnd) / (T.backEnd - T.holdEnd));
       return 0;
@@ -54,6 +54,23 @@
     var bar = P.progressFill(svg, { fill: fill, knob: knob, progress: progress });
     var plate = P.skeleton(svg, { target: number, alpha: T.skeletonAlpha, shine: T.shineAlpha, period: T.shinePeriod });
     var nodePulse = null, lensPulse = null, t0 = 0, tick = null, ready = false;
+
+    // The card is drawn with a drop-shadow filter whose region ends right at the lens: a zoomed-in lens would be cut there.
+    // While the animation is prepared the region is made a little wider; reset() puts the drawn numbers back.
+    var cardFilter = null, filterOrig = null;
+    function widenCardFilter(px) {
+      var host = lens.parentNode && lens.parentNode.closest ? lens.parentNode.closest('[filter]') : null;
+      var m = host && /url\(#([^)]+)\)/.exec(host.getAttribute('filter') || '');
+      cardFilter = cardFilter || (m ? svg.querySelector('[id="' + m[1] + '"]') : null);
+      if (!cardFilter) return;
+      filterOrig = filterOrig || ['x', 'y', 'width', 'height'].map(function (a) { return +cardFilter.getAttribute(a); });
+      cardFilter.setAttribute('x', filterOrig[0] - px); cardFilter.setAttribute('y', filterOrig[1] - px);
+      cardFilter.setAttribute('width', filterOrig[2] + 2 * px); cardFilter.setAttribute('height', filterOrig[3] + 2 * px);
+    }
+    function restoreCardFilter() {
+      if (!cardFilter || !filterOrig) return;
+      ['x', 'y', 'width', 'height'].forEach(function (a, i) { cardFilter.setAttribute(a, filterOrig[i]); });
+    }
 
     function prepare() {
       if (ready) return;
@@ -79,6 +96,7 @@
     }
 
     function seek(t) {
+      widenCardFilter(T.lensRoom);   // idempotent; again after every reset
       ambient.update(t); bar.update(t); nodePulse.update(t); lensPulse.update(t);
       var n = shown(t);
       plate.update(t, 1 - n);
@@ -101,6 +119,7 @@
         if (!ready) return;
         ambient.reset(); bar.reset(); plate.reset(); nodePulse.reset(); lensPulse.reset();
         number.style.opacity = ''; number.removeAttribute('transform');
+        restoreCardFilter();
       },
       seek: function (t) { prepare(); seek(t); },   // for previews and tests
     };

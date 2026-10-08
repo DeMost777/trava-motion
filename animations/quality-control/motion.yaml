@@ -23,17 +23,19 @@ tempo:                        # illustration-specific values (ADR 0024)
   nodeUp: 0.22s
   nodeDown: 0.3s
   round: 7s                   # one loading round (two laps of the icons)
-  fillEnd: 2.5s               # the bar reaches its place in the design (51 of 123 px) at this moment
+  fillEnd: 1.5s               # the bar reaches its place in the design (51 of 123 px) at this moment (changed 2026-10-08: was 2.5 s, too slow)
+  fillPower: 3                # the bar starts slowly and speeds up, progress = (t / fillEnd) ^ fillPower: sharp arrival (team, 2026-10-08)
   numberIn: 0.4s              # the number appears (and the waiting plate leaves) from fillEnd
-  holdEnd: 5.5s               # from fillEnd to here the card rests in the design state
+  holdEnd: 5s                 # from fillEnd to here the card rests in the design state
   numberOut: 0.4s             # the number fades from holdEnd, the waiting plate comes back
-  backEnd: 6.3s               # the bar has smoothly returned to 0; then a short pause until the round ends
+  backEnd: 5.8s               # the bar has smoothly returned to 0; then a short pause until the round ends
   rest: 3s                    # the animation starts this far into the round: the first frame is the design (principles §3)
   riseY: 2                    # px, the number rises this far while it appears
   lensScale: 1.2              # lens zoom-in: peak scale
   lensUp: 0.4s                # together 1.3 s, like the hub icon in Client Interaction
   lensHold: 0s
   lensDown: 0.9s
+  lensRoom: 12                # px, the shadow filter region of the card is widened by this while playing: the zoomed lens is not cut at the card edge
   lensOvershoot: 0.3          # small bounce on the way up (exception to principles §1, ADR 0019/0024); 0 = none
   skeletonAlpha: 0.18         # token illustration.placeholder.skeleton (white, alpha)
   shineAlpha: 0.35            # token illustration.placeholder.skeleton-shine (white, alpha)
@@ -93,7 +95,7 @@ scenes:
     starts: on-trigger
     params:
       round: tempo.round
-      fill: [0, tempo.fillEnd]            # progress 0 → 1, motion.ease.standard
+      fill: [0, tempo.fillEnd]            # progress 0 → 1, (t/fillEnd)^fillPower: slow start, fast arrival
       show: [tempo.fillEnd, tempo.numberIn]      # number 0 → 1, motion.ease.enter; plate 1 → 0
       hide: [tempo.holdEnd, tempo.numberOut]     # number 1 → 0, motion.ease.standard; plate 0 → 1
       back: [tempo.holdEnd, tempo.backEnd]       # progress 1 → 0, motion.ease.standard
