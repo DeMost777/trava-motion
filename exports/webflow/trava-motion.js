@@ -882,8 +882,7 @@ window.TravaMotion.config.gate = { selector: '[data-solution-state]', activeClas
     for (k in TEMPO) T[k] = Object.prototype.hasOwnProperty.call(over, k) ? over[k] : TEMPO[k];
 
     var nodes = role('node'), fill = role('progress')[0], knob = role('knob')[0], number = role('number')[0], lens = role('lens')[0];
-    // only the horizontal bars run: the one vertical bar under the card stays as drawn (ADR 0024)
-    var bars = role('impulse').filter(function (r) { return +r.getAttribute('width') > +r.getAttribute('height'); });
+    var impulses = role('impulse');   // the horizontal ones run; the vertical bar under the card (turned by a transform) stays as drawn (ADR 0024)
     var tracks = Array.prototype.slice.call(svg.querySelectorAll('path[stroke-dasharray]'));
 
     var easeIn = gsap.parseEase(ease.enter), easeStd = gsap.parseEase(ease.standard);
@@ -906,7 +905,7 @@ window.TravaMotion.config.gate = { selector: '[data-solution-state]', activeClas
       return 0;
     };
 
-    var ambient = P.ambientFlow(svg, { gsap: gsap, impulses: bars, tracks: tracks, speed: T.ambientSpeed, gapMin: T.ambientGapMin, gapMax: T.ambientGapMax });
+    var ambient = null;
     var bar = P.progressFill(svg, { fill: fill, knob: knob, progress: progress });
     var plate = P.skeleton(svg, { target: number, alpha: T.skeletonAlpha, shine: T.shineAlpha, period: T.shinePeriod });
     var nodePulse = null, lensPulse = null, t0 = 0, tick = null, ready = false;
@@ -928,6 +927,8 @@ window.TravaMotion.config.gate = { selector: '[data-solution-state]', activeClas
         gsap: gsap, targets: [lens], events: [[first]], cycle: T.round,
         scale: T.lensScale, up: T.lensUp, hold: T.lensHold, down: T.lensDown, overshoot: T.lensOvershoot, easeDown: ease.standard,
       });
+      var bars = impulses.filter(function (r) { var b = util.boxIn(svg, r); return b.w > b.h; });
+      ambient = P.ambientFlow(svg, { gsap: gsap, impulses: bars, tracks: tracks, speed: T.ambientSpeed, gapMin: T.ambientGapMin, gapMax: T.ambientGapMax });
       ambient.prepare(); bar.prepare(); plate.prepare(); nodePulse.prepare(); lensPulse.prepare();
       ready = true;
     }

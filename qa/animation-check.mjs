@@ -31,6 +31,8 @@ async function open(opts = {}, gsap = true) {
 {
   const { ctx, page, errors } = await open();
   const shot = async () => page.locator(sel + ', svg[data-trava-animation]').first().screenshot();
+  // rects of the design that already look like stream bars (gradient fill + matrix/translate) are not leftovers of the animation
+  const baseline = await page.evaluate(async (s) => { const doc = new DOMParser().parseFromString(await (await fetch(document.querySelector(s).currentSrc)).text(), 'image/svg+xml'); return [...doc.querySelectorAll('rect')].filter((r) => !r.hasAttribute('data-m') && r.getAttribute('fill')?.startsWith('url(') && /matrix|translate/.test(r.getAttribute('transform') || '')).length; }, sel);
   const staticShot = await shot();   // before it scrolls into view the <img> is still an <img>
   await page.evaluate((s) => document.querySelector(s).scrollIntoView({ block: 'center' }), sel + ', svg[data-trava-animation]'); await wait(2500);
   const info = await page.evaluate(() => ({ svg: !!document.querySelector('svg[data-trava-animation]'), ctrl: TravaMotion.controllers.length }));
@@ -43,7 +45,7 @@ async function open(opts = {}, gsap = true) {
   const hubTransform = await page.evaluate(() => [...document.querySelectorAll('svg[data-trava-animation] [data-m="core"],svg[data-trava-animation] [data-m="node"]')].filter((e) => e.getAttribute('transform')).length);
   check('leaving the screen resets: no element keeps a pulse transform', hubTransform === 0, hubTransform);
   const extra = await page.evaluate(() => [...document.querySelectorAll('svg[data-trava-animation] rect')].filter((r) => !r.hasAttribute('data-m') && r.style.visibility !== 'hidden' && r.getAttribute('fill')?.startsWith('url(') && /matrix|translate/.test(r.getAttribute('transform') || '')).length);
-  check('leaving the screen resets: no stream bar stays visible', extra === 0, extra);
+  check('leaving the screen resets: no stream bar stays visible', extra === baseline, { extra, baseline });
   check('0 console errors / warnings', errors.length === 0, errors);
   await ctx.close();
 }
