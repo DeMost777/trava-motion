@@ -23,8 +23,9 @@ tempo:                        # illustration-specific values (ADR 0024)
   nodeUp: 0.22s
   nodeDown: 0.3s
   round: 7s                   # one loading round (two laps of the icons)
-  fillEnd: 1.5s               # the bar reaches its place in the design (51 of 123 px) at this moment (changed 2026-10-08: was 2.5 s, too slow)
-  fillPower: 3                # the bar starts slowly and speeds up, progress = (t / fillEnd) ^ fillPower: sharp arrival (team, 2026-10-08)
+  fillEnd: 1.6s               # the bar reaches its place in the design (51 of 123 px) at this moment, bounce included (was 2.5 s: too slow)
+  fillPower: 2.2              # the start is slow, the middle quick: progress follows (t / fillEnd) ^ fillPower (team, 2026-10-08)
+  fillOvershoot: 0.06         # the end glides in, goes this share of the way past its place (about 3 px) and settles back: small bounce (team, 2026-10-08); 0 = none
   numberIn: 0.4s              # the number appears (and the waiting plate leaves) from fillEnd
   holdEnd: 5s                 # from fillEnd to here the card rests in the design state
   numberOut: 0.4s             # the number fades from holdEnd, the waiting plate comes back
@@ -95,7 +96,7 @@ scenes:
     starts: on-trigger
     params:
       round: tempo.round
-      fill: [0, tempo.fillEnd]            # progress 0 → 1, (t/fillEnd)^fillPower: slow start, fast arrival
+      fill: [0, tempo.fillEnd]            # progress 0 → 1: slow start, quick middle, soft arrival with a small bounce (back-out, overshoot tempo.fillOvershoot)
       show: [tempo.fillEnd, tempo.numberIn]      # number 0 → 1, motion.ease.enter; plate 1 → 0
       hide: [tempo.holdEnd, tempo.numberOut]     # number 1 → 0, motion.ease.standard; plate 0 → 1
       back: [tempo.holdEnd, tempo.backEnd]       # progress 1 → 0, motion.ease.standard

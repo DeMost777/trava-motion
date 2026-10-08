@@ -425,7 +425,7 @@ window.TravaMotion.config.gate = { selector: '[data-solution-state]', activeClas
  * Progress p = 0 … 1; p = 1 is the bar as drawn in the design (fill width and knob position are read from it),
  * p = 0 is an empty bar with the knob at the start of the track.
  * Driven by an external clock: update(t) asks opt.progress(t) for p. Geometry is read lazily in prepare().
- * opt: fill ([rect], grows by its width), knob ([rect], moves by a translate), progress (function t → p)
+ * opt: fill ([rect], grows by its width), knob ([rect], moves by a translate), progress (function t → p), max (largest p, default 1; > 1 allows a bounce past the design)
  */
 (function (root) {
   'use strict';
@@ -445,7 +445,7 @@ window.TravaMotion.config.gate = { selector: '[data-solution-state]', activeClas
     }
 
     function set(p) {
-      p = Math.max(0, Math.min(1, p));
+      p = Math.max(0, Math.min(opt.max || 1, p));   // may go a little past 1: the bar's small bounce at the end
       if (Math.abs(p - last) < 1e-5) return;
       last = p;
       fill.setAttribute('width', w * p);
@@ -490,6 +490,9 @@ window.TravaMotion.config.gate = { selector: '[data-solution-state]', activeClas
     }
     return +((lo + hi) / 2).toFixed(3);
   }
+
+  TM.util = TM.util || {};
+  TM.util.backFor = backFor;   // also needed by animations that settle with a small bounce (Quality Control loading bar)
 
   TM.primitives.pulse = function (svg, opt) {
     var gsap = opt.gsap, items = null;
@@ -866,7 +869,7 @@ window.TravaMotion.config.gate = { selector: '[data-solution-state]', activeClas
   // motion.yaml → tempo (ADR 0024). Keep in sync: the build fails if these differ from the spec.
   var TEMPO = {
     step: 0.7, nodeScale: 1.08, nodeUp: 0.22, nodeDown: 0.3,
-    round: 7, fillEnd: 1.5, fillPower: 3, numberIn: 0.4, holdEnd: 5, numberOut: 0.4, backEnd: 5.8, rest: 3, riseY: 2,
+    round: 7, fillEnd: 1.6, fillPower: 2.2, fillOvershoot: 0.06, numberIn: 0.4, holdEnd: 5, numberOut: 0.4, backEnd: 5.8, rest: 3, riseY: 2,
     lensScale: 1.2, lensUp: 0.4, lensHold: 0, lensDown: 0.9, lensOvershoot: 0.3, lensRoom: 12,
     skeletonAlpha: 0.18, shineAlpha: 0.35, shinePeriod: 1.4,
     ambientSpeed: 36, ambientGapMin: 0.6, ambientGapMax: 1.8,
@@ -886,12 +889,14 @@ window.TravaMotion.config.gate = { selector: '[data-solution-state]', activeClas
     var tracks = Array.prototype.slice.call(svg.querySelectorAll('path[stroke-dasharray]'));
 
     var easeIn = gsap.parseEase(ease.enter), easeStd = gsap.parseEase(ease.standard);
-    var clamp01 = function (v) { return Math.max(0, Math.min(1, v)); };
+    // x^fillPower slows the start; back.out lets the end glide in, overshoot a little (fillOvershoot of the way) and settle back
+    var backOut = gsap.parseEase('back.out(' + util.backFor(gsap, T.fillOvershoot) + ')');
+    var fillCurve = function (x) { return backOut(Math.pow(x, T.fillPower)); };
     // one round, local time u: the design is the bar held at its place with the number shown (rest … holdEnd)
     var local = function (t) { return (t + T.rest) % T.round; };
     var progress = function (t) {
       var u = local(t);
-      if (u < T.fillEnd) return Math.pow(u / T.fillEnd, T.fillPower);   // slow start, then faster and faster, a sharp arrival
+      if (u < T.fillEnd) return fillCurve(u / T.fillEnd);   // slow start, quick middle, glides in, goes a little past its place and settles back
       if (u < T.holdEnd) return 1;
       if (u < T.backEnd) return 1 - easeStd((u - T.holdEnd) / (T.backEnd - T.holdEnd));
       return 0;
@@ -906,7 +911,7 @@ window.TravaMotion.config.gate = { selector: '[data-solution-state]', activeClas
     };
 
     var ambient = null;
-    var bar = P.progressFill(svg, { fill: fill, knob: knob, progress: progress });
+    var bar = P.progressFill(svg, { fill: fill, knob: knob, progress: progress, max: 1 + T.fillOvershoot * 3 });
     var plate = P.skeleton(svg, { target: number, alpha: T.skeletonAlpha, shine: T.shineAlpha, period: T.shinePeriod });
     var nodePulse = null, lensPulse = null, t0 = 0, tick = null, ready = false;
 

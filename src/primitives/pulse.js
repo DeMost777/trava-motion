@@ -23,6 +23,9 @@
     return +((lo + hi) / 2).toFixed(3);
   }
 
+  TM.util = TM.util || {};
+  TM.util.backFor = backFor;   // also needed by animations that settle with a small bounce (Quality Control loading bar)
+
   TM.primitives.pulse = function (svg, opt) {
     var gsap = opt.gsap, items = null;
     var up = gsap.parseEase(opt.overshoot > 0 ? 'back.out(' + backFor(gsap, opt.overshoot) + ')' : (opt.easeUp || 'sine.out'));

@@ -3,7 +3,7 @@
  * Progress p = 0 … 1; p = 1 is the bar as drawn in the design (fill width and knob position are read from it),
  * p = 0 is an empty bar with the knob at the start of the track.
  * Driven by an external clock: update(t) asks opt.progress(t) for p. Geometry is read lazily in prepare().
- * opt: fill ([rect], grows by its width), knob ([rect], moves by a translate), progress (function t → p)
+ * opt: fill ([rect], grows by its width), knob ([rect], moves by a translate), progress (function t → p), max (largest p, default 1; > 1 allows a bounce past the design)
  */
 (function (root) {
   'use strict';
@@ -23,7 +23,7 @@
     }
 
     function set(p) {
-      p = Math.max(0, Math.min(1, p));
+      p = Math.max(0, Math.min(opt.max || 1, p));   // may go a little past 1: the bar's small bounce at the end
       if (Math.abs(p - last) < 1e-5) return;
       last = p;
       fill.setAttribute('width', w * p);
