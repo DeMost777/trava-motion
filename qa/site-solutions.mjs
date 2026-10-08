@@ -70,7 +70,7 @@ async function hookControllers(page) {
     const t0 = performance.now();
     window.__hook = () => TravaMotion.controllers.forEach((c, i) => {
       if (c.__hooked) return; c.__hooked = true;
-      ['start', 'reset'].forEach((k) => { const f = c.controller[k]; c.controller[k] = function () { window.__ev.push({ ev: k, i, t: Math.round(performance.now() - t0), active: !!c.svg.closest('.is-active') }); return f.apply(this, arguments); }; });
+      ['start', 'reset'].forEach((k) => { const f = c.controller[k]; c.controller[k] = function () { window.__ev.push({ ev: k, i, name: c.name, t: Math.round(performance.now() - t0), active: !!c.svg.closest('.is-active') }); return f.apply(this, arguments); }; });
     });
     window.__hook();
   });
@@ -114,13 +114,16 @@ const withT = await desktopRun(true);
 check('desktop: the site switches cards identically with and without Trava Motion', JSON.stringify(base.seq) === JSON.stringify(withT.seq), { without: base.seq, with: withT.seq });
 check('desktop: 0 console errors / warnings', withT.errors.length === 0 && base.errors.length === 0, { with: withT.errors, without: base.errors });
 check('desktop: card height is the same with and without Trava Motion (the site script reads it for its trigger line)', Math.abs(base.cardH - withT.cardH) <= 1, { without: base.cardH, with: withT.cardH });
-check('desktop: only the shown <img> became SVG (tablet/mobile <img> untouched)', withT.info.svgs === 1 && withT.info.imgs === 1 && withT.info.controllers === 1, withT.info);
+// two animations sit in the stack (Queue Manager, Quality Control): each one's desktop <img> becomes SVG, the tablet/mobile copies stay <img>
+check('desktop: only the desktop <img> of each animation became SVG (tablet/mobile <img> untouched)', withT.info.svgs === 2 && withT.info.imgs === 2 && withT.info.controllers === 2, withT.info);
 check('desktop: size as approved on staging (SVG fills the card width)', Math.abs(withT.info.svgW - withT.info.boxW) <= 1, { svg: withT.info.svgW, card: withT.info.boxW });
 check('desktop: alt text moved to the SVG', withT.info.role === 'img' && withT.info.label === 'Automated queue management workflow', { role: withT.info.role, label: withT.info.label });
 check('desktop: no duplicate ids', withT.dups.length === 0, withT.dups);
-const ev = withT.ev;
+const ev = withT.ev.filter((e) => e.name === 'queue-manager');   // the sequence of one animation; Quality Control has its own card
+const evQc = withT.ev.filter((e) => e.name === 'quality-control');
 check('desktop: every start happens while the card is active', ev.filter((e) => e.ev === 'start').every((e) => e.active), ev);
 const kinds = ev.map((e) => e.ev).join(',');
+check('desktop: Quality Control starts only while its card is active and resets when it is left', evQc.length >= 2 && evQc.filter((e) => e.ev === 'start').every((e) => e.active), evQc);
 check('desktop: start → (other tab) reset → start → reset → start sequence', /^start,reset,start,reset(,start)?/.test(kinds) || kinds.startsWith('start,reset,start'), kinds);
 
 // ---------- 3. tablet and phone ----------

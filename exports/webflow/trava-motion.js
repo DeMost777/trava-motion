@@ -685,7 +685,7 @@ window.TravaMotion.config.gate = { selector: '[data-solution-state]', activeClas
  * A waiting plate in the place of an element (the number on the card) with a soft highlight that runs over it.
  * The plate is not in the design: code draws it, only while the animation plays, and removes it on reset (principles §9).
  * Driven by an external clock: update(t, level) — level 0…1 is how visible the plate is (the caller crossfades it with the real element).
- * opt: target (element the plate covers; the plate goes right before it), alpha (plate), shine (highlight), period (s per pass),
+ * opt: target (element the plate covers; the plate goes right before it, or right after opt.after when given), alpha (plate), shine (highlight), period (s per pass),
  *      color (default white; tokens illustration.placeholder.skeleton / skeleton-shine)
  */
 (function (root) {
@@ -720,7 +720,8 @@ window.TravaMotion.config.gate = { selector: '[data-solution-state]', activeClas
       el('rect', { x: box.x, y: box.y, width: box.w, height: box.h, rx: r, fill: color, 'fill-opacity': opt.alpha }, group);
       var inner = el('g', { 'clip-path': 'url(#' + uid + '-c)' }, group);
       band = el('rect', { x: box.x - box.w * 0.6, y: box.y, width: box.w * 0.6, height: box.h, fill: 'url(#' + uid + '-g)' }, inner);
-      opt.target.parentNode.insertBefore(group, opt.target);
+      if (opt.after && opt.after.parentNode) opt.after.parentNode.insertBefore(group, opt.after.nextSibling);   // outside a filtered group: its moving highlight would make the browser redo that group's blur on every frame
+      else opt.target.parentNode.insertBefore(group, opt.target);
     }
 
     function update(t, level) {
@@ -912,13 +913,15 @@ window.TravaMotion.config.gate = { selector: '[data-solution-state]', activeClas
 
     var ambient = null;
     var bar = P.progressFill(svg, { fill: fill, knob: knob, progress: progress, max: 1 + T.fillOvershoot * 3 });
-    var plate = P.skeleton(svg, { target: number, alpha: T.skeletonAlpha, shine: T.shineAlpha, period: T.shinePeriod });
+    var plate = P.skeleton(svg, { target: number, after: number.closest('[filter]'), alpha: T.skeletonAlpha, shine: T.shineAlpha, period: T.shinePeriod });
     var nodePulse = null, lensPulse = null, t0 = 0, tick = null, ready = false;
 
     // The card is drawn with a drop-shadow filter whose region ends right at the lens: a zoomed-in lens would be cut there.
     // While the animation is prepared the region is made a little wider; reset() puts the drawn numbers back.
-    var cardFilter = null, filterOrig = null;
+    var cardFilter = null, filterOrig = null, widened = false;
     function widenCardFilter(px) {
+      if (widened) return;   // writing the attributes again would make the browser redo the blur of the whole card on every frame
+      widened = true;
       var host = lens.parentNode && lens.parentNode.closest ? lens.parentNode.closest('[filter]') : null;
       var m = host && /url\(#([^)]+)\)/.exec(host.getAttribute('filter') || '');
       cardFilter = cardFilter || (m ? svg.querySelector('[id="' + m[1] + '"]') : null);
@@ -928,6 +931,7 @@ window.TravaMotion.config.gate = { selector: '[data-solution-state]', activeClas
       cardFilter.setAttribute('width', filterOrig[2] + 2 * px); cardFilter.setAttribute('height', filterOrig[3] + 2 * px);
     }
     function restoreCardFilter() {
+      widened = false;
       if (!cardFilter || !filterOrig) return;
       ['x', 'y', 'width', 'height'].forEach(function (a, i) { cardFilter.setAttribute(a, filterOrig[i]); });
     }

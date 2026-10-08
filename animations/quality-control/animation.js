@@ -54,13 +54,15 @@
 
     var ambient = null;
     var bar = P.progressFill(svg, { fill: fill, knob: knob, progress: progress, max: 1 + T.fillOvershoot * 3 });
-    var plate = P.skeleton(svg, { target: number, alpha: T.skeletonAlpha, shine: T.shineAlpha, period: T.shinePeriod });
+    var plate = P.skeleton(svg, { target: number, after: number.closest('[filter]'), alpha: T.skeletonAlpha, shine: T.shineAlpha, period: T.shinePeriod });
     var nodePulse = null, lensPulse = null, t0 = 0, tick = null, ready = false;
 
     // The card is drawn with a drop-shadow filter whose region ends right at the lens: a zoomed-in lens would be cut there.
     // While the animation is prepared the region is made a little wider; reset() puts the drawn numbers back.
-    var cardFilter = null, filterOrig = null;
+    var cardFilter = null, filterOrig = null, widened = false;
     function widenCardFilter(px) {
+      if (widened) return;   // writing the attributes again would make the browser redo the blur of the whole card on every frame
+      widened = true;
       var host = lens.parentNode && lens.parentNode.closest ? lens.parentNode.closest('[filter]') : null;
       var m = host && /url\(#([^)]+)\)/.exec(host.getAttribute('filter') || '');
       cardFilter = cardFilter || (m ? svg.querySelector('[id="' + m[1] + '"]') : null);
@@ -70,6 +72,7 @@
       cardFilter.setAttribute('width', filterOrig[2] + 2 * px); cardFilter.setAttribute('height', filterOrig[3] + 2 * px);
     }
     function restoreCardFilter() {
+      widened = false;
       if (!cardFilter || !filterOrig) return;
       ['x', 'y', 'width', 'height'].forEach(function (a, i) { cardFilter.setAttribute(a, filterOrig[i]); });
     }

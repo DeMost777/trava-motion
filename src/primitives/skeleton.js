@@ -2,7 +2,7 @@
  * A waiting plate in the place of an element (the number on the card) with a soft highlight that runs over it.
  * The plate is not in the design: code draws it, only while the animation plays, and removes it on reset (principles §9).
  * Driven by an external clock: update(t, level) — level 0…1 is how visible the plate is (the caller crossfades it with the real element).
- * opt: target (element the plate covers; the plate goes right before it), alpha (plate), shine (highlight), period (s per pass),
+ * opt: target (element the plate covers; the plate goes right before it, or right after opt.after when given), alpha (plate), shine (highlight), period (s per pass),
  *      color (default white; tokens illustration.placeholder.skeleton / skeleton-shine)
  */
 (function (root) {
@@ -37,7 +37,8 @@
       el('rect', { x: box.x, y: box.y, width: box.w, height: box.h, rx: r, fill: color, 'fill-opacity': opt.alpha }, group);
       var inner = el('g', { 'clip-path': 'url(#' + uid + '-c)' }, group);
       band = el('rect', { x: box.x - box.w * 0.6, y: box.y, width: box.w * 0.6, height: box.h, fill: 'url(#' + uid + '-g)' }, inner);
-      opt.target.parentNode.insertBefore(group, opt.target);
+      if (opt.after && opt.after.parentNode) opt.after.parentNode.insertBefore(group, opt.after.nextSibling);   // outside a filtered group: its moving highlight would make the browser redo that group's blur on every frame
+      else opt.target.parentNode.insertBefore(group, opt.target);
     }
 
     function update(t, level) {
