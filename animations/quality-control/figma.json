@@ -1,0 +1,28 @@
+{
+  "$description": "Package passport (ADR 0015). Where the illustration comes from in Figma, which animated layers the storyboard needs, and the exact files the preparation tool must use.",
+  "figma": {
+    "fileKey": "9EMDUpk6j30cPIIzRENFQh",
+    "node": "761:9334",
+    "name": "Quality Control",
+    "note": "layers renamed to m-* roles 2026-10-08 (names only, geometry unchanged, ADR 0024); the 17th m-impulse is the vertical streak under the card (static, ADR 0024)"
+  },
+  "roles": {
+    "impulse": 17,
+    "node": 5,
+    "progress": 1,
+    "knob": 1,
+    "number": 1,
+    "lens": 1
+  },
+  "export": {
+    "file": "source/figma-export.svg",
+    "sha256": "5bfd77bd601bef248d1792500b7d576cb75e1eec57ef8fe3bd12251849b89659",
+    "exportedAt": "2026-10-08",
+    "how": "Figma export SVG with 'Include id attribute', sent by the team"
+  },
+  "reference": {
+    "file": "source/figma-reference@1x.png",
+    "sha256": "21eec58569d4b6ad4b249577b5fcf35f4bc59bd1ea9bc26a29c2981c161faa98",
+    "how": "Figma MCP screenshot of the frame, contentsOnly, 1x, lossless RGBA (taken after the role renames; names do not change pixels)"
+  }
+}
