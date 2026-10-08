@@ -1,4 +1,4 @@
-/*! Trava Motion — built 2026-10-08 from github repo trava-motion. Animations: client-interaction, queue-manager. */
+/*! Trava Motion — built 2026-10-08 from github repo trava-motion. Animations: client-interaction, quality-control, queue-manager. */
 window.TravaMotion = window.TravaMotion || {}; window.TravaMotion.tokens = {"ease":{"enter":"sine.out","standard":"power1.inOut","exit":"sine.in","draw":"power1.inOut","flow":"none"},"trigger":{"threshold":0.35,"delay":0}};
 /* Site settings for trava.co (Webflow). The runtime itself knows nothing about the site's markup.
  * Solutions block: desktop shows all cards stacked and toggles `is-active` on [data-solution-state]
@@ -420,6 +420,52 @@ window.TravaMotion.config.gate = { selector: '[data-solution-state]', activeClas
   };
 })(window);
 
+/* Primitive: progressFill (new in Quality Control, ADR 0024).
+ * A loading bar: the fill grows from the left end of its track and the knob rides with it.
+ * Progress p = 0 … 1; p = 1 is the bar as drawn in the design (fill width and knob position are read from it),
+ * p = 0 is an empty bar with the knob at the start of the track.
+ * Driven by an external clock: update(t) asks opt.progress(t) for p. Geometry is read lazily in prepare().
+ * opt: fill ([rect], grows by its width), knob ([rect], moves by a translate), progress (function t → p)
+ */
+(function (root) {
+  'use strict';
+  var TM = root.TravaMotion = root.TravaMotion || {};
+  TM.primitives = TM.primitives || {};
+
+  TM.primitives.progressFill = function (svg, opt) {
+    var fill = opt.fill, knob = opt.knob, w = 0, span = 0, last = -1, knobOrig = null, ready = false;
+
+    function prepare() {
+      if (ready) return;
+      var x0 = +fill.getAttribute('x'), kx = +knob.getAttribute('x');
+      w = +fill.getAttribute('width');
+      span = kx - x0;                       // how far the knob travels: from the track start to its place in the design
+      knobOrig = knob.getAttribute('transform');
+      ready = true;
+    }
+
+    function set(p) {
+      p = Math.max(0, Math.min(1, p));
+      if (Math.abs(p - last) < 1e-5) return;
+      last = p;
+      fill.setAttribute('width', w * p);
+      fill.style.visibility = p < 0.001 ? 'hidden' : '';
+      knob.setAttribute('transform', (knobOrig ? knobOrig + ' ' : '') + 'translate(' + ((p - 1) * span) + ' 0)');
+    }
+
+    function update(t) { set(opt.progress(t)); }
+
+    function reset() {
+      if (!ready) return;
+      last = -1;
+      fill.setAttribute('width', w); fill.style.visibility = '';
+      if (knobOrig === null) knob.removeAttribute('transform'); else knob.setAttribute('transform', knobOrig);
+    }
+
+    return { prepare: prepare, update: update, reset: reset };
+  };
+})(window);
+
 /* Primitive: pulse (new in Client Interaction, ADR 0019).
  * An element grows about its own centre and returns: up (ease), hold, down (ease). With `overshoot` the way up
  * overshoots a little and settles (the "filled up" effect of the hub icon, an exception to principles §1, ADR 0019).
@@ -632,6 +678,65 @@ window.TravaMotion.config.gate = { selector: '[data-solution-state]', activeClas
   };
 })(window);
 
+/* Primitive: skeleton (new in Quality Control, ADR 0024).
+ * A waiting plate in the place of an element (the number on the card) with a soft highlight that runs over it.
+ * The plate is not in the design: code draws it, only while the animation plays, and removes it on reset (principles §9).
+ * Driven by an external clock: update(t, level) — level 0…1 is how visible the plate is (the caller crossfades it with the real element).
+ * opt: target (element the plate covers; the plate goes right before it), alpha (plate), shine (highlight), period (s per pass),
+ *      color (default white; tokens illustration.placeholder.skeleton / skeleton-shine)
+ */
+(function (root) {
+  'use strict';
+  var TM = root.TravaMotion = root.TravaMotion || {};
+  TM.primitives = TM.primitives || {};
+  var NS = 'http://www.w3.org/2000/svg';
+
+  function el(name, attrs, parent) {
+    var n = document.createElementNS(NS, name);
+    Object.keys(attrs).forEach(function (k) { n.setAttribute(k, attrs[k]); });
+    if (parent) parent.appendChild(n);
+    return n;
+  }
+
+  TM.primitives.skeleton = function (svg, opt) {
+    var uid = 'tm' + Math.random().toString(36).slice(2, 8), color = opt.color || '#ffffff';
+    var box = null, group = null, band = null, last = -1;
+
+    function prepare() {
+      if (group) return;
+      box = TM.util.boxIn(svg, opt.target);
+      var defs = el('defs', {}, svg);
+      var clip = el('clipPath', { id: uid + '-c', clipPathUnits: 'userSpaceOnUse' }, defs);
+      var r = box.h / 2;
+      el('rect', { x: box.x, y: box.y, width: box.w, height: box.h, rx: r }, clip);
+      var grad = el('linearGradient', { id: uid + '-g', x1: 0, y1: 0, x2: 1, y2: 0 }, defs);
+      el('stop', { offset: 0, 'stop-color': color, 'stop-opacity': 0 }, grad);
+      el('stop', { offset: 0.5, 'stop-color': color, 'stop-opacity': opt.shine }, grad);
+      el('stop', { offset: 1, 'stop-color': color, 'stop-opacity': 0 }, grad);
+      group = el('g', { opacity: 0, 'pointer-events': 'none' });
+      el('rect', { x: box.x, y: box.y, width: box.w, height: box.h, rx: r, fill: color, 'fill-opacity': opt.alpha }, group);
+      var inner = el('g', { 'clip-path': 'url(#' + uid + '-c)' }, group);
+      band = el('rect', { x: box.x - box.w * 0.6, y: box.y, width: box.w * 0.6, height: box.h, fill: 'url(#' + uid + '-g)' }, inner);
+      opt.target.parentNode.insertBefore(group, opt.target);
+    }
+
+    function update(t, level) {
+      var k = Math.max(0, Math.min(1, level));
+      if (k !== last) { group.setAttribute('opacity', k); last = k; }
+      if (k === 0) return;
+      var u = (t / opt.period) % 1;                                 // one pass of the highlight, then it starts again
+      band.setAttribute('transform', 'translate(' + (u * (box.w * 1.6)) + ' 0)');
+    }
+
+    function reset() {
+      if (!group) return;
+      last = -1; group.setAttribute('opacity', 0); band.removeAttribute('transform');
+    }
+
+    return { prepare: prepare, update: update, reset: reset };
+  };
+})(window);
+
 /* Client Interaction animation — implements animations/client-interaction/motion.yaml (ADR 0019).
  * Scenes: background streams (ambientFlow) + service stream to the hub (routeFlow, a service pulses as its bar leaves)
  * + hub core reaction (pulse with a small bounce). Infinite while visible (ADR 0007);
@@ -742,6 +847,114 @@ window.TravaMotion.config.gate = { selector: '[data-solution-state]', activeClas
         tick = null;
         if (!flow) return;
         ambient.reset(); flow.reset(); nodePulse.reset(); corePulse.reset();
+      },
+      seek: function (t) { prepare(); seek(t); },   // for previews and tests
+    };
+  });
+})(window);
+
+/* Quality Control animation — implements animations/quality-control/motion.yaml (ADR 0024).
+ * Scenes: background streams (ambientFlow) + service icons pulse in turn (pulse) + loading bar and number
+ * (progressFill, skeleton) + lens zoom-in with a small bounce (pulse). Infinite while visible (ADR 0007);
+ * the runtime calls reset() when the card leaves the screen (interrupt: jump-to-design).
+ * Values: tempo from motion.yaml (checked by tools/build-webflow.mjs), eases from tokens.
+ */
+(function (root) {
+  'use strict';
+  var TM = root.TravaMotion;
+
+  // motion.yaml → tempo (ADR 0024). Keep in sync: the build fails if these differ from the spec.
+  var TEMPO = {
+    step: 0.7, nodeScale: 1.08, nodeUp: 0.22, nodeDown: 0.3,
+    round: 7, fillEnd: 2.5, numberIn: 0.4, holdEnd: 5.5, numberOut: 0.4, backEnd: 6.3, rest: 3, riseY: 2,
+    lensScale: 1.2, lensUp: 0.4, lensHold: 0, lensDown: 0.9, lensOvershoot: 0.3,
+    skeletonAlpha: 0.18, shineAlpha: 0.35, shinePeriod: 1.4,
+    ambientSpeed: 36, ambientGapMin: 0.6, ambientGapMax: 1.8,
+  };
+
+  TM.register('quality-control', function (svg, env) {
+    var gsap = env.gsap, ease = env.tokens.ease, util = TM.util, P = env.primitives;
+    var role = function (r) { return Array.prototype.slice.call(svg.querySelectorAll('[data-m="' + r + '"]')); };
+
+    // a stand may override the tempo of one instance: data-trava-tempo='{"round":9}' (never set on the site)
+    var T = {}, over = {}, k;
+    try { over = JSON.parse(svg.getAttribute('data-trava-tempo') || '{}'); } catch (e) { over = {}; }
+    for (k in TEMPO) T[k] = Object.prototype.hasOwnProperty.call(over, k) ? over[k] : TEMPO[k];
+
+    var nodes = role('node'), fill = role('progress')[0], knob = role('knob')[0], number = role('number')[0], lens = role('lens')[0];
+    // only the horizontal bars run: the one vertical bar under the card stays as drawn (ADR 0024)
+    var bars = role('impulse').filter(function (r) { return +r.getAttribute('width') > +r.getAttribute('height'); });
+    var tracks = Array.prototype.slice.call(svg.querySelectorAll('path[stroke-dasharray]'));
+
+    var easeIn = gsap.parseEase(ease.enter), easeStd = gsap.parseEase(ease.standard);
+    var clamp01 = function (v) { return Math.max(0, Math.min(1, v)); };
+    // one round, local time u: the design is the bar held at its place with the number shown (rest … holdEnd)
+    var local = function (t) { return (t + T.rest) % T.round; };
+    var progress = function (t) {
+      var u = local(t);
+      if (u < T.fillEnd) return easeStd(u / T.fillEnd);
+      if (u < T.holdEnd) return 1;
+      if (u < T.backEnd) return 1 - easeStd((u - T.holdEnd) / (T.backEnd - T.holdEnd));
+      return 0;
+    };
+    var shown = function (t) {                        // 0 … 1, how much of the number is shown
+      var u = local(t);
+      if (u < T.fillEnd) return 0;
+      if (u < T.fillEnd + T.numberIn) return easeIn((u - T.fillEnd) / T.numberIn);
+      if (u < T.holdEnd) return 1;
+      if (u < T.holdEnd + T.numberOut) return 1 - easeStd((u - T.holdEnd) / T.numberOut);
+      return 0;
+    };
+
+    var ambient = P.ambientFlow(svg, { gsap: gsap, impulses: bars, tracks: tracks, speed: T.ambientSpeed, gapMin: T.ambientGapMin, gapMax: T.ambientGapMax });
+    var bar = P.progressFill(svg, { fill: fill, knob: knob, progress: progress });
+    var plate = P.skeleton(svg, { target: number, alpha: T.skeletonAlpha, shine: T.shineAlpha, period: T.shinePeriod });
+    var nodePulse = null, lensPulse = null, t0 = 0, tick = null, ready = false;
+
+    function prepare() {
+      if (ready) return;
+      // icons in clockwise order from the top left: by the angle around the middle of the icons
+      var boxes = nodes.map(function (n) { var b = util.boxIn(svg, n); return { el: n, cx: b.x + b.w / 2, cy: b.y + b.h / 2 }; });
+      var mx = boxes.reduce(function (s, b) { return s + b.cx; }, 0) / boxes.length, my = boxes.reduce(function (s, b) { return s + b.cy; }, 0) / boxes.length;
+      boxes.forEach(function (b) { b.ang = Math.atan2(b.cy - my, b.cx - mx); });
+      boxes.sort(function (a, b) { return a.ang - b.ang; });
+      nodePulse = P.pulse(svg, {
+        gsap: gsap, targets: boxes.map(function (b) { return b.el; }), events: boxes.map(function (b, i) { return [i * T.step]; }), cycle: boxes.length * T.step,
+        scale: T.nodeScale, up: T.nodeUp, down: T.nodeDown, easeUp: ease.enter, easeDown: ease.standard,
+      });
+      // the lens grows when the number appears; the first time that is in the next round, the beginning shows the design
+      var first = (T.fillEnd - T.rest + T.round) % T.round;
+      lensPulse = P.pulse(svg, {
+        gsap: gsap, targets: [lens], events: [[first]], cycle: T.round,
+        scale: T.lensScale, up: T.lensUp, hold: T.lensHold, down: T.lensDown, overshoot: T.lensOvershoot, easeDown: ease.standard,
+      });
+      ambient.prepare(); bar.prepare(); plate.prepare(); nodePulse.prepare(); lensPulse.prepare();
+      ready = true;
+    }
+
+    function seek(t) {
+      ambient.update(t); bar.update(t); nodePulse.update(t); lensPulse.update(t);
+      var n = shown(t);
+      plate.update(t, 1 - n);
+      number.style.opacity = n >= 1 ? '' : String(n);
+      if (n >= 1) number.removeAttribute('transform'); else number.setAttribute('transform', 'translate(0 ' + ((1 - n) * T.riseY) + ')');
+    }
+
+    return {
+      start: function () {
+        prepare();
+        if (tick) gsap.ticker.remove(tick);     // a second start() must not leave the first clock running
+        t0 = gsap.ticker.time;
+        tick = function () { seek(gsap.ticker.time - t0); };
+        gsap.ticker.add(tick);
+        seek(0);
+      },
+      reset: function () {
+        if (tick) gsap.ticker.remove(tick);
+        tick = null;
+        if (!ready) return;
+        ambient.reset(); bar.reset(); plate.reset(); nodePulse.reset(); lensPulse.reset();
+        number.style.opacity = ''; number.removeAttribute('transform');
       },
       seek: function (t) { prepare(); seek(t); },   // for previews and tests
     };

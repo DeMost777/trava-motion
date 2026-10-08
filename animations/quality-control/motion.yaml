@@ -1,0 +1,125 @@
+# Motion Specification — Quality Control
+# Format: docs/motion-spec.md (ADR 0016). Language: English (ADR 0002).
+# Sources: brief.md (team, RU), storyboard.md, ADR 0024 (scenario, roles, skeleton plate), ADR 0025 (colours), motion/principles.md (ADR 0006).
+# Status: values proposed 2026-10-08; to be tuned on the stand and reviewed by the team.
+
+animation: quality-control
+story: >
+  Bookings are checked automatically. Quiet streams run through the background, the five service icons around
+  the card take turns to pulse, the loading bar on the "Daily Reservations" card fills up, and when it arrives
+  the number appears and the lens zooms in, as if the check were done.
+
+layers:                       # roles from figma.json; animate nothing else
+  impulse: 17                 # 16 horizontal bars on short dotted lines (run); 1 vertical bar under the card (stays as drawn)
+  node: 5                     # service icons around the card
+  progress: 1                 # fill of the loading bar
+  knob: 1                     # knob of the loading bar
+  number: 1                   # "12.380" (outlines in the SVG: it is shown or hidden, never counted)
+  lens: 1                     # magnifier on the card
+
+tempo:                        # illustration-specific values (ADR 0024)
+  step: 0.7s                  # time between two icons; five icons make a 3.5 s lap, clockwise from the top left
+  nodeScale: 1.08             # icon pulse: peak scale, no bounce (as in Client Interaction)
+  nodeUp: 0.22s
+  nodeDown: 0.3s
+  round: 7s                   # one loading round (two laps of the icons)
+  fillEnd: 2.5s               # the bar reaches its place in the design (51 of 123 px) at this moment
+  numberIn: 0.4s              # the number appears (and the waiting plate leaves) from fillEnd
+  holdEnd: 5.5s               # from fillEnd to here the card rests in the design state
+  numberOut: 0.4s             # the number fades from holdEnd, the waiting plate comes back
+  backEnd: 6.3s               # the bar has smoothly returned to 0; then a short pause until the round ends
+  rest: 3s                    # the animation starts this far into the round: the first frame is the design (principles §3)
+  riseY: 2                    # px, the number rises this far while it appears
+  lensScale: 1.2              # lens zoom-in: peak scale
+  lensUp: 0.4s                # together 1.3 s, like the hub icon in Client Interaction
+  lensHold: 0s
+  lensDown: 0.9s
+  lensOvershoot: 0.3          # small bounce on the way up (exception to principles §1, ADR 0019/0024); 0 = none
+  skeletonAlpha: 0.18         # token illustration.placeholder.skeleton (white, alpha)
+  shineAlpha: 0.35            # token illustration.placeholder.skeleton-shine (white, alpha)
+  shinePeriod: 1.4s           # one pass of the highlight over the waiting plate
+  ambientSpeed: 36            # px/s, background bars (as in Client Interaction)
+  ambientGapMin: 0.6s         # pause before a background bar returns, different on every line
+  ambientGapMax: 1.8s
+
+trigger:
+  when: card-active           # the card becomes active by scrolling to it or by a click in the sidebar
+  threshold: motion.trigger.threshold   # token: 35 % of the illustration visible
+  delay: motion.trigger.delay           # token: 0
+  replay: on-every-activation           # principles §5
+
+loop:
+  mode: infinite
+  basis: ADR 0007             # meaningful-loop exception to principles §6
+  pauseWhen: [off-screen, card-inactive]
+
+staticState: design           # first frame, reduced motion and any error show the Figma design as is
+
+scenes:
+  - id: background
+    intent: >
+      The sixteen short bars drawn in the design keep running left to right along their own dotted lines,
+      one bar per line, with a pause before each returns. Quiet, never in step.
+    primitive: ambientFlow
+    targets: impulse            # only the horizontal bars
+    starts: on-trigger
+    params:
+      direction: as-drawn
+      speed: tempo.ambientSpeed
+      gap: [tempo.ambientGapMin, tempo.ambientGapMax]
+      clip: own-line
+
+  - id: icons-in-turn
+    intent: The five icons take turns, clockwise from the top left: each grows a little and returns.
+    primitive: pulse
+    targets: node
+    starts: on-trigger
+    params:
+      order: clockwise-from-top-left
+      step: tempo.step
+      scale: tempo.nodeScale
+      up: tempo.nodeUp
+      down: tempo.nodeDown
+      ease: { up: motion.ease.enter, down: motion.ease.standard }
+      overshoot: none
+
+  - id: loading
+    intent: >
+      The fill of the bar grows from the left end of its track to the place drawn in the design, the knob rides with it.
+      The number is covered by a waiting plate with a soft highlight. When the bar arrives the plate gives way to the
+      number, which rises a little. After a rest the number fades, the bar returns smoothly and the round starts again.
+    primitive: [progressFill, skeleton]
+    targets: [progress, knob, number]
+    starts: on-trigger
+    params:
+      round: tempo.round
+      fill: [0, tempo.fillEnd]            # progress 0 → 1, motion.ease.standard
+      show: [tempo.fillEnd, tempo.numberIn]      # number 0 → 1, motion.ease.enter; plate 1 → 0
+      hide: [tempo.holdEnd, tempo.numberOut]     # number 1 → 0, motion.ease.standard; plate 0 → 1
+      back: [tempo.holdEnd, tempo.backEnd]       # progress 1 → 0, motion.ease.standard
+      offset: tempo.rest                  # frame 0 is the design
+      plate: { alpha: tempo.skeletonAlpha, shine: tempo.shineAlpha, period: tempo.shinePeriod }
+
+  - id: lens-zoom
+    intent: >
+      When the bar arrives and the number appears the lens zooms in with a small bounce and returns smoothly over 1.3 s,
+      like the hub icon in Client Interaction. Once per round.
+    primitive: pulse
+    targets: lens
+    starts: with the number (tempo.fillEnd)
+    params:
+      scale: tempo.lensScale
+      up: tempo.lensUp
+      hold: tempo.lensHold
+      down: tempo.lensDown
+      every: tempo.round
+      ease: { up: back-out-by-overshoot, down: motion.ease.standard }
+      overshoot: tempo.lensOvershoot
+
+interrupt: jump-to-design     # leaving the card: show the design state immediately (principles §5)
+
+reducedMotion: static         # principles §9
+
+mobile:
+  same: true                  # principles §8: same animation, scaled
+  simplifyIf: the background looks noisy on small screens   # open question, check in task 6.4
