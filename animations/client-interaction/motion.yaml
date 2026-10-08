@@ -25,9 +25,10 @@ tempo:                        # illustration-specific values (ADR 0019); speed m
   nodeUp: 0.22s
   nodeDown: 0.3s
   coreScale: 1.2              # hub icon pulse: peak scale
-  coreUp: 0.25s
+  coreUp: 0.4s                # together 1.3 s, like the gear reaction in Queue Manager
   coreHold: 0s
-  coreDown: 0.4s
+  coreDown: 0.9s
+  coreArrival: 0              # the hub fills once per round, when the bar of this service (0 = first of the round, Email) arrives
   coreOvershoot: 0.3          # small bounce on the way up: share of the growth it overshoots, 0.3 = reaches 1.26 and settles at 1.2 (exception to principles §1, ADR 0019); 0 = none
   ambientSpeed: 36            # px/s, background bars (slower than the stream)
   ambientGapMin: 0.6s         # pause before a background bar returns, different on every line
@@ -93,16 +94,19 @@ scenes:
 
   - id: core-fill
     intent: >
-      When a bar reaches the hub, the glyph inside the card zooms in with a small bounce and returns smoothly,
-      as if the icon were filled; no rotation. Overlapping pulses never jump (the larger one wins).
+      Once per round, when the first bar of the round reaches the hub, the glyph inside the card zooms in with a
+      small bounce and returns smoothly over 1.3 s, as if the icon were filled; no rotation. The rest of the time it
+      rests, so the hub reacts rarely, like the gear in Queue Manager (changed 2026-10-08: it pulsed on every arrival).
     primitive: pulse
     targets: core
-    starts: when stream reaches hub
+    starts: when the stream reaches hub (once per round)
     params:
       scale: tempo.coreScale
       up: tempo.coreUp
       hold: tempo.coreHold
       down: tempo.coreDown
+      every: tempo.round
+      on: arrival-of-service[tempo.coreArrival]
       ease: { up: back-out-by-overshoot, down: motion.ease.standard }
       overshoot: tempo.coreOvershoot      # ADR 0019, the only bounce in this animation
 

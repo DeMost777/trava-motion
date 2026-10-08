@@ -12,7 +12,7 @@
   var TEMPO = {
     speed: 60, step: 0.7, round: 3.5, alignArrival: 1,
     nodeScale: 1.08, nodeUp: 0.22, nodeDown: 0.3,
-    coreScale: 1.2, coreUp: 0.25, coreHold: 0, coreDown: 0.4, coreOvershoot: 0.3,
+    coreScale: 1.2, coreUp: 0.4, coreHold: 0, coreDown: 0.9, coreOvershoot: 0.3, coreArrival: 0,
     ambientSpeed: 36, ambientGapMin: 0.6, ambientGapMax: 1.8,
   };
 
@@ -86,7 +86,7 @@
         scale: T.nodeScale, up: T.nodeUp, down: T.nodeDown, easeUp: ease.enter, easeDown: ease.standard,
       });
       corePulse = P.pulse(svg, {
-        gsap: gsap, targets: [core], events: [p.arrive], cycle: T.round,
+        gsap: gsap, targets: [core], events: [[p.arrive[T.coreArrival] || p.arrive[0]]], cycle: T.round,   // once per round, when the chosen service's bar arrives
         scale: T.coreScale, up: T.coreUp, hold: T.coreHold, down: T.coreDown, overshoot: T.coreOvershoot, easeDown: ease.standard,
       });
       ambient.prepare(); nodePulse.prepare(); corePulse.prepare();

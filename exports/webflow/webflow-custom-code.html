@@ -6,7 +6,7 @@ svg.solution-visual-image { width: 100%; }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
 <script>
-/*! Trava Motion — built 2026-10-07 from github repo trava-motion. Animations: client-interaction, queue-manager. */
+/*! Trava Motion — built 2026-10-08 from github repo trava-motion. Animations: client-interaction, queue-manager. */
 window.TravaMotion = window.TravaMotion || {}; window.TravaMotion.tokens = {"ease":{"enter":"sine.out","standard":"power1.inOut","exit":"sine.in","draw":"power1.inOut","flow":"none"},"trigger":{"threshold":0.35,"delay":0}};
 /* Site settings for trava.co (Webflow). The runtime itself knows nothing about the site's markup.
  * Solutions block: desktop shows all cards stacked and toggles `is-active` on [data-solution-state]
@@ -654,7 +654,7 @@ window.TravaMotion.config.gate = { selector: '[data-solution-state]', activeClas
   var TEMPO = {
     speed: 60, step: 0.7, round: 3.5, alignArrival: 1,
     nodeScale: 1.08, nodeUp: 0.22, nodeDown: 0.3,
-    coreScale: 1.2, coreUp: 0.25, coreHold: 0, coreDown: 0.4, coreOvershoot: 0.3,
+    coreScale: 1.2, coreUp: 0.4, coreHold: 0, coreDown: 0.9, coreOvershoot: 0.3, coreArrival: 0,
     ambientSpeed: 36, ambientGapMin: 0.6, ambientGapMax: 1.8,
   };
 
@@ -728,7 +728,7 @@ window.TravaMotion.config.gate = { selector: '[data-solution-state]', activeClas
         scale: T.nodeScale, up: T.nodeUp, down: T.nodeDown, easeUp: ease.enter, easeDown: ease.standard,
       });
       corePulse = P.pulse(svg, {
-        gsap: gsap, targets: [core], events: [p.arrive], cycle: T.round,
+        gsap: gsap, targets: [core], events: [[p.arrive[T.coreArrival] || p.arrive[0]]], cycle: T.round,   // once per round, when the chosen service's bar arrives
         scale: T.coreScale, up: T.coreUp, hold: T.coreHold, down: T.coreDown, overshoot: T.coreOvershoot, easeDown: ease.standard,
       });
       ambient.prepare(); nodePulse.prepare(); corePulse.prepare();

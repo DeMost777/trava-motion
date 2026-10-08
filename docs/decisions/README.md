@@ -25,3 +25,4 @@
 | [0018](0018-queue-manager-ready-for-production.md) | Queue Manager принят: ready to production, правила для планшета/телефона и сайта | утверждено | 2026-10-07 |
 | [0019](0019-client-interaction-scenario.md) | Client Interaction: сценарий, роли слоёв, исключение «наполнение» | утверждено (величина bounce — на стенде) | 2026-10-07 |
 | [0020](0020-client-interaction-values.md) | Client Interaction: порядок B, отскок 0.3, токен shadow.node | утверждено | 2026-10-07 |
+| [0021](0021-client-interaction-hub-rarely.md) | Client Interaction: монитор пульсирует редко, раз за раунд | утверждено | 2026-10-08 |
