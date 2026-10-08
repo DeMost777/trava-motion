@@ -67,3 +67,6 @@ Custom code главной (footer) очистить; в карточке вер
 | Публикация | `publish_site`, `customDomains: []`, `publishToWebflowSubdomain: true`; site lastPublished 2026-10-08 12:15 |
 
 Ждёт проверки команды на реальных устройствах (десктоп: переключение вкладок, клик, скролл; планшет; телефон; Safari; консоль `[trava-motion]`). Публикация на trava.co — только после отдельного «утверждаю».
+
+## Сжатый код на staging (2026-10-08, ADR 0023)
+Footer главной заменён на `exports/webflow/webflow-custom-code.html` со сжатым кодом (20 468 символов вместо 42 519), публикация только на webflow.io. Картинки, атрибуты и alt не менялись. Ждёт проверки командой: обе анимации (Queue Manager, Client Interaction) должны вести себя как раньше; в консоли нет ошибок `[trava-motion]`.
