@@ -383,6 +383,46 @@
         },
         "note": "These two come from the site colour variables and will be exported with them."
       }
+    },
+    "placeholder": {
+      "skeleton": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            1,
+            1,
+            1
+          ],
+          "alpha": 0.18,
+          "hex": "#ffffff"
+        },
+        "$description": "Quality Control: waiting plate in place of the number while the progress bar runs (drawn by code, not in the design; value to be tuned on the stand)",
+        "$extensions": {
+          "com.figma": {
+            "collection": "Illustration",
+            "variable": "placeholder/skeleton"
+          }
+        }
+      },
+      "skeleton-shine": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            1,
+            1,
+            1
+          ],
+          "alpha": 0.35,
+          "hex": "#ffffff"
+        },
+        "$description": "Quality Control: moving highlight on the waiting plate (drawn by code; value to be tuned on the stand)",
+        "$extensions": {
+          "com.figma": {
+            "collection": "Illustration",
+            "variable": "placeholder/skeleton-shine"
+          }
+        }
+      }
     }
   }
 }

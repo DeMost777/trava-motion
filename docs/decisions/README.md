@@ -28,3 +28,4 @@
 | [0021](0021-client-interaction-hub-rarely.md) | Client Interaction: монитор пульсирует редко, раз за раунд | утверждено | 2026-10-08 |
 | [0022](0022-client-interaction-ready-for-production.md) | Client Interaction принят: ready to production | утверждено | 2026-10-08 |
 | [0023](0023-minify-webflow-bundle.md) | Сборка для Webflow минифицируется (Q25, вариант А) | утверждено | 2026-10-08 |
+| [0024](0024-quality-control-scenario.md) | Quality Control: сценарий, роли слоёв, эффект на месте числа | утверждено (темп — на стенде) | 2026-10-08 |

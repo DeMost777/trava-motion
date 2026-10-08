@@ -28,8 +28,12 @@
 | `m-hub` | центральная карточка, куда сходятся потоки | Queue Manager, Client interaction |
 | `m-passenger` | иконка пассажира | Queue Manager (пока не анимируется) |
 | `m-connection` | пунктирная линия между узлами; по ней идёт поток | Queue Manager (пока не анимируется), Client interaction (маршрут штриха к центру) |
-| `m-node` | иконка сервиса/канала, от которой идёт поток к центру | Client interaction |
+| `m-node` | иконка сервиса/канала; в Client interaction от неё идёт поток к центру, в Quality Control иконка-спутник пульсирует по очереди | Client interaction, Quality Control |
 | `m-core` | глиф внутри центральной карточки, который «наполняется» (zoom) | Client interaction |
+| `m-progress` | заливка полосы загрузки, которая растёт слева направо | Quality Control |
+| `m-knob` | ползунок на конце заливки, едет вместе с ней | Quality Control |
+| `m-number` | число на карточке (в SVG — контуры), появляется после полосы | Quality Control |
+| `m-lens` | лупа на карточке, делает zoom-in с отскоком | Quality Control |
 
 ## Открытый выбор: как различать одинаковые элементы
 Анимации Queue Manager нужно знать, где какой импульс и в каком порядке он стартует.
