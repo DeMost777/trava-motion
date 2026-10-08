@@ -8,8 +8,9 @@
 | Файл | Куда |
 |---|---|
 | `queue-manager.svg` | загрузить в **Assets** Webflow |
-| `webflow-custom-code.html` | **скопировать целиком** в Custom code страницы (GSAP + код, 16 КБ) |
-| `trava-motion.js` | тот же код отдельным файлом (для разработки; в Webflow не нужен) |
+| `webflow-custom-code.html` | **скопировать целиком** в Custom code страницы (GSAP + сжатый код; предел поля ≈ 50 000 символов, ADR 0023) |
+| `trava-motion.min.js` | тот же сжатый код отдельным файлом (то, что внутри html) |
+| `trava-motion.js` | тот же код читаемый, с комментариями (для разработки и тестов; в Webflow не нужен) |
 
 Файлы собирает `node tools/build-webflow.mjs` — руками не редактировать.
 

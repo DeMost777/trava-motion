@@ -1,14 +1,16 @@
 #!/usr/bin/env node
 // Build the files that go to Webflow (task 10.1, short path for Queue Manager).
 // Usage: node tools/build-webflow.mjs [package …]   (no names = every package in animations/)
-// Output: exports/webflow/trava-motion.js  — tokens + runtime + primitives + every animations/<name>/animation.js
-//         exports/webflow/webflow-custom-code.html — ready to paste into Webflow page Custom code (site CSS + GSAP + trava-motion.js)
+// Output: exports/webflow/trava-motion.js     — tokens + runtime + primitives + every animations/<name>/animation.js (readable, for development and tests)
+//         exports/webflow/trava-motion.min.js — the same, minified with terser (Q25, ADR 0023)
+//         exports/webflow/webflow-custom-code.html — ready to paste into Webflow page Custom code (site CSS + GSAP + trava-motion.min.js)
 //         exports/webflow/<name>.svg       — copy of animations/<name>/illustration.svg (upload to Webflow assets)
 // Checks: tempo numbers in animation.js equal the `tempo` block of motion.yaml; every package passes qa/check-package.mjs.
 import { readFileSync, writeFileSync, readdirSync, existsSync, copyFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { minify } from 'terser';
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const out = join(repo, 'exports/webflow');
@@ -54,9 +56,13 @@ const parts = [
 ];
 const bundle = parts.join('\n');
 writeFileSync(join(out, 'trava-motion.js'), bundle);
+// minified copy goes to Webflow: comments removed (the `/*!` banner stays), names shortened; behaviour must not change (qa runs on both)
+const min = await minify(bundle, { compress: true, mangle: true, format: { comments: /^!/ } });
+if (min.error || !min.code) { console.error('minify failed: ' + (min.error || 'empty output')); process.exit(1); }
+writeFileSync(join(out, 'trava-motion.min.js'), min.code);
 writeFileSync(join(out, 'webflow-custom-code.html'),
   `<!-- Trava Motion: paste everything into Webflow → Page settings → Custom code → Before </body> tag -->\n` +
   `<style>\n${readFileSync(join(repo, 'src/site/trava-co.css'), 'utf8')}</style>\n` +
-  `<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>\n<script>\n${bundle}\n</script>\n`);
+  `<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>\n<script>\n${min.code}\n</script>\n`);
 for (const n of packages) copyFileSync(join(repo, 'animations', n, 'illustration.svg'), join(out, `${n}.svg`));
-console.log(JSON.stringify({ ok: true, packages, tokens, files: ['trava-motion.js', 'webflow-custom-code.html', ...packages.map((n) => `${n}.svg`)].map((f) => `${f}: ${readFileSync(join(out, f)).length} B`) }, null, 2));
+console.log(JSON.stringify({ ok: true, packages, tokens, files: ['trava-motion.js', 'trava-motion.min.js', 'webflow-custom-code.html', ...packages.map((n) => `${n}.svg`)].map((f) => `${f}: ${readFileSync(join(out, f)).length} B`) }, null, 2));

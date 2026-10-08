@@ -27,3 +27,4 @@
 | [0020](0020-client-interaction-values.md) | Client Interaction: порядок B, отскок 0.3, токен shadow.node | утверждено | 2026-10-07 |
 | [0021](0021-client-interaction-hub-rarely.md) | Client Interaction: монитор пульсирует редко, раз за раунд | утверждено | 2026-10-08 |
 | [0022](0022-client-interaction-ready-for-production.md) | Client Interaction принят: ready to production | утверждено | 2026-10-08 |
+| [0023](0023-minify-webflow-bundle.md) | Сборка для Webflow минифицируется (Q25, вариант А) | утверждено | 2026-10-08 |

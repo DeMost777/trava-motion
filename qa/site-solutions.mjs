@@ -19,6 +19,7 @@ const out = resolve(process.argv[2] || join(repo, 'qa/out/site-solutions'));
 mkdirSync(out, { recursive: true });
 const gsapPath = process.env.GSAP_JS || req.resolve('gsap/dist/gsap.min.js');
 const gsapSrc = readFileSync(gsapPath, 'utf8');
+const minSrc = process.env.TM_BUNDLE === 'min' ? readFileSync(join(repo, 'exports/webflow/trava-motion.min.js'), 'utf8') : '';
 
 const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml' };
 const server = createServer((rq, rs) => {
@@ -42,6 +43,7 @@ async function open({ w, h, trava = true, reduced = false }) {
   page.on('console', (m) => { if ((m.type() === 'error' && trava) || (m.type() === 'warning' && m.text().includes('[trava-motion]'))) errors.push(m.text()); });
   page.on('pageerror', (e) => errors.push(String(e)));
   await page.route('**/cdn.jsdelivr.net/**/gsap.min.js', (r) => r.fulfill({ contentType: 'text/javascript', body: gsapSrc }));
+  if (process.env.TM_BUNDLE === 'min') await page.route('**/trava-motion.js', (r) => r.fulfill({ contentType: 'text/javascript', body: minSrc }));   // check the minified build that goes to Webflow
   if (!trava) await page.route('**/trava-motion.js', (r) => r.abort());   // baseline: the page without Trava Motion
   // sequence of active cards, as the site's own script switches them
   await page.addInitScript(() => {

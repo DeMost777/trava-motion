@@ -11,6 +11,7 @@ import { fileURLToPath } from 'node:url';
 const req = createRequire(import.meta.url); const { chromium } = req('playwright');
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const [pageArg, sel = 'img[data-trava-animation]'] = process.argv.slice(2);
+const minSrc = process.env.TM_BUNDLE === 'min' ? readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../exports/webflow/trava-motion.min.js'), 'utf8') : '';
 const gsapSrc = readFileSync(process.env.GSAP_JS || req.resolve('gsap/dist/gsap.min.js'), 'utf8');
 const types = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'application/json', '.svg': 'image/svg+xml' };
 const server = createServer((rq, rs) => { const f = join(repo, decodeURIComponent(rq.url.split('?')[0])); if (!f.startsWith(repo) || !existsSync(f)) { rs.writeHead(404); rs.end(); return; } rs.writeHead(200, { 'content-type': types[extname(f)] || 'text/plain', 'access-control-allow-origin': '*' }); rs.end(readFileSync(f)); });
@@ -23,6 +24,7 @@ async function open(opts = {}, gsap = true) {
   const ctx = await br.newContext({ viewport: { width: 800, height: 700 }, reducedMotion: opts.reduced ? 'reduce' : 'no-preference' }); const page = await ctx.newPage(); const errors = [];
   page.on('console', (m) => { if (m.type() === 'error' || (m.type() === 'warning' && m.text().includes('[trava-motion]'))) errors.push(m.text()); }); page.on('pageerror', (e) => errors.push(String(e)));
   if (gsap) await page.route('**/cdn.jsdelivr.net/**/gsap.min.js', (r) => r.fulfill({ contentType: 'text/javascript', body: gsapSrc })); else await page.route('**/cdn.jsdelivr.net/**/gsap.min.js', (r) => r.abort());
+  if (process.env.TM_BUNDLE === 'min') await page.route('**/trava-motion.js', (r) => r.fulfill({ contentType: 'text/javascript', body: minSrc }));   // check the minified build that goes to Webflow
   await page.goto(URL_); await page.waitForLoadState('load'); return { ctx, page, errors };
 }
 // the <img> as the browser draws it (the design), for comparison
