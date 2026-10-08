@@ -23,19 +23,19 @@ tempo:                        # illustration-specific values (ADR 0024)
   nodeUp: 0.22s
   nodeDown: 0.3s
   round: 7s                   # one loading round (two laps of the icons)
-  fillEnd: 1.6s               # the bar reaches its place in the design (51 of 123 px) at this moment, bounce included (was 2.5 s: too slow)
+  fillEnd: 0.7s               # the bar reaches its place in the design (51 of 123 px) at this moment, bounce included (team 2026-10-08: 2.3 times faster than 1.6 s, sharp)
   fillPower: 2.2              # the start is slow, the middle quick: progress follows (t / fillEnd) ^ fillPower (team, 2026-10-08)
   fillOvershoot: 0.06         # the end glides in, goes this share of the way past its place (about 3 px) and settles back: small bounce (team, 2026-10-08); 0 = none
-  numberIn: 0.4s              # the number appears (and the waiting plate leaves) from fillEnd
+  numberIn: 0.25s             # the number appears (and the waiting plate leaves) from fillEnd; follows the faster bar
   holdEnd: 5s                 # from fillEnd to here the card rests in the design state
   numberOut: 0.4s             # the number fades from holdEnd, the waiting plate comes back
   backEnd: 5.8s               # the bar has smoothly returned to 0; then a short pause until the round ends
   rest: 3s                    # the animation starts this far into the round: the first frame is the design (principles §3)
   riseY: 2                    # px, the number rises this far while it appears
   lensScale: 1.2              # lens zoom-in: peak scale
-  lensUp: 0.4s                # together 1.3 s, like the hub icon in Client Interaction
+  lensUp: 0.25s               # together 0.85 s: faster than the hub icon in Client Interaction (1.3 s) to keep up with the faster bar (team 2026-10-08)
   lensHold: 0s
-  lensDown: 0.9s
+  lensDown: 0.6s
   lensRoom: 12                # px, the shadow filter region of the card is widened by this while playing: the zoomed lens is not cut at the card edge
   lensOvershoot: 0.3          # small bounce on the way up (exception to principles §1, ADR 0019/0024); 0 = none
   skeletonAlpha: 0.18         # token illustration.placeholder.skeleton (white, alpha)
@@ -105,7 +105,7 @@ scenes:
 
   - id: lens-zoom
     intent: >
-      When the bar arrives and the number appears the lens zooms in with a small bounce and returns smoothly over 1.3 s,
+      When the bar arrives and the number appears the lens zooms in with a small bounce and returns smoothly over 0.85 s,
       like the hub icon in Client Interaction. Once per round.
     primitive: pulse
     targets: lens

@@ -869,8 +869,8 @@ window.TravaMotion.config.gate = { selector: '[data-solution-state]', activeClas
   // motion.yaml → tempo (ADR 0024). Keep in sync: the build fails if these differ from the spec.
   var TEMPO = {
     step: 0.7, nodeScale: 1.08, nodeUp: 0.22, nodeDown: 0.3,
-    round: 7, fillEnd: 1.6, fillPower: 2.2, fillOvershoot: 0.06, numberIn: 0.4, holdEnd: 5, numberOut: 0.4, backEnd: 5.8, rest: 3, riseY: 2,
-    lensScale: 1.2, lensUp: 0.4, lensHold: 0, lensDown: 0.9, lensOvershoot: 0.3, lensRoom: 12,
+    round: 7, fillEnd: 0.7, fillPower: 2.2, fillOvershoot: 0.06, numberIn: 0.25, holdEnd: 5, numberOut: 0.4, backEnd: 5.8, rest: 3, riseY: 2,
+    lensScale: 1.2, lensUp: 0.25, lensHold: 0, lensDown: 0.6, lensOvershoot: 0.3, lensRoom: 12,
     skeletonAlpha: 0.18, shineAlpha: 0.35, shinePeriod: 1.4,
     ambientSpeed: 36, ambientGapMin: 0.6, ambientGapMax: 1.8,
   };
