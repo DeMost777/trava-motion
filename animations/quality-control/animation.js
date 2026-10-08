@@ -58,7 +58,7 @@
     var nodePulse = null, lensPulse = null, t0 = 0, tick = null, ready = false;
 
     // The card is drawn with a drop-shadow filter whose region ends right at the lens: a zoomed-in lens would be cut there.
-    // While the animation is prepared the region is made a little wider; reset() puts the drawn numbers back.
+    // When the animation is first played the region is made a little wider.
     var cardFilter = null, filterOrig = null, widened = false;
     function widenCardFilter(px) {
       if (widened) return;   // writing the attributes again would make the browser redo the blur of the whole card on every frame
@@ -71,11 +71,8 @@
       cardFilter.setAttribute('x', filterOrig[0] - px); cardFilter.setAttribute('y', filterOrig[1] - px);
       cardFilter.setAttribute('width', filterOrig[2] + 2 * px); cardFilter.setAttribute('height', filterOrig[3] + 2 * px);
     }
-    function restoreCardFilter() {
-      widened = false;
-      if (!cardFilter || !filterOrig) return;
-      ['x', 'y', 'width', 'height'].forEach(function (a, i) { cardFilter.setAttribute(a, filterOrig[i]); });
-    }
+    // The wider region draws exactly the same picture (the shadow is not cut any more, nothing else changes), so reset() leaves it:
+    // writing the attributes back would make the browser redo the blur of the whole card in one heavy frame while the card is leaving.
 
     function prepare() {
       if (ready) return;
@@ -124,7 +121,6 @@
         if (!ready) return;
         ambient.reset(); bar.reset(); plate.reset(); nodePulse.reset(); lensPulse.reset();
         number.style.opacity = ''; number.removeAttribute('transform');
-        restoreCardFilter();
       },
       seek: function (t) { prepare(); seek(t); },   // for previews and tests
     };
