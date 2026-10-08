@@ -16,13 +16,13 @@
   },
   "export": {
     "file": "source/figma-export.svg",
-    "sha256": "5bfd77bd601bef248d1792500b7d576cb75e1eec57ef8fe3bd12251849b89659",
+    "sha256": "256755f6771b40d98252dac5d2aa7e94b15380ab2253c4d3356b1acd0657dd6e",
     "exportedAt": "2026-10-08",
-    "how": "Figma export SVG with 'Include id attribute', sent by the team"
+    "how": "Figma export SVG with 'Include id attribute', sent by the team; then 7 colours replaced by the nearest existing tokens, exactly as done in Figma on 2026-10-08 (ADR 0025). Original: source/figma-export.raw.svg. Ask the team to re-export once to confirm the file is identical."
   },
   "reference": {
     "file": "source/figma-reference@1x.png",
-    "sha256": "21eec58569d4b6ad4b249577b5fcf35f4bc59bd1ea9bc26a29c2981c161faa98",
-    "how": "Figma MCP screenshot of the frame, contentsOnly, 1x, lossless RGBA (taken after the role renames; names do not change pixels)"
+    "sha256": "032a6671db18811076df11ded9d3215e98d6985fdcddc5eb2b1c28967a61ee8d",
+    "how": "Figma MCP screenshot of the frame, contentsOnly, 1x, lossless RGBA (taken after the role renames and the colour change, ADR 0025)"
   }
 }

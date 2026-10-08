@@ -63,7 +63,7 @@
 <g id="Slider">
 <rect id="Rectangle 3691" x="181.752" y="257.705" width="123.186" height="5.66074" rx="2.83037" fill="white"/>
 <rect id="m-progress" x="181.752" y="257.705" width="50.6433" height="5.66074" rx="2.83037" fill="url(#paint17_linear_761_9334)"/>
-<rect id="m-knob" x="222.802" y="254.88" width="10.9729" height="11.2981" rx="5.48647" fill="#F2F6FF" stroke="url(#paint18_linear_761_9334)" stroke-width="1.39177"/>
+<rect id="m-knob" x="222.802" y="254.88" width="10.9729" height="11.2981" rx="5.48647" fill="#F2FFFB" stroke="url(#paint18_linear_761_9334)" stroke-width="1.39177"/>
 </g>
 <g id="Statistic">
 <rect id="Rectangle 3694" x="252.926" y="223.732" width="2.73748" height="17.6898" rx="1.36874" fill="white"/>
@@ -386,26 +386,26 @@
 <stop offset="1" stop-color="#013746"/>
 </linearGradient>
 <linearGradient id="paint17_linear_761_9334" x1="181.752" y1="257.841" x2="182.952" y2="268.667" gradientUnits="userSpaceOnUse">
-<stop stop-color="#058871"/>
-<stop offset="0.21" stop-color="#07967C"/>
-<stop offset="0.5" stop-color="#11B095"/>
-<stop offset="0.77" stop-color="#07967C"/>
-<stop offset="1" stop-color="#058871"/>
+<stop stop-color="#078E76"/>
+<stop offset="0.21" stop-color="#07947B"/>
+<stop offset="0.5" stop-color="#10B296"/>
+<stop offset="0.77" stop-color="#06947C"/>
+<stop offset="1" stop-color="#078E76"/>
 </linearGradient>
 <linearGradient id="paint18_linear_761_9334" x1="228.289" y1="255.576" x2="228.289" y2="265.482" gradientUnits="userSpaceOnUse">
-<stop stop-color="#2ABDA3"/>
-<stop offset="1" stop-color="#058871"/>
+<stop stop-color="#25C0A4"/>
+<stop offset="1" stop-color="#146F5E"/>
 </linearGradient>
 <linearGradient id="paint19_linear_761_9334" x1="280.301" y1="196.552" x2="285.626" y2="196.867" gradientUnits="userSpaceOnUse">
-<stop stop-color="#058871"/>
-<stop offset="0.21" stop-color="#07967C"/>
-<stop offset="0.5" stop-color="#11B095"/>
-<stop offset="0.77" stop-color="#07967C"/>
-<stop offset="1" stop-color="#058871"/>
+<stop stop-color="#078E76"/>
+<stop offset="0.21" stop-color="#07947B"/>
+<stop offset="0.5" stop-color="#10B296"/>
+<stop offset="0.77" stop-color="#06947C"/>
+<stop offset="1" stop-color="#078E76"/>
 </linearGradient>
 <linearGradient id="paint20_linear_761_9334" x1="309.045" y1="199.676" x2="309.045" y2="227.979" gradientUnits="userSpaceOnUse">
-<stop stop-color="#2ABDA3"/>
-<stop offset="1" stop-color="#058871"/>
+<stop stop-color="#25C0A4"/>
+<stop offset="1" stop-color="#146F5E"/>
 </linearGradient>
 <linearGradient id="paint21_linear_761_9334" x1="309.045" y1="199.676" x2="309.045" y2="227.979" gradientUnits="userSpaceOnUse">
 <stop stop-color="white"/>
