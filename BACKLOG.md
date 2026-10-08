@@ -14,6 +14,7 @@
 **Queue Manager принят** ([ADR 0018](docs/decisions/0018-queue-manager-ready-for-production.md)): проверен командой на staging (десктоп, планшет, телефон, Safari), держим как *ready to production*;
 выкатка на trava.co — отдельным «утверждаю». Следующая иллюстрация — **Client Interaction** ([ADR 0012](docs/decisions/0012-illustration-audit.md)), одна анимация за раз:
 сделали → проверили на сайте → только потом следующая.
+**Client Interaction** утверждён и выложен на staging 2026-10-08 ([аудит](docs/audits/qm-staging.md)); ждёт проверки на устройствах, затем отдельное «утверждаю» для trava.co.
 Отложено: 3.2 (три дополнения к формату spec), 3.3, полные версии фаз 5, 7, 9.
 
 ---

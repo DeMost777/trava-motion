@@ -55,3 +55,15 @@ Custom code главной (footer) очистить; в карточке вер
 
 ## Не проверено (нужен реальный браузер)
 Реальные планшет/телефон, Safari/iOS; реальная раскладка карточек на staging (реплика приближённая).
+
+## Client Interaction на staging (2026-10-08)
+Анимация утверждена командой («Утверждаю анимацию, ставь на staging»). Выложено только на `*.webflow.io`; `trava.co` / `www.trava.co` не публиковались (lastPublished остался 2026-09-15).
+
+| Что | Значение |
+|---|---|
+| Ассет | `client-interaction.svg`, id `6ac783d7bb70b8e2081773e9`, 29 673 B, ETag S3 = md5 `6e9b51db5b3eb7f0ac592c305ee42192` |
+| Картинки | десктоп `0df8b53a-…` и мобильная `571db528-…`: ассет заменён, `data-trava-animation="client-interaction"`, alt «Automated customer communication workflow» возвращён (при замене Webflow его стирает) |
+| Footer главной | заменён на `exports/webflow/webflow-custom-code.html` (42 519 B, обе анимации) |
+| Публикация | `publish_site`, `customDomains: []`, `publishToWebflowSubdomain: true`; site lastPublished 2026-10-08 12:15 |
+
+Ждёт проверки команды на реальных устройствах (десктоп: переключение вкладок, клик, скролл; планшет; телефон; Safari; консоль `[trava-motion]`). Публикация на trava.co — только после отдельного «утверждаю».
