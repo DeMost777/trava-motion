@@ -1,4 +1,4 @@
-/*! Trava Motion — built 2026-10-08 from github repo trava-motion. Animations: client-interaction, quality-control, queue-manager. */
+/*! Trava Motion — built 2026-10-09 from github repo trava-motion. Animations: client-interaction, quality-control, queue-manager, ticketing. */
 window.TravaMotion = window.TravaMotion || {}; window.TravaMotion.tokens = {"ease":{"enter":"sine.out","standard":"power1.inOut","exit":"sine.in","draw":"power1.inOut","flow":"none"},"trigger":{"threshold":0.35,"delay":0}};
 /* Site settings for trava.co (Webflow). The runtime itself knows nothing about the site's markup.
  * Solutions block: desktop shows all cards stacked and toggles `is-active` on [data-solution-state]
@@ -420,6 +420,61 @@ window.TravaMotion.config.gate = { selector: '[data-solution-state]', activeClas
   };
 })(window);
 
+/* Primitive: levitate (new in Ticketing, ADR 0027).
+ * A flat object hovers: it drifts up and down and tilts a little, as a slow sine (the same curve as sine.inOut played back and forth).
+ * Everything inside the object moves with it except the child marked data-m="shadow" (opt.keep): the big drop shadow stays where it is,
+ * so the browser does not redo its blur on every frame (principles §9). Frame 0 = design (zero offset).
+ * Driven by an external clock: update(t). Geometry is read lazily in prepare().
+ * opt.items: [{ el, amp (px), tilt (deg), period (s), dir (+1 goes up first, -1 goes down first) }]
+ */
+(function (root) {
+  'use strict';
+  var TM = root.TravaMotion = root.TravaMotion || {};
+  TM.primitives = TM.primitives || {};
+  var NS = 'http://www.w3.org/2000/svg';
+
+  TM.primitives.levitate = function (svg, opt) {
+    var movers = null;
+
+    function wrap(parent, skip) {   // one group around every child of parent except skip (document order kept)
+      var g = document.createElementNS(NS, 'g');
+      Array.prototype.slice.call(parent.childNodes).forEach(function (n) { if (n !== skip) g.appendChild(n); });
+      parent.appendChild(g);
+      return g;
+    }
+
+    function prepare() {
+      if (movers) return;
+      movers = opt.items.map(function (it) {
+        var keep = it.el.querySelector('[data-m="shadow"]'), groups = [];
+        if (keep) {
+          var home = keep.parentNode, node = home;
+          while (node.parentNode !== it.el) node = node.parentNode;                     // `node` is the child of the object that holds the shadow
+          groups.push(wrap(home, keep));                                                 // the body next to the shadow
+          Array.prototype.slice.call(it.el.childNodes).forEach(function (n) { if (n !== node && n.nodeType === 1) groups.push(wrap(n, null)); });   // the rest of the object (barcode…)
+        } else groups.push(wrap(it.el, null));
+        var box = TM.util.boxIn(svg, it.el);
+        return { groups: groups, cx: box.x + box.w / 2, cy: box.y + box.h / 2, it: it };
+      });
+    }
+
+    function update(t) {
+      movers.forEach(function (m) {
+        var s = Math.sin(2 * Math.PI * t / m.it.period) * m.it.dir;
+        var tf = 'translate(0 ' + (-s * m.it.amp).toFixed(3) + ') rotate(' + (-s * m.it.tilt).toFixed(3) + ' ' + m.cx.toFixed(2) + ' ' + m.cy.toFixed(2) + ')';
+        m.groups.forEach(function (g) { g.setAttribute('transform', tf); });
+      });
+    }
+
+    function reset() {
+      if (!movers) return;
+      movers.forEach(function (m) { m.groups.forEach(function (g) { g.removeAttribute('transform'); }); });
+    }
+
+    return { prepare: prepare, update: update, reset: reset };
+  };
+})(window);
+
 /* Primitive: progressFill (new in Quality Control, ADR 0024).
  * A loading bar: the fill grows from the left end of its track and the knob rides with it.
  * Progress p = 0 … 1; p = 1 is the bar as drawn in the design (fill width and knob position are read from it),
@@ -678,6 +733,75 @@ window.TravaMotion.config.gate = { selector: '[data-solution-state]', activeClas
       prepare: prepare, update: update, reset: reset,
       length: function (i) { prepare(); return lanes[i].route.length; },
     };
+  };
+})(window);
+
+/* Primitive: shimmer (new in Ticketing, ADR 0027).
+ * Data bars shimmer like a loading skeleton: one soft white highlight sweeps over all the bars from left to right in one wave
+ * (every bar lights up a little later than the one on its left), then a pause. The highlight is clipped to each bar's own shape
+ * (rounded ends, turned bars too). It is not in the design: code draws it, only while the animation plays (principles §9).
+ * Driven by an external clock: update(t). Geometry is read lazily in prepare().
+ * opt: targets ([rect]), alpha (peak, token illustration.placeholder.skeleton-shine), sweep (s the wave takes), pause (s between waves),
+ *      width (px, width of the highlight on the screen), color (default white)
+ */
+(function (root) {
+  'use strict';
+  var TM = root.TravaMotion = root.TravaMotion || {};
+  TM.primitives = TM.primitives || {};
+  var NS = 'http://www.w3.org/2000/svg';
+
+  function el(name, attrs, parent) {
+    var n = document.createElementNS(NS, name);
+    Object.keys(attrs).forEach(function (k) { n.setAttribute(k, attrs[k]); });
+    if (parent) parent.appendChild(n);
+    return n;
+  }
+
+  TM.primitives.shimmer = function (svg, opt) {
+    var uid = 'tm' + Math.random().toString(36).slice(2, 8), color = opt.color || '#ffffff', bars = null, x0 = 0, x1 = 0, cycle = opt.sweep + opt.pause;
+
+    function prepare() {
+      if (bars) return;
+      var defs = el('defs', {}, svg), i, n = 8;
+      var grad = el('linearGradient', { id: uid + '-g', x1: 0, y1: 0, x2: 1, y2: 0 }, defs);
+      for (i = 0; i <= n; i++) {   // a soft bell: smooth in and out
+        el('stop', { offset: i / n, 'stop-color': color, 'stop-opacity': (opt.alpha * (1 - Math.cos(2 * Math.PI * i / n)) / 2).toFixed(4) }, grad);
+      }
+      var all = opt.targets.map(function (t, k) {
+        var sb = TM.util.boxIn(svg, t), w = +t.getAttribute('width'), h = +t.getAttribute('height'), x = +t.getAttribute('x'), y = +t.getAttribute('y');
+        var rx = t.getAttribute('rx') || 0, tf = t.getAttribute('transform');
+        var clip = el('clipPath', { id: uid + '-' + k, clipPathUnits: 'userSpaceOnUse' }, defs);
+        el('rect', { x: x, y: y, width: w, height: h, rx: rx }, clip);
+        var outer = el('g', { 'pointer-events': 'none' });
+        if (tf) outer.setAttribute('transform', tf);
+        var inner = el('g', { 'clip-path': 'url(#' + uid + '-' + k + ')' }, outer);
+        var bw = opt.width * (w / sb.w);   // the highlight is `width` px wide on the screen: in the bar's own units it is this wide
+        var band = el('rect', { x: x - bw, y: y, width: bw, height: h, fill: 'url(#' + uid + '-g)', visibility: 'hidden' }, inner);
+        t.parentNode.insertBefore(outer, t.nextSibling);
+        return { sb: sb, x: x, w: w, bw: bw, band: band, shown: false, outer: outer };
+      });
+      x0 = Math.min.apply(null, all.map(function (b) { return b.sb.x; })) - opt.width;
+      x1 = Math.max.apply(null, all.map(function (b) { return b.sb.x + b.sb.w; }));
+      bars = all;
+    }
+
+    function update(t) {
+      var u = t % cycle, front = u < opt.sweep ? x0 + (x1 - x0) * (u / opt.sweep) : x1 + 1;   // screen x of the left edge of the highlight
+      bars.forEach(function (b) {
+        var left = front - b.sb.x;   // how far the highlight's left edge is inside the bar, screen px
+        var visible = left > -opt.width && left < b.sb.w;
+        if (!visible) { if (b.shown) { b.band.setAttribute('visibility', 'hidden'); b.shown = false; } return; }
+        b.band.setAttribute('transform', 'translate(' + ((left + opt.width) / b.sb.w * b.w).toFixed(3) + ' 0)');
+        if (!b.shown) { b.band.setAttribute('visibility', 'visible'); b.shown = true; }
+      });
+    }
+
+    function reset() {
+      if (!bars) return;
+      bars.forEach(function (b) { b.band.setAttribute('visibility', 'hidden'); b.band.removeAttribute('transform'); b.shown = false; });
+    }
+
+    return { prepare: prepare, update: update, reset: reset };
   };
 })(window);
 
@@ -1036,6 +1160,71 @@ window.TravaMotion.config.gate = { selector: '[data-solution-state]', activeClas
         if (tick) gsap.ticker.remove(tick);
         tick = null;
         flow.reset(); accent.reset();
+      },
+      seek: function (t) { prepare(); seek(t); },   // for previews and tests
+    };
+  });
+})(window);
+
+/* Ticketing animation — implements animations/ticketing/motion.yaml (ADR 0027).
+ * Scenes: background streams (ambientFlow) + the two tickets levitate (levitate) + the data bars shimmer like a skeleton (shimmer).
+ * Infinite while visible (ADR 0007); the runtime calls reset() when the card leaves the screen (interrupt: jump-to-design).
+ * Values: tempo from motion.yaml (checked by tools/build-webflow.mjs), eases from tokens.
+ */
+(function (root) {
+  'use strict';
+  var TM = root.TravaMotion;
+
+  // motion.yaml → tempo (ADR 0027). Keep in sync: the build fails if these differ from the spec.
+  var TEMPO = {
+    backAmp: 4, backTilt: 0.6, backPeriod: 4.6,
+    frontAmp: 3, frontTilt: 0.4, frontPeriod: 3.4,
+    shimmerAlpha: 0.35, shimmerSweep: 2.2, shimmerPause: 0.6, shimmerWidth: 60,
+    ambientSpeed: 36, ambientGapMin: 0.6, ambientGapMax: 1.8,
+  };
+
+  TM.register('ticketing', function (svg, env) {
+    var gsap = env.gsap, P = env.primitives;
+    var role = function (r) { return Array.prototype.slice.call(svg.querySelectorAll('[data-m="' + r + '"]')); };
+
+    // a stand may override the tempo of one instance: data-trava-tempo='{"backPeriod":9}' (never set on the site)
+    var T = {}, over = {}, k;
+    try { over = JSON.parse(svg.getAttribute('data-trava-tempo') || '{}'); } catch (e) { over = {}; }
+    for (k in TEMPO) T[k] = Object.prototype.hasOwnProperty.call(over, k) ? over[k] : TEMPO[k];
+
+    var tickets = role('ticket'), data = role('data'), impulses = role('impulse');   // the back ticket comes first in the file, the front one second
+    var tracks = Array.prototype.slice.call(svg.querySelectorAll('path[stroke-dasharray]:not([data-m])'));
+
+    var ambient = P.ambientFlow(svg, { gsap: gsap, impulses: impulses, tracks: tracks, speed: T.ambientSpeed, gapMin: T.ambientGapMin, gapMax: T.ambientGapMax });
+    var hover = P.levitate(svg, { items: [
+      { el: tickets[0], amp: T.backAmp, tilt: T.backTilt, period: T.backPeriod, dir: 1 },
+      { el: tickets[1], amp: T.frontAmp, tilt: T.frontTilt, period: T.frontPeriod, dir: -1 },   // opposite first move: the tickets never rise together at the start
+    ] });
+    var shine = P.shimmer(svg, { targets: data, alpha: T.shimmerAlpha, sweep: T.shimmerSweep, pause: T.shimmerPause, width: T.shimmerWidth });
+    var ready = false, t0 = 0, tick = null;
+
+    function prepare() {
+      if (ready) return;
+      ready = true;
+      ambient.prepare(); shine.prepare(); hover.prepare();   // the highlight is added before the tickets are wrapped, so it moves with them
+    }
+
+    function seek(t) { ambient.update(t); hover.update(t); shine.update(t); }
+
+    return {
+      start: function () {
+        prepare();
+        if (tick) gsap.ticker.remove(tick);     // a second start() must not leave the first clock running
+        t0 = gsap.ticker.time;
+        tick = function () { seek(gsap.ticker.time - t0); };
+        gsap.ticker.add(tick);
+        seek(0);
+      },
+      reset: function () {
+        if (tick) gsap.ticker.remove(tick);
+        tick = null;
+        if (!ready) return;
+        ambient.reset(); hover.reset(); shine.reset();
       },
       seek: function (t) { prepare(); seek(t); },   // for previews and tests
     };

@@ -1,0 +1,46 @@
+# Motion Specification — Ticketing
+# Format: docs/motion-spec.md (ADR 0016). Language: English (ADR 0002).
+# Sources: brief.md (team, RU), storyboard.md, ADR 0027 (scenario, roles, colours, noise), motion/principles.md (ADR 0006).
+# Status: values approved by the team 2026-10-09 (proposal accepted); to be tuned on the stand and reviewed by the team.
+
+animation: ticketing
+story: >
+  Tickets are issued. Quiet streams run through the background, the two tickets hover a little each at its own pace
+  (the shadows stay where they are), and the data bars on the tickets shimmer from left to right like a loading skeleton.
+
+layers:                       # roles from figma.json; animate nothing else
+  impulse: 16                 # horizontal bars on short dotted lines (run); left ones run right, mirrored right ones run left to the centre, as drawn
+  ticket: 2                   # the back ticket (first in the file) and the front one; each hovers as a whole, except its shadow
+  shadow: 2                   # big drop shadow of a ticket: stays still (no per-frame filter work)
+  data: 18                    # 9 data bars on each ticket; a highlight runs over them (drawn by code, clipped to the bar)
+
+tempo:                        # illustration-specific values (ADR 0027)
+  backAmp: 4                  # px, back ticket goes this far up and down
+  backTilt: 0.6               # degrees, back ticket tilts this far each way
+  backPeriod: 4.6s            # one full up-down-up cycle (sine)
+  frontAmp: 3                 # px
+  frontTilt: 0.4              # degrees
+  frontPeriod: 3.4s           # different from the back ticket: they never move in step
+  shimmerAlpha: 0.35          # token illustration.placeholder.skeleton-shine (white, alpha)
+  shimmerSweep: 2.2s          # one wave of highlight over all bars, left to right
+  shimmerPause: 0.6s          # rest before the next wave
+  shimmerWidth: 60            # px on the screen, soft bell-shaped highlight
+  ambientSpeed: 36            # px/s, background bars (as in Client Interaction)
+  ambientGapMin: 0.6s         # pause before a background bar returns, different on every line
+  ambientGapMax: 1.8s
+
+ease:
+  levitate: sine.inOut        # sin(2πt/period) is the same curve played back and forth
+
+trigger:
+  when: card-active           # the card becomes active by scrolling to it or by a click in the sidebar
+  threshold: motion.trigger.threshold   # token: 35 % of the illustration visible
+  delay: motion.trigger.delay           # token: 0
+  replay: on-every-activation           # principles §5
+
+loop:
+  mode: infinite
+  basis: ADR 0007             # meaningful-loop exception to principles §6
+  pauseWhen: [off-screen, card-inactive]
+
+staticState: design           # first frame, reduced motion and any error show the Figma design as is
