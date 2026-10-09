@@ -1,0 +1,26 @@
+{
+  "$description": "Package passport (ADR 0015). Where the illustration comes from in Figma, which animated layers the storyboard needs, and the exact files the preparation tool must use.",
+  "figma": {
+    "fileKey": "9EMDUpk6j30cPIIzRENFQh",
+    "node": "761:9201",
+    "name": "Ticketing",
+    "note": "layers renamed to m-* roles 2026-10-09 (names only, geometry unchanged); 16 m-impulse: horizontal bars on dotted lines run, the rest stay as drawn; main component Illustration is a library component, so the data bars and shadow are renamed inside the two ticket instances"
+  },
+  "roles": {
+    "impulse": 16,
+    "ticket": 2,
+    "shadow": 2,
+    "data": 18
+  },
+  "export": {
+    "file": "source/figma-export.svg",
+    "sha256": "c42b6859ab7ab51debc67aae72d6b66fce756244ed204bd3f3298751c3931553",
+    "exportedAt": "2026-10-09",
+    "how": "Figma export SVG with 'Include id attribute', sent by the team; then 4 colours replaced by the nearest existing tokens (team chose option Б, 2026-10-09): #003747 and #034152 -> #013746, #9BF4DE -> #8CF9E5, shadow matrix #01212a -> #032e39. Figma itself was not changed (ticket components come from a library). Then the embedded noise PNG re-encoded losslessly as an indexed PNG (same pixels, 230 KB -> 84 KB; plan said halve it, lossless is better: no visual change). Original: source/figma-export.raw.svg."
+  },
+  "reference": {
+    "file": "source/figma-reference@1x.png",
+    "sha256": "8f82b5d99783e1f7cc50dfa4cdabc5d30b522dbdc1ee156a9b653183b35d035e",
+    "how": "Figma plugin screenshot of the frame, contentsOnly, 1x, after the role renames"
+  }
+}
