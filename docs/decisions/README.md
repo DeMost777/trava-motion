@@ -34,3 +34,4 @@
 | [0027](0027-ticketing-scenario.md) | Ticketing: сценарий, роли слоёв, цвета, шум | утверждено (цвета — вариант Б) | 2026-10-09 |
 | [0028](0028-ticketing-on-staging.md) | Ticketing выложен на staging | утверждено | 2026-10-09 |
 | [0029](0029-ticketing-ready-for-production.md) | Ticketing принят: ready to production | утверждено | 2026-10-09 |
+| [0030](0030-schedule-changes-scenario.md) | Schedule Changes: сценарий | утверждено (темп — на стенде) | 2026-10-09 |
