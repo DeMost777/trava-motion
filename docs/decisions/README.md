@@ -32,3 +32,4 @@
 | [0025](0025-quality-control-colours-to-tokens.md) | Quality Control: цвета подогнаны под существующие токены | утверждено | 2026-10-08 |
 | [0026](0026-quality-control-ready-for-production.md) | Quality Control принят: ready to production | утверждено | 2026-10-08 |
 | [0027](0027-ticketing-scenario.md) | Ticketing: сценарий, роли слоёв, цвета, шум | утверждено (цвета — вариант Б) | 2026-10-09 |
+| [0028](0028-ticketing-on-staging.md) | Ticketing выложен на staging | утверждено | 2026-10-09 |
