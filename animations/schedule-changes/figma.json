@@ -12,9 +12,9 @@
   },
   "export": {
     "file": "source/figma-export.svg",
-    "sha256": "abd0b257ecb5ce9f349dc00328e4d63ae5d021eb75ae7a5adff5d990bc758178",
+    "sha256": "bf2e01dffeef383f1d48c5cef6ef4dd92fb000346792f2b8be5b93d853a7ba40",
     "exportedAt": "2026-10-09",
-    "how": "Figma export SVG with 'Include id attribute', sent by the team; then colours replaced by the nearest existing tokens (team chose option B, 2026-10-09): #003747 and #034152 -> #013746, #9BF4DE and #61E7CB -> #8CF9E5, #03637C and #036C87 -> #044F64, #DFDFDF -> #CBD2D1, shadow matrix #01212a -> #032e39. Then the card body fill itself (not the rows) made darker on the team's request 2026-10-09: #013746 -> #032E39, then (the first version was the same colour as the site background #022E3A) #032E39 -> #044F64 (token illustration.avatar.circle-start): the card stands out from the background and the dark rows show as stripes. Figma itself was not changed (library component). Embedded noise PNG re-encoded losslessly as an indexed PNG. Original: source/figma-export.raw.svg."
+    "how": "Figma export SVG with 'Include id attribute', sent by the team; then colours replaced by the nearest existing tokens (team chose option B, 2026-10-09): #003747 and #034152 -> #013746, #9BF4DE and #61E7CB -> #8CF9E5, #03637C and #036C87 -> #044F64, #DFDFDF -> #CBD2D1, shadow matrix #01212a -> #032e39. Then the card body fill itself (not the rows) made darker on the team's request 2026-10-09: #013746 -> #032E39, then (the first version was the same colour as the site background #022E3A) #032E39 -> #044F64 (token illustration.avatar.circle-start): the card stands out from the background and the dark rows show as stripes. Figma itself was not changed (library component). Embedded noise PNG re-encoded losslessly as an indexed PNG. Original: source/figma-export.raw.svg. The globe icon in the corner made darker on the team's request 2026-10-09: #044F64 -> #013746 (token illustration.avatar.circle-end), as it was the same colour as the card."
   },
   "reference": {
     "file": "source/figma-reference@1x.png",
