@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Schedule Changes — стенд</title>
+<style>
+  body { margin: 0; background: #032B36; color: #cfe; font: 15px/1.4 system-ui, sans-serif; }
+  .row { display: flex; gap: 20px; padding: 14px 20px; }
+  h3 { margin: 0 0 6px; font-weight: 600; color: #8cf9e5; font-size: 16px; }
+  .art { width: 600px; height: 600px; background: radial-gradient(ellipse at 50% 50%, #0d4656 0%, #092e39 70%); border-radius: 16px; overflow: hidden; }
+  .art [data-trava-animation] { width: 600px; display: block; }
+  .zoom { width: 660px; height: 440px; overflow: hidden; border-radius: 12px; background: radial-gradient(ellipse at 50% 50%, #0d4656 0%, #092e39 80%); position: relative; }
+  .zoom [data-trava-animation] { position: absolute; width: 1000px; left: -150px; top: -250px; }
+  [hidden] { display: none; }
+</style>
+</head>
+<body>
+  <div class="row" id="final" hidden>
+    <div><h3>Итог: значения из spec</h3>
+      <div class="art"><img src="../animations/schedule-changes/illustration.svg" alt="Schedule Changes" data-trava-animation="schedule-changes"></div></div>
+  </div>
+  <div class="row" id="card" hidden>
+    <div><h3>Строки таблицы крупно</h3>
+      <div class="zoom"><img src="../animations/schedule-changes/illustration.svg" alt="" data-trava-animation="schedule-changes"></div></div>
+  </div>
+  <script>
+    // ?view=card shows the card close up; by default the whole illustration with the values of the spec
+    var q = new URLSearchParams(location.search).get('view'), view = q === 'card' ? q : 'final';
+    ['final', 'card'].forEach(function (id) { var el = document.getElementById(id); if (id === view) el.hidden = false; else el.parentNode.removeChild(el); });
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+  <script>
+    // stand only: the same files the site bundle is built from, loaded one by one (no build step)
+    window.TravaMotion = { tokens: null };
+    fetch('../tokens/motion.tokens.json').then(function (r) { return r.json(); }).then(function (j) {
+      var mt = j.motion, ms = function (v) { return v.unit === 'ms' ? v.value : v.value * 1000; };
+      var ease = {}; Object.keys(mt.ease).filter(function (k) { return k[0] !== '$'; }).forEach(function (k) { ease[k] = mt.ease[k].$extensions['com.gsap'].ease; });
+      window.TravaMotion.tokens = { ease: ease, trigger: { threshold: mt.trigger.threshold.$value, delay: ms(mt.trigger.delay.$value) } };
+      var files = ['../src/runtime/trava-motion.js', '../src/primitives/geometry.js', '../src/primitives/ambient-flow.js', '../src/primitives/pulse.js', '../animations/schedule-changes/animation.js'];
+      var chain = Promise.resolve();
+      files.forEach(function (f) { chain = chain.then(function () { return new Promise(function (ok) { var s = document.createElement('script'); s.src = f; s.onload = ok; document.body.appendChild(s); }); }); });
+      chain.then(function () { window.TravaMotion.mountAll(); window.__ready = true; });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+# Motion Specification — Schedule Changes
+# Format: docs/motion-spec.md (ADR 0016). Language: English (ADR 0002).
+# Sources: brief.md (team, RU), storyboard.md, ADR 0030 (scenario, roles), motion/principles.md (ADR 0006).
+# Status: values approved by the team 2026-10-09 ("the tempo suits, we will look at the result"); to be tuned on the stand.
+
+animation: schedule-changes
+story: >
+  The flight schedule changes. Quiet streams run through the background, and the rows of the departures board
+  zoom in one after another from top to bottom, like falling dominoes, then rest before the next round.
+
+layers:                       # roles from figma.json; animate nothing else
+  impulse: 6                  # horizontal bars on short dotted lines (run); left ones run right, mirrored right ones run left, as drawn
+  row: 5                      # table rows (background plate and the texts on it move together)
+
+tempo:                        # illustration-specific values (ADR 0030)
+  step: 0.4s                  # time between the starts of two neighbouring rows; the zooms overlap a little
+  rowScale: 1.06              # peak scale of a row around its own centre (about 16 px wider on the 480 px frame), no bounce
+  rowUp: 0.3s                 # zoom in
+  rowDown: 0.45s              # back to the design size
+  round: 4s                   # one round: 5 rows (last one ends at 2.35 s) and a pause until the next round
+  ambientSpeed: 36            # px/s, background bars (as in Client Interaction)
+  ambientGapMin: 0.6s         # pause before a background bar returns, different on every line
+  ambientGapMax: 1.8s
+
+ease:
+  rowUp: sine.out             # token motion.ease.enter
+  rowDown: power1.inOut       # token motion.ease.standard
+
+trigger:
+  when: card-active           # the card becomes active by scrolling to it or by a click in the sidebar
+  threshold: motion.trigger.threshold   # token: 35 % of the illustration visible
+  delay: motion.trigger.delay           # token: 0
+  replay: on-every-activation           # principles §5
+
+loop:
+  mode: infinite
+  basis: ADR 0007             # meaningful-loop exception to principles §6
+  pauseWhen: [off-screen, card-inactive]
+
+staticState: design           # first frame, reduced motion and any error show the Figma design as is

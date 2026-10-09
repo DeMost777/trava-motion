@@ -1,0 +1,24 @@
+{
+  "$description": "Package passport (ADR 0015). Where the illustration comes from in Figma, which animated layers the storyboard needs, and the exact files the preparation tool must use.",
+  "figma": {
+    "fileKey": "9EMDUpk6j30cPIIzRENFQh",
+    "node": "761:8758",
+    "name": "Schedule change",
+    "note": "layers renamed to m-* roles 2026-10-09 (names only, geometry unchanged, ADR 0030); the table rows are instances of a library component, so they are renamed as instances"
+  },
+  "roles": {
+    "impulse": 6,
+    "row": 5
+  },
+  "export": {
+    "file": "source/figma-export.svg",
+    "sha256": "fa6583f57b6fe9438f40c7b60ede51d9cf2b01e19af14a145db54acbb3fd8e80",
+    "exportedAt": "2026-10-09",
+    "how": "Figma export SVG with 'Include id attribute', sent by the team; then colours replaced by the nearest existing tokens (team chose option B, 2026-10-09): #003747 and #034152 -> #013746, #9BF4DE and #61E7CB -> #8CF9E5, #03637C and #036C87 -> #044F64, #DFDFDF -> #CBD2D1, shadow matrix #01212a -> #032e39. The dark table rows (#034152) merge with the card as a result (team accepted). Figma itself was not changed (library component). Embedded noise PNG re-encoded losslessly as an indexed PNG. Original: source/figma-export.raw.svg."
+  },
+  "reference": {
+    "file": "source/figma-reference@1x.png",
+    "sha256": "a3a9bc0feb04f7a761118ddf34ac79b5a1d51bb5410bc6c939b8d69b987e5fc4",
+    "how": "Figma plugin screenshot of the frame, contentsOnly, 1x, after the role renames"
+  }
+}
