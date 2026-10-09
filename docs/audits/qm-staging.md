@@ -110,3 +110,13 @@ Footer главной заменён на `exports/webflow/webflow-custom-code.h
 | Публикация | `publish_site`, `customDomains: []`, `publishToWebflowSubdomain: true`, task `be1f8f83-5435-4ed4-ba02-c25395f00630` |
 
 Ждёт проверки командой на staging. Скорость: на реплике без видеокарты 43 кадра/с (строки двигаются внутри группы с тенью карточки); на устройствах не проверено.
+
+### Schedule Changes: обновление на staging (2026-10-09, заливка карточки и глобус)
+По правкам команды (ADR 0030, п. 10 и 11) ассет заменён и опубликован только на `*.webflow.io`; `trava.co` / `www.trava.co` не публиковались (lastPublished 2026-09-15, проверено через API).
+
+| Что | Значение |
+|---|---|
+| Ассет | `schedule-changes-v2.svg`, id `6ac938f0948787ced689e32c`, 263 684 B, ETag S3 = md5 `8a6fbdea3d2719275046bab5fc912fd7` (предыдущий `6ac92b03…d6` остался в ассетах) |
+| Картинки | десктоп `f9623988-…9ab5` и мобильная `479e31f2-…7699` переключены на новый ассет, атрибут `data-trava-animation="schedule-changes"` на месте, alt возвращён |
+| Footer | не менялся (код анимации не менялся, только картинка). Описка в блоке Ticketing (`o("ticketing"===0?0:"ticket")`, поведение то же) остаётся до следующей замены footer |
+| Публикация | `publish_site`, `customDomains: []`, `publishToWebflowSubdomain: true`, task `41c117b7-5894-4381-bf58-3b70e264d695`; site lastPublished 2026-10-09 18:57 |
