@@ -36,3 +36,4 @@
 | [0029](0029-ticketing-ready-for-production.md) | Ticketing принят: ready to production | утверждено | 2026-10-09 |
 | [0030](0030-schedule-changes-scenario.md) | Schedule Changes: сценарий | утверждено (темп — на стенде) | 2026-10-09 |
 | [0031](0031-schedule-changes-on-staging.md) | Schedule Changes выложен на staging | утверждено | 2026-10-09 |
+| [0032](0032-schedule-changes-ready-for-production.md) | Schedule Changes принят: ready to production | утверждено | 2026-10-10 |
