@@ -10,9 +10,9 @@
 
   // motion.yaml → tempo (ADR 0033). Keep in sync: the build fails if these differ from the spec.
   var TEMPO = {
-    backAmp: 4, backTilt: 0.4, backPeriod: 4.6, frontAmp: 3, frontTilt: 0.3, frontPeriod: 3.4,
+    backAmp: 2, backTilt: 0.2, backPeriod: 4.6, frontAmp: 1.5, frontTilt: 0.15, frontPeriod: 3.4,
     round: 6, rest: 3, loadEnd: 1.6, numberIn: 0.25, holdEnd: 5, numberOut: 0.4, riseY: 2,
-    barMin: 0.12, barStagger: 0.08, barGrow: 0.45, barOvershoot: 0.06, barShrink: 0.35,
+    barFlat: 2, barStagger: 0.08, barGrow: 0.45, barOvershoot: 0.06, barShrink: 0.35,
     skeletonAlpha: 0.18, shineAlpha: 0.35, shinePeriod: 1.4,
     ambientSpeed: 36, ambientGapMin: 0.6, ambientGapMax: 1.8,
   };
@@ -55,7 +55,7 @@
       { el: cards[0], amp: T.backAmp, tilt: T.backTilt, period: T.backPeriod, dir: 1 },
       { el: cards[1], amp: T.frontAmp, tilt: T.frontTilt, period: T.frontPeriod, dir: -1 },   // opposite first move: the cards never rise together at the start
     ] });
-    var graph = P.barGraph(svg, { targets: bars, min: T.barMin });
+    var graph = P.barGraph(svg, { targets: bars, flat: T.barFlat });
     var plate = P.skeleton(svg, { target: number, alpha: T.skeletonAlpha, shine: T.shineAlpha, period: T.shinePeriod });
     var ready = false, t0 = 0, tick = null;
 

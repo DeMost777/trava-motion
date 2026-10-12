@@ -214,8 +214,8 @@ window.TravaMotion.config.gate = { selector: '[data-solution-state]', activeClas
  * A small bar chart whose bars stand on one baseline and change their height from that line (scale around the bottom edge),
  * so a bar can grow from a low strip to its height in the design, with a soft overshoot, and come back. Bars are ordered from left to right.
  * Frame 0 = design: no transform. Driven by an external clock: the caller says how high each bar is (update(value)).
- * opt: targets ([rect]), min (share of the design height of a bar in the lowest state, e.g. 0.12)
- * update(value): value(i, n) → 0…1(+overshoot) is the height of bar i of n as a share between min and the design height
+ * opt: targets ([rect]), flat (px: the same height of every bar in the lowest state, so the chart rests as an even strip, whatever the design heights are)
+ * update(value): value(i, n) → 0…1(+overshoot) is the height of bar i of n between the flat strip and its design height
  */
 (function (root) {
   'use strict';
@@ -227,7 +227,7 @@ window.TravaMotion.config.gate = { selector: '[data-solution-state]', activeClas
 
     function prepare() {
       if (bars) return;
-      bars = opt.targets.map(function (el) { var b = TM.util.boxIn(svg, el); return { el: el, x: b.x, bottom: b.y + b.h, orig: el.getAttribute('transform'), last: 1 }; })
+      bars = opt.targets.map(function (el) { var b = TM.util.boxIn(svg, el); return { el: el, x: b.x, bottom: b.y + b.h, h: b.h, orig: el.getAttribute('transform'), last: 1 }; })
         .sort(function (a, b) { return a.x - b.x; });
       base = Math.max.apply(null, bars.map(function (b) { return b.bottom; }));   // the common baseline of the chart
     }
@@ -235,7 +235,7 @@ window.TravaMotion.config.gate = { selector: '[data-solution-state]', activeClas
     function update(value) {
       var n = bars.length;
       bars.forEach(function (b, i) {
-        var v = value(i, n), s = opt.min + (1 - opt.min) * v;
+        var v = value(i, n), s = (opt.flat + (b.h - opt.flat) * v) / b.h;   // equal strip when v = 0, design height when v = 1
         if (Math.abs(s - b.last) < 1e-5) return;
         b.last = s;
         if (Math.abs(s - 1) < 1e-5) { if (b.orig === null) b.el.removeAttribute('transform'); else b.el.setAttribute('transform', b.orig); return; }
@@ -1349,9 +1349,9 @@ window.TravaMotion.config.gate = { selector: '[data-solution-state]', activeClas
 
   // motion.yaml → tempo (ADR 0033). Keep in sync: the build fails if these differ from the spec.
   var TEMPO = {
-    backAmp: 4, backTilt: 0.4, backPeriod: 4.6, frontAmp: 3, frontTilt: 0.3, frontPeriod: 3.4,
+    backAmp: 2, backTilt: 0.2, backPeriod: 4.6, frontAmp: 1.5, frontTilt: 0.15, frontPeriod: 3.4,
     round: 6, rest: 3, loadEnd: 1.6, numberIn: 0.25, holdEnd: 5, numberOut: 0.4, riseY: 2,
-    barMin: 0.12, barStagger: 0.08, barGrow: 0.45, barOvershoot: 0.06, barShrink: 0.35,
+    barFlat: 2, barStagger: 0.08, barGrow: 0.45, barOvershoot: 0.06, barShrink: 0.35,
     skeletonAlpha: 0.18, shineAlpha: 0.35, shinePeriod: 1.4,
     ambientSpeed: 36, ambientGapMin: 0.6, ambientGapMax: 1.8,
   };
@@ -1394,7 +1394,7 @@ window.TravaMotion.config.gate = { selector: '[data-solution-state]', activeClas
       { el: cards[0], amp: T.backAmp, tilt: T.backTilt, period: T.backPeriod, dir: 1 },
       { el: cards[1], amp: T.frontAmp, tilt: T.frontTilt, period: T.frontPeriod, dir: -1 },   // opposite first move: the cards never rise together at the start
     ] });
-    var graph = P.barGraph(svg, { targets: bars, min: T.barMin });
+    var graph = P.barGraph(svg, { targets: bars, flat: T.barFlat });
     var plate = P.skeleton(svg, { target: number, alpha: T.skeletonAlpha, shine: T.shineAlpha, period: T.shinePeriod });
     var ready = false, t0 = 0, tick = null;
 

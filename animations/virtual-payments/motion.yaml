@@ -15,11 +15,11 @@ layers:                       # roles from figma.json; animate nothing else
   bar: 6                      # bars of the chart, one baseline; ordered from left to right by the code
 
 tempo:                        # illustration-specific values (ADR 0033)
-  backAmp: 4                  # px, back card goes this far up and down
-  backTilt: 0.4               # degrees
+  backAmp: 2                  # px, back card goes this far up and down (halved on the team's request 2026-10-12, was 4)
+  backTilt: 0.2               # degrees (was 0.4)
   backPeriod: 4.6s            # one full up-down-up cycle (sine)
-  frontAmp: 3                 # px
-  frontTilt: 0.3              # degrees
+  frontAmp: 1.5               # px (was 3)
+  frontTilt: 0.15             # degrees (was 0.3)
   frontPeriod: 3.4s           # different from the back card: they never move in step
   round: 6s                   # one loading round
   rest: 3s                    # the animation starts this far into the round: the first frame is the design (principles §3)
@@ -28,7 +28,7 @@ tempo:                        # illustration-specific values (ADR 0033)
   holdEnd: 5s                 # from the end of the growth to here the card rests in the design state
   numberOut: 0.4s             # the number goes back under the plate
   riseY: 2                    # px
-  barMin: 0.12                # lowest strip of a bar, share of its design height
+  barFlat: 2                  # px, the lowest state: every bar is the same 2 px high, so the resting chart is an even strip (team 2026-10-12; was 12 % of each design height, uneven)
   barStagger: 0.08s           # delay between neighbouring bars, left to right (on the way back: right to left)
   barGrow: 0.45s              # one bar grows to its height
   barOvershoot: 0.06          # a bar goes this share past its height and settles back (soft arrival); 0 = none
