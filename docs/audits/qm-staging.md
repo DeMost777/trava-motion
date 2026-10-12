@@ -120,3 +120,15 @@ Footer главной заменён на `exports/webflow/webflow-custom-code.h
 | Картинки | десктоп `f9623988-…9ab5` и мобильная `479e31f2-…7699` переключены на новый ассет, атрибут `data-trava-animation="schedule-changes"` на месте, alt возвращён |
 | Footer | не менялся (код анимации не менялся, только картинка). Описка в блоке Ticketing (`o("ticketing"===0?0:"ticket")`, поведение то же) остаётся до следующей замены footer |
 | Публикация | `publish_site`, `customDomains: []`, `publishToWebflowSubdomain: true`, task `41c117b7-5894-4381-bf58-3b70e264d695`; site lastPublished 2026-10-09 18:57 |
+
+## Virtual Payments на staging (2026-10-12)
+Анимация утверждена командой («Утверждаю, выкладывай на staging»). Выложено только на `*.webflow.io`; `trava.co` / `www.trava.co` не публиковались (lastPublished 2026-09-15 не изменился, проверено через API после публикации).
+
+| Что | Значение |
+|---|---|
+| Ассет | `virtual-payments.svg`, id `6accde947e4bf299e34e0e30`, 209 067 B, ETag S3 = md5 `82f497485bf8ca832fcae294a4a26848` |
+| Картинки | десктоп `8825c4c6-…3e43` и мобильная `35fd59dc-…200e`: ассет заменён, `data-trava-animation="virtual-payments"`, alt возвращён |
+| Footer главной | заменён на `exports/webflow/webflow-custom-code.html` (35 447 символов, шесть анимаций; вставлен вручную по тексту). Обратным чтением не сверялся: в прошлых выкладках была описка в блоке Ticketing (`o("ticketing"===0?0:"ticket")`, поведение то же) |
+| Публикация | `publish_site`, `customDomains: []`, `publishToWebflowSubdomain: true`, task `cf36a652-c65b-4873-9e0c-2285a1af0e16`; site lastPublished 2026-10-12 14:25 |
+
+Ждёт проверки командой на staging. Скорость: в безголовом браузере без видеокарты 34 кадра/с (<55; фильтры теней в программной отрисовке); на устройствах и в Safari не проверено.

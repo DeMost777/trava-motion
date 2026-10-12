@@ -38,3 +38,4 @@
 | [0031](0031-schedule-changes-on-staging.md) | Schedule Changes выложен на staging | утверждено | 2026-10-09 |
 | [0032](0032-schedule-changes-ready-for-production.md) | Schedule Changes принят: ready to production | утверждено | 2026-10-10 |
 | [0033](0033-virtual-payments-scenario.md) | Virtual Payments: сценарий | утверждено (темп — на стенде) | 2026-10-12 |
+| [0034](0034-virtual-payments-on-staging.md) | Virtual Payments выложен на staging | утверждено | 2026-10-12 |
