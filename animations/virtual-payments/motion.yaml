@@ -1,0 +1,61 @@
+# Motion Specification — Virtual Payments
+# Format: docs/motion-spec.md (ADR 0016). Language: English (ADR 0002).
+# Sources: brief.md (team, RU), storyboard.md, ADR 0033 (scenario, roles), motion/principles.md (ADR 0006).
+# Status: values approved by the team 2026-10-12 (plan accepted, all by recommendation); to be tuned on the stand and reviewed by the team.
+
+animation: virtual-payments
+story: >
+  Virtual cards are issued and watched. Quiet streams run through the background, the two cards hover a little each at its own pace,
+  and on the Activity card the result waits under a loading plate, then appears while the bars of the chart grow one after another.
+
+layers:                       # roles from figma.json; animate nothing else
+  impulse: 20                 # horizontal bars on short dotted lines (run); left ones run right, mirrored right ones run left; the vertical streak stays as drawn
+  card: 2                     # the back card (eNett, first in the file) and the front one (WEX); each hovers as a whole
+  number: 1                   # "3.44%" (outlines in the SVG: it is shown or hidden under a plate, never counted)
+  bar: 6                      # bars of the chart, one baseline; ordered from left to right by the code
+
+tempo:                        # illustration-specific values (ADR 0033)
+  backAmp: 4                  # px, back card goes this far up and down
+  backTilt: 0.4               # degrees
+  backPeriod: 4.6s            # one full up-down-up cycle (sine)
+  frontAmp: 3                 # px
+  frontTilt: 0.3              # degrees
+  frontPeriod: 3.4s           # different from the back card: they never move in step
+  round: 6s                   # one loading round
+  rest: 3s                    # the animation starts this far into the round: the first frame is the design (principles §3)
+  loadEnd: 1.6s               # the number waits under the plate until here; the bars are at their lowest strip
+  numberIn: 0.25s             # the number appears (the plate leaves), rises riseY px
+  holdEnd: 5s                 # from the end of the growth to here the card rests in the design state
+  numberOut: 0.4s             # the number goes back under the plate
+  riseY: 2                    # px
+  barMin: 0.12                # lowest strip of a bar, share of its design height
+  barStagger: 0.08s           # delay between neighbouring bars, left to right (on the way back: right to left)
+  barGrow: 0.45s              # one bar grows to its height
+  barOvershoot: 0.06          # a bar goes this share past its height and settles back (soft arrival); 0 = none
+  barShrink: 0.35s            # one bar sinks back
+  skeletonAlpha: 0.18         # token illustration.placeholder.skeleton (white, alpha)
+  shineAlpha: 0.35            # token illustration.placeholder.skeleton-shine (white, alpha)
+  shinePeriod: 1.4s           # one pass of the highlight over the waiting plate
+  ambientSpeed: 36            # px/s, background bars (as in Client Interaction)
+  ambientGapMin: 0.6s         # pause before a background bar returns, different on every line
+  ambientGapMax: 1.8s
+
+ease:
+  numberIn: sine.out          # token motion.ease.enter
+  numberOut: power1.inOut     # token motion.ease.standard
+  barShrink: power1.inOut     # token motion.ease.standard
+  barGrow: back.out           # computed from barOvershoot
+  levitate: sine.inOut        # sin(2πt/period) is the same curve played back and forth
+
+trigger:
+  when: card-active           # the card becomes active by scrolling to it or by a click in the sidebar
+  threshold: motion.trigger.threshold   # token: 35 % of the illustration visible
+  delay: motion.trigger.delay           # token: 0
+  replay: on-every-activation           # principles §5
+
+loop:
+  mode: infinite
+  basis: ADR 0007             # meaningful-loop exception to principles §6
+  pauseWhen: [off-screen, card-inactive]
+
+staticState: design           # first frame, reduced motion and any error show the Figma design as is

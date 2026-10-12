@@ -14,9 +14,9 @@
   },
   "export": {
     "file": "source/figma-export.svg",
-    "sha256": "4eb0c393cbfab68bcca16fbad9aa965581e716a03731b3e426c4585edc24e918",
+    "sha256": "7c13d7572c55c982e6c82c60c48a0ded54cd6d5b47e57ff792abba58e423c3b6",
     "exportedAt": "2026-10-12",
-    "how": "Figma export SVG with 'Include id attribute', sent by the team; then (1) the <mask> moved into <defs> (technical edit: the preparation tool removes ids outside <defs>, and the mask is referenced by id; rendering unchanged); (2) colours replaced by the nearest existing tokens (option B, as in Ticketing and Schedule Changes, 2026-10-12): #034152 -> #013746, #9BF4DE and #C6FFF1 -> #8CF9E5, #DFDFDF -> #CBD2D1, #154D5D -> #044F64. Figma itself was not changed. Embedded noise PNG re-encoded losslessly as an indexed PNG. Original: source/figma-export.raw.svg."
+    "how": "Figma export SVG with 'Include id attribute', sent by the team; then (1) the <mask> moved into <defs> (technical edit: the preparation tool removes ids outside <defs>, and the mask is referenced by id; rendering unchanged); (2) colours replaced by the nearest existing tokens (option B, as in Ticketing and Schedule Changes, 2026-10-12): #034152 -> #013746, #9BF4DE and #C6FFF1 -> #8CF9E5, #DFDFDF -> #CBD2D1, #154D5D -> #044F64. Then the bodies of the two cards and of the Activity card made #044F64 instead of #013746 (token illustration.avatar.circle-start) so they stand out from the page background #022E3A (compared on the stand: the Figma colour #034152, #013746 and #044F64; same fill as the accepted Schedule Changes card). Figma itself was not changed. Embedded noise PNG re-encoded losslessly as an indexed PNG. Original: source/figma-export.raw.svg."
   },
   "reference": {
     "file": "source/figma-reference@1x.png",
