@@ -1,0 +1,26 @@
+{
+  "$description": "Package passport (ADR 0015). Where the illustration comes from in Figma, which animated layers the storyboard needs, and the exact files the preparation tool must use.",
+  "figma": {
+    "fileKey": "9EMDUpk6j30cPIIzRENFQh",
+    "node": "761:8921",
+    "name": "Virtual Payments",
+    "note": "layers renamed to m-* roles 2026-10-12 (names only, geometry unchanged, ADR 0033); the vertical streak Rectangle 2173 stays as drawn"
+  },
+  "roles": {
+    "impulse": 20,
+    "card": 2,
+    "number": 1,
+    "bar": 6
+  },
+  "export": {
+    "file": "source/figma-export.svg",
+    "sha256": "4eb0c393cbfab68bcca16fbad9aa965581e716a03731b3e426c4585edc24e918",
+    "exportedAt": "2026-10-12",
+    "how": "Figma export SVG with 'Include id attribute', sent by the team; then (1) the <mask> moved into <defs> (technical edit: the preparation tool removes ids outside <defs>, and the mask is referenced by id; rendering unchanged); (2) colours replaced by the nearest existing tokens (option B, as in Ticketing and Schedule Changes, 2026-10-12): #034152 -> #013746, #9BF4DE and #C6FFF1 -> #8CF9E5, #DFDFDF -> #CBD2D1, #154D5D -> #044F64. Figma itself was not changed. Embedded noise PNG re-encoded losslessly as an indexed PNG. Original: source/figma-export.raw.svg."
+  },
+  "reference": {
+    "file": "source/figma-reference@1x.png",
+    "sha256": "9bb548e2433d9ddd97c55aefa5dce30211bb65d6b0214f001fef83182bfcf111",
+    "how": "Figma plugin screenshot of the frame, contentsOnly, 1x, after the role renames"
+  }
+}
