@@ -423,6 +423,21 @@
           }
         }
       }
+    },
+    "price": {
+      "rise": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.9569,
+            0.2392,
+            0.2392
+          ],
+          "alpha": 1,
+          "hex": "#f43d3d"
+        },
+        "$description": "Fare Optimizer: price chart segments where the price rises (red). Added 2026-10-15 (ADR 0039) because no existing token matched; Figma colour kept as drawn."
+      }
     }
   }
 }

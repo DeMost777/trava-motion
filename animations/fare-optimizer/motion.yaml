@@ -1,0 +1,68 @@
+# Motion Specification — Fare Optimizer
+# Format: docs/motion-spec.md (ADR 0016). Language: English (ADR 0002).
+# Sources: brief.md (team, RU), storyboard.md, ADR 0039 (scenario, roles), the Figma prototype of node 761:9491 (get_motion_context), motion/principles.md (ADR 0006).
+# Status: values are the Figma prototype's, approved by the team 2026-10-15 ("the mechanics stay the same"); to be reviewed by the team on the stand.
+
+animation: fare-optimizer
+story: >
+  Trava watches the fare after booking. Five points appear on the price line one after another, each with its badge
+  (Booking, three Re-books, Departure); the notification panel springs in, the bell rings, and the savings
+  (Saved 80, 120, 160) spring in one after another.
+
+layers:                       # roles from figma.json; animate nothing else (the price line, the axes and their labels stay as drawn)
+  point: 5                    # dots on the price line, ordered from left to right by the code
+  badge: 5                    # Booking, Re-book x3, Departure; the i-th goes with the i-th point (left to right)
+  panel: 1                    # notification panel (scales from its centre)
+  title: 1                    # "Price drop detection" row of the panel (fades in)
+  bell: 1                     # bell icon in the title (rings three times)
+  saving: 3                   # "Saved 80/120/160" rows, ordered from top to bottom by the code
+
+tempo:                        # values from the Figma prototype (get_motion_context), seconds and px
+  round: 4s                   # one round; the Figma prototype loops every 4 s
+  rest: 3.62s                 # the animation starts this far into the round: the first frame is the finished state = the design (principles §3)
+  step: 0.8s                  # the i-th point and badge start at i * step
+  pointDur: 0.4s             # a point scales 0 -> 1, a badge moves, scales 0 -> 1
+  badgeFade: 0.2s             # a badge fades in during the first 0.2 s
+  fromBelow: 42.366           # px, the Booking badge comes from below
+  fromAbove: -49.75           # px, the three Re-book badges come from above
+  fromBelowDeparture: 50.67   # px, the Departure badge comes from below
+  panelStart: 0.8s            # the panel and the title start together with the second point
+  panelDur: 0.498s            # the panel scales 0 -> 1 with a spring
+  titleDur: 0.5315s           # the title fades in
+  ring1: 0.898s               # the bell rings three times; each ring starts here
+  ring2: 1.598s
+  ring3: 2.299s
+  ringUp: 0.102s              # the bell turns up to ringAngle and swells to ringScale
+  ringSettle: 0.5s            # and comes back with a spring (mass 1)
+  ringAngle: 30               # degrees (the Figma bell turns counter-clockwise)
+  ringScale: 1.12
+  bellStiffness: 600          # Figma spring of the bell
+  bellDamping: 12.247
+  saving1: 1.2s               # the "Saved" rows spring in (scale 0.9 -> 1)
+  saving2: 1.898s
+  saving3: 2.697s
+  savingDur: 0.4s
+  savingFrom: 0.9             # start scale of a row
+  savingFadeLead: 0.2s        # a row starts to fade in this much before its spring starts
+  savingFadeDur: 0.4s
+
+ease:                         # the Figma curves (team 2026-10-15: same mechanics), not the motion tokens
+  point: cubic-bezier(0.7, -0.4, 0.4, 1.4)
+  badgeMove: cubic-bezier(0, 0, 0, 1)
+  soft: cubic-bezier(0.5, 0, 0.5, 1)             # badge scale and fade, title fade, bell turn and swell
+  panel: spring 1 - e^(-7.6657 t)(cos 6.7605 t + 1.1339 sin 6.7605 t)
+  saving: spring 1 - e^(-7.328 t)(cos 14.0296 t + 0.5223 sin 14.0296 t)
+  bell: spring (mass 1, stiffness bellStiffness, damping bellDamping)
+
+trigger:
+  when: card-active           # the card becomes active by scrolling to it or by a click in the sidebar
+  threshold: motion.trigger.threshold   # token: 35 % of the illustration visible
+  delay: motion.trigger.delay           # token: 0
+  replay: on-every-activation           # principles §5
+
+loop:
+  mode: infinite              # as in Figma: at the end of the round everything is cut away and the round starts over
+  basis: ADR 0007             # meaningful-loop exception to principles §6
+  pauseWhen: [off-screen, card-inactive]
+
+staticState: design           # first frame, reduced motion and any error show the Figma design as is

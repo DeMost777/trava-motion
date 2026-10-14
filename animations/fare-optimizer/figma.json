@@ -1,0 +1,28 @@
+{
+  "$description": "Package passport (ADR 0015). Where the illustration comes from in Figma, which animated layers the storyboard needs, and the exact files the preparation tool must use.",
+  "figma": {
+    "fileKey": "9EMDUpk6j30cPIIzRENFQh",
+    "node": "761:9492",
+    "name": "Fare Optimizer (Optimization)",
+    "note": "layers renamed to m-* roles 2026-10-15 (names only, geometry unchanged, ADR 0039); the export is the Optimization instance 761:9492 (480x377) inside the working frame 761:9491 (480x480, the instance sits at y=52); the price line, axes and labels stay as drawn (no motion in Figma)"
+  },
+  "roles": {
+    "point": 5,
+    "badge": 5,
+    "panel": 1,
+    "title": 1,
+    "bell": 1,
+    "saving": 3
+  },
+  "export": {
+    "file": "source/figma-export.svg",
+    "sha256": "4ab0849cac662aea7a915fe3a5cd06bcffa937d91aaebeed6548d47b2d5d8d5a",
+    "exportedAt": "2026-10-15",
+    "how": "Figma export SVG with 'Include id attribute', sent by the team; then (1) the <mask> of the panel title moved into <defs> (technical edit: the preparation tool removes ids outside <defs>; rendering unchanged); (2) colours replaced by the nearest existing tokens (option B, by precedent, 2026-10-15): #034152 -> #013746, #33CAAF -> #2ABDA3, #979797 and #999999 (gradient ends with opacity 0, invisible) -> #CBD2D1. Figma itself was not changed. Embedded noise PNG re-encoded losslessly as an indexed PNG. Original: source/figma-export.raw.svg."
+  },
+  "reference": {
+    "file": "source/figma-reference@1x.png",
+    "sha256": "f07a7ee16ba3bdab9acbe49eb6d7d58f4470e06a5b5adbcd25e3736d1ee1eaf8",
+    "how": "Figma plugin screenshot of the Optimization instance, contentsOnly, 1x, after the role renames. Taken on a transparent background: the glass rows 'Saved' and the white texts do not match a render on a dark page, so the pixel comparison with this reference is informative only"
+  }
+}

@@ -34,7 +34,7 @@ for (const name of packages) {
   // tempo: motion.yaml vs animation.js
   const yaml = readFileSync(join(dir, 'motion.yaml'), 'utf8');
   const block = (yaml.match(/^tempo:[^\n]*\n((?:[ \t]+[^\n]*\n)+)/m) || [])[1] || '';
-  const spec = Object.fromEntries([...block.matchAll(/^\s+([A-Za-z]+):\s*([\d.]+)/gm)].map((m) => [m[1], Number(m[2])]));
+  const spec = Object.fromEntries([...block.matchAll(/^\s+([A-Za-z][A-Za-z0-9]*):\s*(-?[\d.]+)/gm)].map((m) => [m[1], Number(m[2])]));
   const code = readFileSync(join(dir, 'animation.js'), 'utf8');
   const tempoSrc = (code.match(/var TEMPO = (\{[^}]*\})/) || [])[1];
   const tempo = tempoSrc ? Function(`return (${tempoSrc})`)() : {};
