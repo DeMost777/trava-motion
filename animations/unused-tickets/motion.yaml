@@ -6,7 +6,7 @@
 animation: unused-tickets
 story: >
   An unused ticket turns into money. Quiet streams run through the background, the ticket and the wallet hover a little each at its own pace,
-  and banknotes come out from under the ticket one after another, rest, then sink into the wallet one after another; the wallet springs on every arrival.
+  and banknotes travel from under the ticket into the wallet one after another in one gentle, accelerating motion; the wallet springs on every arrival.
 
 layers:                       # roles from figma.json; animate nothing else
   impulse: 9                  # horizontal bars on short dotted lines (run); the vertical streak stays as drawn
@@ -22,20 +22,14 @@ tempo:                        # illustration-specific values (ADR 0036)
   walletAmp: 1                # px
   walletTilt: 0.1             # degrees
   walletPeriod: 3.4s          # different from the ticket: they never move in step, and the wallet starts in the other direction
-  round: 6s                   # one round
-  rest: 2s                    # the animation starts this far into the round: the first frame is the design (principles §3)
-  comeStart: 0.6s             # the lower note starts coming out from under the ticket
-  comeGap: 0.5s               # the upper note starts this much later
-  comeLowerDur: 0.9s          # the lower note slides to its place
-  comeUpperDur: 0.6s          # the upper note slides to its place
-  comeLowerPx: 75             # px, how far under the ticket a note waits (lower)
+  round: 4s                   # one round (the notes are gone for about a second before the next ones start)
+  start: 0.4s                 # the lower note starts its trip (leaves the shadow of the ticket)
+  dur: 2.4s                   # one trip of one note, from under the ticket to behind the wallet, in one motion; both notes take the same time
+  comeLowerPx: 75             # px, how far under the ticket a note waits before the trip (lower)
   comeUpperPx: 39             # px (upper)
-  holdEnd: 3.8s               # the notes rest in the design position until here, then sink
-  goGap: 0.5s                 # the upper note starts to sink this much after the lower one
-  goLowerDur: 0.6s
-  goUpperDur: 0.9s
-  goLowerPx: 42               # px, how far a note sinks: until it is hidden behind the wallet
-  goUpperPx: 76
+  goLowerPx: 42               # px, how far a note sinks after the design position: until it is hidden behind the wallet
+  goUpperPx: 76               # derived, not tempo values: the upper note starts later by the time that puts both notes in the design position at the same moment,
+                              # and the animation starts at that moment (first frame = design, principles §3)
   bumpScale: 1.03             # wallet swells to this when a note has disappeared into it
   bumpDur: 0.3s
   bumpLead: 0.1s              # the swell starts this much before the note is hidden
@@ -44,8 +38,7 @@ tempo:                        # illustration-specific values (ADR 0036)
   ambientGapMax: 1.8s
 
 ease:
-  come: power1.inOut          # token motion.ease.standard
-  go: power1.inOut            # token motion.ease.standard
+  trip: sine.in               # token motion.ease.exit: gentle start, then faster; no stop on the way (team 2026-10-14)
   bump: sine                #  half a sine wave (up and back)
   levitate: sine.inOut        # sin(2πt/period) is the same curve played back and forth
 
