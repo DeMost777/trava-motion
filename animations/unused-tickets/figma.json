@@ -15,9 +15,9 @@
   },
   "export": {
     "file": "source/figma-export.svg",
-    "sha256": "7811dac6583e2163503769d8a70d8c1ac446ed08bc26dac1d29ff578d2315d0d",
+    "sha256": "16aeaf725b681567ea530b334aed4c2235f63a7b490276782e0b8f52823ba134",
     "exportedAt": "2026-10-14",
-    "how": "Figma export SVG with 'Include id attribute', sent by the team; then colours replaced by the nearest existing tokens (option B, as in Ticketing, Schedule Changes and Virtual Payments, applied by precedent 2026-10-14): #003747 and #034152 -> #013746, #03637C -> #044F64, #33CAAF -> #2ABDA3, #9BF4DE -> #8CF9E5, shadow matrix #01212a -> #032e39. Figma itself was not changed. The 3 embedded noise PNGs re-encoded losslessly as indexed PNGs (same pixels, 1.31 MB -> 0.57 MB). Original: source/figma-export.raw.svg."
+    "how": "Figma export SVG with 'Include id attribute', sent by the team; then colours replaced by the nearest existing tokens (option B, as in Ticketing, Schedule Changes and Virtual Payments, applied by precedent 2026-10-14): #003747 and #034152 -> #013746, #03637C -> #044F64, #33CAAF -> #2ABDA3, #9BF4DE -> #8CF9E5, shadow matrix #01212a -> #032e39. Figma itself was not changed. The 3 embedded noise PNGs re-encoded losslessly as indexed PNGs (same pixels, 1.31 MB -> 0.57 MB). Then the wallet body (Rectangle 3712 base excluded: only the body Rectangle 3714 and the strip Rectangle 3713) made #044F64 instead of #013746 (token illustration.avatar.circle-start, as the cards in Schedule Changes and Virtual Payments): at #013746 the body merged with the page background #022E3A. The clasp hole stays #013746. Original: source/figma-export.raw.svg."
   },
   "reference": {
     "file": "source/figma-reference@1x.png",

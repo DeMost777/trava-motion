@@ -1,0 +1,63 @@
+# Motion Specification — Unused Tickets
+# Format: docs/motion-spec.md (ADR 0016). Language: English (ADR 0002).
+# Sources: brief.md (team, RU), storyboard.md, ADR 0036 (scenario, roles), motion/principles.md (ADR 0006).
+# Status: values approved by the team 2026-10-14 (all by recommendation); to be tuned on the stand and reviewed by the team.
+
+animation: unused-tickets
+story: >
+  An unused ticket turns into money. Quiet streams run through the background, the ticket and the wallet hover a little each at its own pace,
+  and banknotes come out from under the ticket one after another, rest, then sink into the wallet one after another; the wallet springs on every arrival.
+
+layers:                       # roles from figma.json; animate nothing else
+  impulse: 9                  # horizontal bars on short dotted lines (run); the vertical streak stays as drawn
+  card: 1                     # the ticket (library instance) hovers as a whole; its shadow child (role shadow) stays still
+  shadow: 1                   # the ticket's big drop shadow
+  bill: 2                     # banknotes, behind the ticket and the wallet; the lower one comes first in the file
+  wallet: 1                   # hovers and springs
+
+tempo:                        # illustration-specific values (ADR 0036)
+  cardAmp: 1.5                # px, the ticket goes this far up and down
+  cardTilt: 0.15              # degrees
+  cardPeriod: 4s              # one full up-down-up cycle (sine)
+  walletAmp: 1                # px
+  walletTilt: 0.1             # degrees
+  walletPeriod: 3.4s          # different from the ticket: they never move in step, and the wallet starts in the other direction
+  round: 6s                   # one round
+  rest: 2s                    # the animation starts this far into the round: the first frame is the design (principles §3)
+  comeStart: 0.6s             # the lower note starts coming out from under the ticket
+  comeGap: 0.5s               # the upper note starts this much later
+  comeLowerDur: 0.9s          # the lower note slides to its place
+  comeUpperDur: 0.6s          # the upper note slides to its place
+  comeLowerPx: 75             # px, how far under the ticket a note waits (lower)
+  comeUpperPx: 39             # px (upper)
+  holdEnd: 3.8s               # the notes rest in the design position until here, then sink
+  goGap: 0.5s                 # the upper note starts to sink this much after the lower one
+  goLowerDur: 0.6s
+  goUpperDur: 0.9s
+  goLowerPx: 42               # px, how far a note sinks: until it is hidden behind the wallet
+  goUpperPx: 76
+  bumpScale: 1.03             # wallet swells to this when a note has disappeared into it
+  bumpDur: 0.3s
+  bumpLead: 0.1s              # the swell starts this much before the note is hidden
+  ambientSpeed: 36            # px/s, background bars (as in Client Interaction)
+  ambientGapMin: 0.6s         # pause before a background bar returns, different on every line
+  ambientGapMax: 1.8s
+
+ease:
+  come: power1.inOut          # token motion.ease.standard
+  go: power1.inOut            # token motion.ease.standard
+  bump: sine                #  half a sine wave (up and back)
+  levitate: sine.inOut        # sin(2πt/period) is the same curve played back and forth
+
+trigger:
+  when: card-active           # the card becomes active by scrolling to it or by a click in the sidebar
+  threshold: motion.trigger.threshold   # token: 35 % of the illustration visible
+  delay: motion.trigger.delay           # token: 0
+  replay: on-every-activation           # principles §5
+
+loop:
+  mode: infinite
+  basis: ADR 0007             # meaningful-loop exception to principles §6
+  pauseWhen: [off-screen, card-inactive]
+
+staticState: design           # first frame, reduced motion and any error show the Figma design as is
