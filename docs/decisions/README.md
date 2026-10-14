@@ -41,3 +41,4 @@
 | [0034](0034-virtual-payments-on-staging.md) | Virtual Payments выложен на staging | утверждено | 2026-10-12 |
 | [0035](0035-virtual-payments-ready-for-production.md) | Virtual Payments принят: ready to production | утверждено | 2026-10-13 |
 | [0036](0036-unused-tickets-scenario.md) | Unused Tickets: сценарий | утверждено (темп — на стенде) | 2026-10-14 |
+| [0037](0037-unused-tickets-on-staging.md) | Unused Tickets выложен на staging | утверждено | 2026-10-14 |

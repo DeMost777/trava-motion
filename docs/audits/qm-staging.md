@@ -132,3 +132,15 @@ Footer главной заменён на `exports/webflow/webflow-custom-code.h
 | Публикация | `publish_site`, `customDomains: []`, `publishToWebflowSubdomain: true`, task `cf36a652-c65b-4873-9e0c-2285a1af0e16`; site lastPublished 2026-10-12 14:25 |
 
 Ждёт проверки командой на staging. Скорость: в безголовом браузере без видеокарты 34 кадра/с (<55; фильтры теней в программной отрисовке); на устройствах и в Safari не проверено.
+
+## Unused Tickets на staging (2026-10-14)
+Анимация утверждена командой («Утверждаю, выкладывай на staging»). Выложено только на `*.webflow.io`; `trava.co` / `www.trava.co` не публиковались (lastPublished 2026-09-15 не изменился, проверено через API после публикации).
+
+| Что | Значение |
+|---|---|
+| Ассет | `unused-tickets.svg`, id `6acfd62f17173549896a985c`, 805 414 B, ETag S3 = md5 `6699741002385daf535c6b0322fc0a05` (старый PNG `6a99c0a9…` остался в ассетах) |
+| Картинки | десктоп `d2edac46-…75d8` и мобильная `98bc07c5-…d834`: ассет заменён, `data-trava-animation="unused-tickets"`, alt «Unused ticket recovery and refund illustration» возвращён |
+| Footer главной | заменён на `exports/webflow/webflow-custom-code.html` (семь анимаций). Записан целиком из файла; при первой записи выпал один оператор в блоке Virtual Payments (`m.style.opacity=""`), заметил сверкой с файлом и записал footer заново, второй вариант совпадает с файлом по тексту блоков. Описка Ticketing `o("ticketing"===0?0:"ticket")` в этом footer исправлена (в файле её не было) |
+| Публикация | `publish_site`, `customDomains: []`, `publishToWebflowSubdomain: true`, task `f50f3ad2-584d-436f-be21-cbdfd912d4cb`; site lastPublished 2026-10-14 20:35 |
+
+Вес SVG 805 КБ (две больших шумовых картинки). Скорость в безголовом браузере 61 кадр/с; на устройствах и в Safari не проверено.
