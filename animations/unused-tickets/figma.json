@@ -1,0 +1,27 @@
+{
+  "$description": "Package passport (ADR 0015). Where the illustration comes from in Figma, which animated layers the storyboard needs, and the exact files the preparation tool must use.",
+  "figma": {
+    "fileKey": "9EMDUpk6j30cPIIzRENFQh",
+    "node": "761:9124",
+    "name": "Unused Tickets",
+    "note": "layers renamed to m-* roles 2026-10-14 (names only, geometry unchanged, ADR 0036); 9 m-impulse: horizontal bars on dotted lines run; the vertical streak Rectangle 3717 stays as drawn; the main component Illustration is a library component, so the shadow is renamed inside the instance (m-card)"
+  },
+  "roles": {
+    "impulse": 9,
+    "card": 1,
+    "shadow": 1,
+    "bill": 2,
+    "wallet": 1
+  },
+  "export": {
+    "file": "source/figma-export.svg",
+    "sha256": "7811dac6583e2163503769d8a70d8c1ac446ed08bc26dac1d29ff578d2315d0d",
+    "exportedAt": "2026-10-14",
+    "how": "Figma export SVG with 'Include id attribute', sent by the team; then colours replaced by the nearest existing tokens (option B, as in Ticketing, Schedule Changes and Virtual Payments, applied by precedent 2026-10-14): #003747 and #034152 -> #013746, #03637C -> #044F64, #33CAAF -> #2ABDA3, #9BF4DE -> #8CF9E5, shadow matrix #01212a -> #032e39. Figma itself was not changed. The 3 embedded noise PNGs re-encoded losslessly as indexed PNGs (same pixels, 1.31 MB -> 0.57 MB). Original: source/figma-export.raw.svg."
+  },
+  "reference": {
+    "file": "source/figma-reference@1x.png",
+    "sha256": "f17741cb469ad3820f2ff8ab1223add3a864e721f318beb44e6156bd19ac00f9",
+    "how": "Figma plugin screenshot of the frame, contentsOnly, 1x, after the role renames"
+  }
+}

@@ -89,7 +89,10 @@ const translucent = (n) => (n.attrs['fill-opacity'] !== undefined && Number(n.at
   || (/^url\(#(.+)\)$/.test(n.attrs.fill || '') && gradOpaque.get(n.attrs.fill.slice(5, -1)) === false);
 for (const n of nodes.filter((x) => /_i_/.test(x.attrs.filter || ''))) {
   const subtree = nodes.filter((m) => { for (let p = m; p; p = p.parent) if (p === n) return true; return false; });
-  if (subtree.some(translucent)) warnings.push(`inner shadow on a semi-transparent layer (${n.attrs.id || nearestId(n)}): exports wrong, replace in Figma`);
+  // false positive (Unused Tickets, 2026-10-14): a translucent texture laid over an opaque solid fill of the same layer
+  // keeps the layer's alpha full, so the inner shadow renders correctly; flag only layers without such a base
+  const opaqueBase = subtree.some((m) => /^#[0-9a-fA-F]{6}$/.test(m.attrs.fill || '') && (m.attrs['fill-opacity'] === undefined || Number(m.attrs['fill-opacity']) >= 1));
+  if (subtree.some(translucent) && !opaqueBase) warnings.push(`inner shadow on a semi-transparent layer (${n.attrs.id || nearestId(n)}): exports wrong, replace in Figma`);
 }
 console.log(JSON.stringify({
   file,
