@@ -144,3 +144,15 @@ Footer главной заменён на `exports/webflow/webflow-custom-code.h
 | Публикация | `publish_site`, `customDomains: []`, `publishToWebflowSubdomain: true`, task `f50f3ad2-584d-436f-be21-cbdfd912d4cb`; site lastPublished 2026-10-14 20:35 |
 
 Вес SVG 805 КБ (две больших шумовых картинки). Скорость в безголовом браузере 61 кадр/с; на устройствах и в Safari не проверено.
+
+## Fare Optimizer на staging (2026-10-16)
+Анимация утверждена командой («Утверждаю, выкладывай на staging»). Выложено только на `*.webflow.io`; `trava.co` / `www.trava.co` не публиковались (lastPublished 2026-09-15 не изменился, проверено через API после публикации).
+
+| Что | Значение |
+|---|---|
+| Ассет | `fare-optimizer.svg`, id `6ad20ffe5b723d51737fd407`, 288 989 B, ETag S3 = md5 `10be36dbde8c4f963854d23d8eaca40b` (старый ассет `6a7c557c…` остался) |
+| Картинки | десктоп `47a361e6-0a84-4226-3029-a333be754a64` и мобильная `cf09f23b-4ace-3404-49cb-259b592215b4`: ассет заменён, `data-trava-animation="fare-optimizer"`, alt «Fare optimization and automated rebooking workflow» |
+| Footer главной | заменён на `exports/webflow/webflow-custom-code.html` (восемь анимаций), записан целиком из файла, обратное чтение совпало |
+| Публикация | `publish_site`, `customDomains: []`, `publishToWebflowSubdomain: true`, task `b18ee928-f6e2-4c18-b743-efcc1aab13da`; site lastPublished 2026-10-16 12:16 |
+
+Скорость в безголовом браузере 61 кадр/с; на устройствах и в Safari не проверено. Проверить: плашки «Saved» (стекло) на фоне сайта, смещение плашки Booking на 7,5 px (ADR 0039).

@@ -1,4 +1,4 @@
-/*! Trava Motion — built 2026-10-14 from github repo trava-motion. Animations: client-interaction, fare-optimizer, quality-control, queue-manager, schedule-changes, ticketing, unused-tickets, virtual-payments. */
+/*! Trava Motion — built 2026-10-16 from github repo trava-motion. Animations: client-interaction, fare-optimizer, quality-control, queue-manager, schedule-changes, ticketing, unused-tickets, virtual-payments. */
 window.TravaMotion = window.TravaMotion || {}; window.TravaMotion.tokens = {"ease":{"enter":"sine.out","standard":"power1.inOut","exit":"sine.in","draw":"power1.inOut","flow":"none"},"trigger":{"threshold":0.35,"delay":0}};
 /* Site settings for trava.co (Webflow). The runtime itself knows nothing about the site's markup.
  * Solutions block: desktop shows all cards stacked and toggles `is-active` on [data-solution-state]
